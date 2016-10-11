@@ -10,7 +10,7 @@ gulp.task('sass-watch', () => {
 });
 
 module.exports = {
-	build: 'bundle',
-	clean: 'bundle-clean',
-	watch: 'bundle-watch'
+	build: 'sass',
+	clean: 'sass-clean',
+	watch: 'sass-watch'
 };
