@@ -3,6 +3,6 @@ module.exports = {
 		return !this.isDevelopment;
 	},
 	get isDevelopment() {
-		return process.env.NODE_ENV === 'developement';
+		return process.env.NODE_ENV === 'development';
 	}
 }
