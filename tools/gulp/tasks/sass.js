@@ -17,10 +17,10 @@ gulp.task('sass', () => gulp.src(path.join(sources_dir, '**.scss'))
 	.pipe(sass({
 		includePaths: [sources_dir],
 		outputStyle: 'compressed'
-	})).on('error', sass.logError))
+	})).on('error', sass.logError)
 	.pipe(gulp_if(env.isDevelopment, sourcemaps.write()))
 	.pipe(gulp.dest(output_dir))
-	.pipe(livereload()
+	.pipe(livereload())
 );
 
 gulp.task('sass-watch', ['sass'], () => gulp.watch(path.join(sources_dir, '**/*.scss'), ['sass']));
