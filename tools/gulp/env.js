@@ -1,8 +1,8 @@
 module.exports = {
 	get isProduction() {
-		return process.env.NODE_ENV === 'production';
+		return !this.isDevelopment;
 	},
 	get isDevelopment() {
-		return !this.isProduction;
+		return process.env.NODE_ENV === 'developement';
 	}
 }
