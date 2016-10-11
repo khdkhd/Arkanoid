@@ -1,0 +1,33 @@
+{
+  "name": "arkanoid",
+  "version": "0.0.1",
+  "description": "Arkanoid in javascript",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NealRame/arkanoid.git"
+  },
+  "keywords": [
+    "arkanoid",
+    "game",
+    "arcade"
+  ],
+  "author": [
+    {
+      "name": "Antoine Cordier",
+      "email": "com.acordier@gmail.com"
+    },
+    {
+      "name": "Julien Graziano",
+      "email": "julien@graziano.fr"
+    }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/NealRame/arkanoid/issues"
+  },
+  "homepage": "https://github.com/NealRame/arkanoid#readme",
+  "private": true
+}
