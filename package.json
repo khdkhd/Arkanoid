@@ -35,7 +35,9 @@
     "babelify": "^7.3.0",
     "browserify": "^13.1.0",
     "eslint": "^3.7.1",
-    "gulp": "^3.9.1"
+    "gulp": "^3.9.1",
+    "gulp-cli": "^1.2.2",
+    "gulp-livereload": "^3.8.1"
   },
   "eslintConfig": {
     "extends": "eslint:recommended",
