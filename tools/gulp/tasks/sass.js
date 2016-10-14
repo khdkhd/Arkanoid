@@ -7,7 +7,7 @@ const path = require('path');
 const sass = require('gulp-sass');
 const sourcemaps = require('gulp-sourcemaps');
 
-const output_dir =  path.join(env.outputDirectory, 'assets', 'sass');
+const output_dir =  path.join(env.outputDirectory, 'assets', 'css');
 const sources_dir = 'sources/sass';
 
 gulp.task('sass-clean', () => del(output_dir));
