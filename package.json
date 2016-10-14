@@ -3,6 +3,8 @@
   "version": "0.0.1",
   "description": "Arkanoid in javascript",
   "scripts": {
+    "build": "$PWD/tools/scripts/build.sh",
+    "dev": "$PWD/tools/scripts/dev.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

@@ -1,0 +1,2 @@
+export NODE_PATH="$PWD/source":"$PWD/tools"
+export GULP="$PWD/node_modules/.bin/gulp"
