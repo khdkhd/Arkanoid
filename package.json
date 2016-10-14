@@ -54,13 +54,15 @@
   },
   "eslintConfig": {
     "extends": "eslint:recommended",
-    "ecmaFeatures": {
-      "modules": true
-    },
     "env": {
       "browser": true,
       "es6": true,
       "node": true
+    },
+    "plugins": [],
+    "parserOptions": {
+      "ecmaFeatures": {},
+      "sourceType": "module"
     },
     "rules": {
       "camelcase": 0,
