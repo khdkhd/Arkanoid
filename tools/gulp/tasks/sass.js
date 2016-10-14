@@ -1,5 +1,5 @@
 const del = require('del');
-const env = require('../env');
+const env = require('gulp/env');
 const gulp = require('gulp');
 const gulp_if = require('gulp-if');
 const livereload = require('gulp-livereload');

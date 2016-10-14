@@ -1,14 +1,14 @@
 /*eslint strict: ["error", "never"]*/
 
 const gulp = require('gulp');
-const env = require('./tools/gulp/env');
+const env = require('gulp/env');
 const livereload = require('gulp-livereload');
 
 // Setup Javascript appletys task
-const bundle = require('./tools/gulp/tasks/bundle');
+const bundle = require('gulp/tasks/bundle');
 
 // Setup Sass tasks
-const sass = require('./tools/gulp/tasks/sass');
+const sass = require('gulp/tasks/sass');
 
 gulp
 	.task('build', [bundle.build, sass.build])
