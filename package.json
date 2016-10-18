@@ -48,6 +48,9 @@
     "gulp-uglify": "^2.0.0",
     "gulp-util": "^3.0.7",
     "gulp-webserver": "^0.9.1",
+    "lodash.isnil": "^4.0.0",
+    "lodash.isnumber": "^3.0.3",
+    "lodash.isstring": "^4.0.1",
     "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.7.0"
@@ -83,6 +86,7 @@
         }
       ],
       "no-multi-spaces": 0,
+      "no-var": "error",
       "quotes": [
         1,
         "single"
