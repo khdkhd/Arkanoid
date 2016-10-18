@@ -5,6 +5,7 @@ import is_string from 'lodash/isString';
 export default function createScreen(canvas_context) {
 	let snap_enabled = true;
 	let snap_by = .5;
+	let snap_stack = [];
 
 	function snap(x) {
 		const w = canvas_context.lineWidth;
@@ -13,9 +14,6 @@ export default function createScreen(canvas_context) {
 		}
 		return x;
 	}
-
-	canvas_context.fillStyle = '#000';
-	canvas_context.strokeStyle = '#fff';
 
 	return {
 		toggleSnap(enabled) {
@@ -67,7 +65,7 @@ export default function createScreen(canvas_context) {
 			canvas_context.strokeRect(snap(x), snap(y), width, height);
 		},
 		fillRect({x, y, width, height}) {
-			canvas_context.fillRect(snap(x), snap(y), width, height);
+			canvas_context.fillRect(x, y, width, height);
 		},
 		drawLine({x: x1, y: y1}, {x: x2, y: y2}) {
 			this.save();
@@ -81,11 +79,22 @@ export default function createScreen(canvas_context) {
 		lineTo({x, y}) {
 			canvas_context.lineTo(snap(x), snap(y));
 		},
+		scale(f) {
+			canvas_context.scale(f, f);
+		},
+		translate({x, y}) {
+			canvas_context.translate(x, y);
+		},
+		rotate(angle) {
+			canvas_context.rotate(angle);
+		},
 		save() {
 			canvas_context.save();
+			snap_stack.push(snap_by);
 		},
 		restore() {
 			canvas_context.restore();
+			snap_by = snap_stack.pop();
 		}
 	};
 }
