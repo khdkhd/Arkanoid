@@ -6,18 +6,36 @@ const screen = createScreen(canvas.getContext('2d'));
 screen.toggleSnap(true);
 
 function draw() {
-	screen.pen = {
-		lineWidth: 1.,
-		strokeStyle: '#000'
-	};
+
+	screen.save();
 	screen.brush = '#fff';
 	screen.clear();
-	screen.brush = 'blue';
-	screen.fillRect({
+	screen.restore();
+
+	screen.pen = 'blue';
+
+	screen.pen = 1;
+	screen.drawRect({
 		x: 10,
 		y: 10,
-		width: 128,
-		height: 128
+		width: 64,
+		height: 64
+	});
+
+	screen.pen = 2;
+	screen.drawRect({
+		x: 80,
+		y: 80,
+		width: 64,
+		height: 64
+	});
+
+	screen.pen = 3;
+	screen.drawRect({
+		x: 160,
+		y: 160,
+		width: 64,
+		height: 64
 	});
 
 	requestAnimationFrame(draw);
