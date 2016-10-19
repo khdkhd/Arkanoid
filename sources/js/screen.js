@@ -23,6 +23,9 @@ export default function createScreen(canvas_context) {
 				snap_enabled = enabled;
 			}
 		},
+		get snap() {
+			return snap_by;
+		},
 		get pen() {
 			return {
 				lineWidth: canvas_context.lineWidth,
@@ -69,8 +72,8 @@ export default function createScreen(canvas_context) {
 		},
 		drawLine({x: x1, y: y1}, {x: x2, y: y2}) {
 			this.save();
-			this.moveTo(snap(x1), snap(y1));
-			this.LineTo(snap(x2), snap(y2));
+			this.moveTo({x: x1, y: y1});
+			this.lineTo({x: x2, y: y2});
 			this.restore();
 		},
 		moveTo({x, y}) {
@@ -80,6 +83,7 @@ export default function createScreen(canvas_context) {
 			canvas_context.lineTo(snap(x), snap(y));
 		},
 		scale(f) {
+			snap_by *= f; 
 			canvas_context.scale(f, f);
 		},
 		translate({x, y}) {
