@@ -2,62 +2,121 @@ import createScreen from 'screen';
 import {expect} from 'chai';
 import sinon from 'sinon';
 
-describe('screen', () => {
-	let canvas_context;
+const screen_width  = 200;
+const screen_height = 200;
+
+const canvas_context_methods = [
+	'save',
+	'restore',
+	'clearRect',
+	'fillRect',
+	'strokeRect',
+	'moveTo',
+	'lineTo',
+	'scale',
+	'rotate',
+	'translate'
+];
+const canvas_context = Object.assign(
+	{
+		canvas: {
+			width:  screen_width,
+			height: screen_height
+		}
+	},
+	canvas_context_methods.reduce((mock, method) => {
+		mock[method] = sinon.spy();
+		return mock;
+	}, {})
+);
+
+beforeEach(() => {
+	for (let method of canvas_context_methods) {
+		canvas_context[method].reset();
+	}
+});
+
+describe('createScreen(canvas_context)', () => {
+	const screen = createScreen(canvas_context);
+	it('creates and return a new Screen object', () => {
+		expect(screen).to.be.an('object');
+	});
+});
+
+describe('Screen', () => {
 	let screen;
+
 	beforeEach(() => {
-		canvas_context = [
-			'save', 'restore', 'clearRect', 'fillRect', 'strokeRect',
-			'moveTo', 'lineTo', 'scale', 'rotate', 'translate'
-		].reduce((mock, method) => {
-			mock[method] = sinon.spy();
-			return mock;
-		}, {});
-		canvas_context.canvas = {
-			width: 200,
-			height: 200
-		};
 		screen = createScreen(canvas_context);
 		screen.toggleSnap(false);
 	});
 
-	describe('screenCreate(canvas_context)', () => {
-		it('returns an object', () => {
-			expect(screen).to.be.an('object');
-		});
-	});
-	describe('save', () => {
+	describe('save()', () => {
 		it('calls save once on the context', () => {
 			screen.save();
 			expect(canvas_context.save.calledOnce).to.be.true;
+			expect(canvas_context.save.thisValues[0]).to.equal(canvas_context);
 		});
 	});
-	describe('restore', () => {
+
+	describe('restore()', () => {
 		it('calls restore once on the context', () => {
 			screen.restore();
 			expect(canvas_context.restore.calledOnce).to.be.true;
+			expect(canvas_context.restore.thisValues[0]).to.equal(canvas_context);
 		});
 	});
-	describe('clear', () => {
+
+	describe('clear()', () => {
 		it('calls fillRect once on the context', () => {
-			const {width, height} = canvas_context.canvas;
 			screen.clear();
 			expect(canvas_context.fillRect.calledOnce).to.be.true;
-			expect(canvas_context.fillRect.calledWith(0, 0, width, height)).to.be.true;
+			expect(canvas_context.fillRect.thisValues[0]).to.equal(canvas_context);
 		});
+		it('calls fillRect with the good parameters', () => {
+			const {width, height} = canvas_context.canvas;
+			screen.clear();
+			expect(canvas_context.fillRect.calledWith(0, 0, width, height)).to.be.true;
+		})
 	});
-	describe('drawLine', () => {
-		it('calls save, moveTo, LineTo and restore once on the context in this order', () => {
-			screen.drawLine({x: 0, y: 0}, {x: 100, y: 100});
+
+	describe('drawLine(p1, p2)', () => {
+		const p1 = {x: 0,   y: 0};
+		const p2 = {x: 100, y: 100};
+
+		it('calls save once on the context', () => {
+			screen.drawLine(p1, p2);
 			expect(canvas_context.save.calledOnce).to.be.true;
+			expect(canvas_context.save.thisValues[0]).to.equal(canvas_context);
+		});
+		it('calls moveTo once on the context', () => {
+			screen.drawLine(p1, p2);
 			expect(canvas_context.moveTo.calledOnce).to.be.true;
-			expect(canvas_context.moveTo.calledWith(0, 0)).to.be.true;
+			expect(canvas_context.moveTo.thisValues[0]).to.equal(canvas_context);
+		});
+		it('calls lineTo once on the context', () => {
+			screen.drawLine(p1, p2);
 			expect(canvas_context.lineTo.calledOnce).to.be.true;
-			expect(canvas_context.lineTo.calledWith(100, 100)).to.be.true;
+			expect(canvas_context.lineTo.thisValues[0]).to.equal(canvas_context);
+		});
+		it('calls restore once on the context', () => {
+			screen.drawLine(p1, p2);
 			expect(canvas_context.restore.calledOnce).to.be.true;
+			expect(canvas_context.restore.thisValues[0]).to.equal(canvas_context);
+		});
+		it('calls save, moveTo, lineTo and restore in this order', () => {
+			screen.drawLine(p1, p2);
 			expect(canvas_context.save.calledBefore(canvas_context.moveTo)).to.be.true;
 			expect(canvas_context.moveTo.calledBefore(canvas_context.lineTo)).to.be.true;
 			expect(canvas_context.lineTo.calledBefore(canvas_context.restore)).to.be.true;
+		});
+		it('calls moveTo with p1.x and p1.y as parameters', () => {
+			screen.drawLine(p1, p2);
+			expect(canvas_context.moveTo.calledWith(p1.x, p1.y)).to.be.true;
+		});
+		it('calls lineTo with p2.x and p2.y as parameters', () => {
+			screen.drawLine(p1, p2);
+			expect(canvas_context.lineTo.calledWith(p2.x, p2.y)).to.be.true;
 		});
 	});
 });
