@@ -11,6 +11,7 @@ describe('createVector({x, y})', () => {
 		expect(v.add).to.be.a('function');
 		expect(v.sub).to.be.a('function');
 		expect(v.mul).to.be.a('function');
+		expect(v.scalar).to.be.a('function');
 		expect(v.distance).to.be.a('function');
 		expect(v.equal).to.be.a('function');
 		expect(v.isNull).to.be.a('function');
