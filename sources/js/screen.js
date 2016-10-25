@@ -96,7 +96,7 @@ export default function createScreen(canvas_context) {
 		fillRect({ x, y, width, height}) {
 			canvas_context.fillRect(x, y, width, height);
 		},
-		drawLine({x: x1,y: y1}, {x: x2, y: y2}) {
+		drawLine({x: x1, y: y1}, {x: x2, y: y2}) {
 			this.save();
 			this.moveTo({
 				x: x1,
