@@ -15,11 +15,11 @@ export default function createVector({x, y}) {
 		sub({x, y}) {
 			return createVector({x: this.x - x, y: this.y - y});
 		},
-		scalar({x, y}) {
-			return this.x*x + this.y*y;
-		},
 		mul(k) {
 			return createVector({x: this.x*k, y: this.y*k});
+		},
+		scalar({x, y}) {
+			return this.x*x + this.y*y;
 		},
 		distance({x, y}) {
 			return this.sub(createVector({x, y})).norm();
