@@ -1,7 +1,7 @@
 import createVector from 'vector';
 import {expect} from 'chai';
 
-describe('createScreen(canvas_context)', () => {
+describe('createVector({x, y})', () => {
 	const v = createVector({x: 0, y: 0});
 	it('creates and return a new Vector object', () => {
 		expect(v).to.be.an('object');
