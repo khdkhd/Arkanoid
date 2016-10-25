@@ -23,6 +23,24 @@ export default function createScreen(canvas_context) {
 				snap_enabled = enabled;
 			}
 		},
+		get width() {
+			return canvas_context.canvas.width;
+		},
+		get height() {
+			return canvas_context.canvas.height;
+		},
+		get rect() {
+			return Object.assign({
+				x: 0,
+				y: 0
+			}, this.size);
+		},
+		get size() {
+			return {
+				width: canvas_context.canvas.width,
+				height: canvas_context.canvas.height
+			};
+		},
 		get snap() {
 			return snap_by;
 		},
@@ -61,32 +79,71 @@ export default function createScreen(canvas_context) {
 			}
 		},
 		clear() {
-			const {width, height} = canvas_context.canvas;
-			this.fillRect({x: 0, y: 0, width, height});
+			const {
+				width,
+				height
+			} = canvas_context.canvas;
+			this.fillRect({
+				x: 0,
+				y: 0,
+				width,
+				height
+			});
 		},
-		drawRect({x, y, width, height}) {
+		drawRect({
+			x,
+			y,
+			width,
+			height
+		}) {
 			canvas_context.strokeRect(snap(x), snap(y), width, height);
 		},
-		fillRect({x, y, width, height}) {
+		fillRect({
+			x,
+			y,
+			width,
+			height
+		}) {
 			canvas_context.fillRect(x, y, width, height);
 		},
-		drawLine({x: x1, y: y1}, {x: x2, y: y2}) {
+		drawLine({
+			x: x1,
+			y: y1
+		}, {
+			x: x2,
+			y: y2
+		}) {
 			this.save();
-			this.moveTo({x: x1, y: y1});
-			this.lineTo({x: x2, y: y2});
+			this.moveTo({
+				x: x1,
+				y: y1
+			});
+			this.lineTo({
+				x: x2,
+				y: y2
+			});
 			this.restore();
 		},
-		moveTo({x, y}) {
+		moveTo({
+			x,
+			y
+		}) {
 			canvas_context.moveTo(snap(x), snap(y));
 		},
-		lineTo({x, y}) {
+		lineTo({
+			x,
+			y
+		}) {
 			canvas_context.lineTo(snap(x), snap(y));
 		},
 		scale(f) {
-			snap_by *= f; 
+			snap_by *= f;
 			canvas_context.scale(f, f);
 		},
-		translate({x, y}) {
+		translate({
+			x,
+			y
+		}) {
 			canvas_context.translate(x, y);
 		},
 		rotate(angle) {
