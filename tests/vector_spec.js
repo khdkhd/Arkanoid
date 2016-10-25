@@ -1,7 +1,7 @@
 import createVector from 'vector';
 import {expect} from 'chai';
 
-describe('createScreen(canvas_context)', () => {
+describe('createVector({x, y})', () => {
 	const v = createVector({x: 0, y: 0});
 	it('creates and return a new Vector object', () => {
 		expect(v).to.be.an('object');
@@ -11,6 +11,7 @@ describe('createScreen(canvas_context)', () => {
 		expect(v.add).to.be.a('function');
 		expect(v.sub).to.be.a('function');
 		expect(v.mul).to.be.a('function');
+		expect(v.scalar).to.be.a('function');
 		expect(v.distance).to.be.a('function');
 		expect(v.equal).to.be.a('function');
 		expect(v.isNull).to.be.a('function');
