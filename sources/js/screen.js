@@ -124,6 +124,12 @@ export default function createScreen(canvas_context) {
 			});
 			this.restore();
 		},
+		drawPath(path) {
+			canvas_context.stroke(path);
+		},
+		fillPath(path) {
+			canvas_context.fill(path);
+		},
 		moveTo({
 			x,
 			y
@@ -140,10 +146,7 @@ export default function createScreen(canvas_context) {
 			snap_by *= f;
 			canvas_context.scale(f, f);
 		},
-		translate({
-			x,
-			y
-		}) {
+		translate({x, y}) {
 			canvas_context.translate(x, y);
 		},
 		rotate(angle) {
