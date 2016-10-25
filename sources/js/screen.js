@@ -90,29 +90,13 @@ export default function createScreen(canvas_context) {
 				height
 			});
 		},
-		drawRect({
-			x,
-			y,
-			width,
-			height
-		}) {
+		drawRect({x, y, width, height}) {
 			canvas_context.strokeRect(snap(x), snap(y), width, height);
 		},
-		fillRect({
-			x,
-			y,
-			width,
-			height
-		}) {
+		fillRect({ x, y, width, height}) {
 			canvas_context.fillRect(x, y, width, height);
 		},
-		drawLine({
-			x: x1,
-			y: y1
-		}, {
-			x: x2,
-			y: y2
-		}) {
+		drawLine({x: x1,y: y1}, {x: x2, y: y2}) {
 			this.save();
 			this.moveTo({
 				x: x1,
@@ -130,16 +114,10 @@ export default function createScreen(canvas_context) {
 		fillPath(path) {
 			canvas_context.fill(path);
 		},
-		moveTo({
-			x,
-			y
-		}) {
+		moveTo({x, y}) {
 			canvas_context.moveTo(snap(x), snap(y));
 		},
-		lineTo({
-			x,
-			y
-		}) {
+		lineTo({x, y}) {
 			canvas_context.lineTo(snap(x), snap(y));
 		},
 		scale(f) {
