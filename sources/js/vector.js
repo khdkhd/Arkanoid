@@ -3,14 +3,8 @@ export default function createVector({x, y}) {
 		get x() {
 			return x;
 		},
-		set x(v) {
-			x = v;
-		},
 		get y() {
 			return y;
-		},
-		set y(v) {
-			y = v;
 		},
 		get norm() {
 			return Math.sqrt(this.x*this.x + this.y*this.y);
@@ -20,6 +14,9 @@ export default function createVector({x, y}) {
 		},
 		sub({x, y}) {
 			return createVector({x: this.x - x, y: this.y - y});
+		},
+		scalar({x, y}) {
+			return this.x*x + this.y*y;
 		},
 		mul(k) {
 			return createVector({x: this.x*k, y: this.y*k});
