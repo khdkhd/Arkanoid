@@ -1,9 +1,38 @@
-import createScreen from 'screen';
+import Screen from 'screen';
+import Rect from 'rect';
 
 const canvas = document.querySelector('#screen');
-const screen = createScreen(canvas.getContext('2d'));
+const screen = Screen(canvas.getContext('2d'));
 
 screen.toggleSnap(true);
+
+function createBrick(cols, rows) {
+	const bricks = [];
+	const width = ((screen.width-1)/cols);
+	const height = width/2;
+	for (let col = 0; col < cols; col++) {
+		for (let row = 0; row < rows; row++) {
+			bricks.push(Rect({x: col*width, y: row*height, width, height}));
+		}
+	}
+	return bricks;
+}
+
+const bricks = createBrick(20, 10);
+
+function drawBrick(brick) {
+	screen.save();
+
+	// screen.scale(1/brick.width);
+	// screen.pen = 1/10;
+
+	screen.pen = 'black';
+	screen.brush = '#bad455';
+
+	screen.fillRect(brick);
+	screen.drawRect(brick);
+	screen.restore();
+}
 
 function draw() {
 
@@ -12,31 +41,9 @@ function draw() {
 	screen.clear();
 	screen.restore();
 
-	screen.pen = 'blue';
-
-	screen.pen = 1;
-	screen.drawRect({
-		x: 10,
-		y: 10,
-		width: 64,
-		height: 64
-	});
-
-	screen.pen = 2;
-	screen.drawRect({
-		x: 80,
-		y: 80,
-		width: 64,
-		height: 64
-	});
-
-	screen.pen = 3;
-	screen.drawRect({
-		x: 160,
-		y: 160,
-		width: 64,
-		height: 64
-	});
+	for (let brick of bricks) {
+		drawBrick(brick);
+	}
 
 	requestAnimationFrame(draw);
 }
