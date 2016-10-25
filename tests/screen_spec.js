@@ -51,6 +51,21 @@ describe('Screen', () => {
 		screen.toggleSnap(false);
 	});
 
+	describe('size', () => {
+		it('returns the size of the screen', () => {
+			expect(screen.size).to.deep.equal(canvas_context.canvas);
+		});
+	});
+
+	describe('rect', () => {
+		it('returns the rect of the screen', () => {
+			expect(screen.rect).to.deep.equal(Object.assign({
+				x: 0,
+				y: 0
+			}, canvas_context.canvas));
+		});
+	});
+
 	describe('save()', () => {
 		it('calls save once on the context', () => {
 			screen.save();
