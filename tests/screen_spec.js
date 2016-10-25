@@ -11,6 +11,8 @@ const canvas_context_methods = [
 	'clearRect',
 	'fillRect',
 	'strokeRect',
+	'stroke',
+	'fill',
 	'moveTo',
 	'lineTo',
 	'scale',
@@ -132,6 +134,30 @@ describe('Screen', () => {
 		it('calls lineTo with p2.x and p2.y as parameters', () => {
 			screen.drawLine(p1, p2);
 			expect(canvas_context.lineTo.calledWith(p2.x, p2.y)).to.be.true;
+		});
+	});
+
+	describe('drawPath(path)', () => {
+		it('calls stroke on the context', () => {
+			screen.drawPath({});
+			expect(canvas_context.stroke.calledOnce).to.be.true;
+		});
+		it('forwards its parameter to context.stroke', () => {
+			const path = {};
+			screen.drawPath(path);
+			expect(canvas_context.stroke.calledWith(path)).to.be.true;
+		});
+	});
+
+	describe('fillPath(path)', () => {
+		it('calls fill on the context', () => {
+			screen.fillPath({});
+			expect(canvas_context.fill.calledOnce).to.be.true;
+		});
+		it('forwards its parameter to context.fill', () => {
+			const path = {};
+			screen.fillPath(path);
+			expect(canvas_context.fill.calledWith(path)).to.be.true;
 		});
 	});
 });
