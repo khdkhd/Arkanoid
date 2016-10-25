@@ -13,10 +13,13 @@ const html = require('gulp/tasks/html');
 // Setup Sass tasks
 const sass = require('gulp/tasks/sass');
 
+// Setup Fonts tasks
+const fonts = require('gulp/tasks/fonts');
+
 require('gulp/tasks/serve');
 
 gulp
-	.task('build', [bundle.build, html.build, sass.build])
-	.task('clean', [bundle.clean, html.clean, sass.clean])
-	.task('watch', [bundle.watch, html.watch, sass.watch], () => livereload.listen())
+	.task('build', [bundle.build, html.build, sass.build, fonts.build])
+	.task('clean', [bundle.clean, html.clean, sass.clean, fonts.clean])
+	.task('watch', [bundle.watch, html.watch, sass.watch, fonts.watch], () => livereload.listen())
 	.task('default', env.isProduction ? ['build'] : ['serve']);

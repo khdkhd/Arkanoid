@@ -1,7 +1,15 @@
+@import "arkanoid-fonts";
+
 html {
 	font-size: 14pt;
 }
 h1 {
-	font-size: 2rem;
-	font-family: sans-serif;
+	font-size: 4rem;
+	font-family: Arkanoid;
+	text-align: center;
+}
+#screen {
+	display: block;
+	border: 1px solid black;
+	margin: 0 auto;
 }
