@@ -22,7 +22,7 @@ export default function createVector({x, y}) {
 			return this.x*x + this.y*y;
 		},
 		distance({x, y}) {
-			return this.sub(createVector({x, y})).norm();
+			return this.sub(createVector({x, y})).norm;
 		},
 		equal({x, y}) {
 			return this.x === x && this.y === y;
