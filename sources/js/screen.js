@@ -2,6 +2,8 @@ import is_nil from 'lodash/isNil';
 import is_number from 'lodash/isNumber';
 import is_string from 'lodash/isString';
 
+import Rect from 'rect';
+
 export default function createScreen(canvas_context) {
 	let snap_enabled = true;
 	let snap_by = .5;
@@ -26,20 +28,27 @@ export default function createScreen(canvas_context) {
 		get width() {
 			return canvas_context.canvas.width;
 		},
+		set width(w) {
+			canvas_context.canvas.width = w;
+		},
 		get height() {
 			return canvas_context.canvas.height;
 		},
-		get rect() {
-			return Object.assign({
-				x: 0,
-				y: 0
-			}, this.size);
+		set height(h) {
+			canvas_context.canvas.height = h;
 		},
 		get size() {
 			return {
 				width: canvas_context.canvas.width,
 				height: canvas_context.canvas.height
 			};
+		},
+		set size({width, height}) {
+			this.width = width;
+			this.height = height;
+		},
+		get rect() {
+			return Rect({x: 0, y: 0}, this.size);
 		},
 		get snap() {
 			return snap_by;
@@ -121,7 +130,7 @@ export default function createScreen(canvas_context) {
 			canvas_context.lineTo(snap(x), snap(y));
 		},
 		scale(f) {
-			snap_by *= f;
+			snap_by /= f;
 			canvas_context.scale(f, f);
 		},
 		translate({x, y}) {
