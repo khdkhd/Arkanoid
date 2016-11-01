@@ -1,11 +1,11 @@
 import Screen from 'screen';
 import Rect from 'rect';
 import {GrayBrick, BlueBrick, RedBrick, YellowBrick, PurpleBrick, GreenBrick} from 'brick';
+import ui from 'ui';
 
 const canvas = document.querySelector('#screen');
 const screen = Screen(canvas.getContext('2d'));
 
-// screen.toggleSnap(true);
 screen.size = {
 	width: 224*2,
 	height: 256*2
@@ -22,6 +22,10 @@ function createBricks(cols, rows) {
 	return bricks;
 }
 
+ui.keyboard.on('direction-changed', direction => {
+	console.log(`(${direction.x}, ${direction.y})`);
+});
+
 const bricks = createBricks(13, 6);
 
 function draw() {
@@ -29,7 +33,6 @@ function draw() {
 
 	screen.brush = '#222';
 	screen.clear();
-
 	screen.translate({x: (screen.width/14)/2, y: 4*(screen.width/14)/2});
 
 	for (let brick of bricks) {
