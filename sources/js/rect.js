@@ -64,6 +64,9 @@ export default function createRect({x, y}, {width, height}) {
 		},
 		translate({x, y}) {
 			return createRect(this.topLeft.add({x, y}), {width, height});
+		},
+		scale({x, y}){
+			return createRect(this.topLeft, {width: width*x, height: height*y});
 		}
 	};
 }
