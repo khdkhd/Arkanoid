@@ -82,7 +82,7 @@ describe('Rect', () => {
 	});
 	describe('contains', () => {
 		const r = createRect({x:10,y:10},{width:10,height:10});
-		const p = createVector({x: 21},{ y: 21});
+		const p = createVector({x: 21, y: 21});
 		it('returns true for the center of this rectangle', () => {
 			expect(r.contains(r.center)).to.be.true;
 		});
