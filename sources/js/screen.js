@@ -9,10 +9,16 @@ export default function createScreen(canvas_context) {
 	let snap_by = .5;
 	let snap_stack = [];
 
+	// canvas_context.scale(devicePixelRatio, devicePixelRatio);
+
+	function should_snap(w) {
+		return !(Math.round(w) === w && (w % 2) === 0);
+	}
+
 	function snap(x) {
 		const w = canvas_context.lineWidth;
-		if (snap_enabled) {
-			return Math.round(w) === w && (w % 2) === 0 ? x : Math.round(x) + snap_by;
+		if (snap_enabled && should_snap(w)) {
+			return Math.round(x) + snap_by;
 		}
 		return x;
 	}
@@ -100,7 +106,16 @@ export default function createScreen(canvas_context) {
 			});
 		},
 		drawRect({x, y, width, height}) {
-			canvas_context.strokeRect(snap(x), snap(y), width, height);
+			const r = Rect({x, y}, {width, height});
+			this.save();
+			this.beginPath();
+			this.moveTo(r.topLeft);
+			this.lineTo(r.topRight);
+			this.lineTo(r.bottomRight);
+			this.lineTo(r.bottomLeft);
+			this.lineTo(r.topLeft);
+			this.strokePath();
+			this.restore();
 		},
 		fillRect({ x, y, width, height}) {
 			canvas_context.fillRect(x, y, width, height);
@@ -122,6 +137,12 @@ export default function createScreen(canvas_context) {
 		},
 		fillPath(path) {
 			canvas_context.fill(path);
+		},
+		beginPath() {
+			canvas_context.beginPath();
+		},
+		strokePath() {
+			canvas_context.stroke();
 		},
 		moveTo({x, y}) {
 			canvas_context.moveTo(snap(x), snap(y));
