@@ -1,6 +1,7 @@
 import Screen from 'screen';
-import Rect from 'rect';
+// import Rect from 'rect';
 import {GrayBrick, BlueBrick, RedBrick, YellowBrick, PurpleBrick, GreenBrick} from 'brick';
+import Vaus from 'vaus';
 
 const canvas = document.querySelector('#screen');
 const screen = Screen(canvas.getContext('2d'));
@@ -24,6 +25,7 @@ function createBricks(cols, rows) {
 
 const bricks = createBricks(13, 6);
 
+const vaus = Vaus({x:0, y:0}, screen);
 function draw() {
 	screen.save();
 
@@ -36,6 +38,11 @@ function draw() {
 		brick.draw();
 	}
 	screen.restore();
+	screen.save();
+	screen.translate({x: screen.width/2, y: screen.height/2});
+	vaus.draw();
+	screen.restore();
+
 	requestAnimationFrame(draw);
 }
 requestAnimationFrame(draw);
