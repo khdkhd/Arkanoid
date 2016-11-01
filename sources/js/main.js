@@ -30,7 +30,7 @@ function draw() {
 	screen.brush = '#222';
 	screen.clear();
 
-	screen.translate({x: (screen.width/14)/2, y: (screen.width/14)/2});
+	screen.translate({x: (screen.width/14)/2, y: 4*(screen.width/14)/2});
 
 	for (let brick of bricks) {
 		brick.draw();
