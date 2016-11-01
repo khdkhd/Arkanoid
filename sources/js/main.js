@@ -1,10 +1,11 @@
 import Screen from 'screen';
 import Rect from 'rect';
+import {GrayBrick, BlueBrick, RedBrick, YellowBrick, PurpleBrick, GreenBrick} from 'brick';
 
 const canvas = document.querySelector('#screen');
 const screen = Screen(canvas.getContext('2d'));
 
-screen.toggleSnap(true);
+// screen.toggleSnap(true);
 screen.size = {
 	width: 224*2,
 	height: 256*2
@@ -12,11 +13,10 @@ screen.size = {
 
 function createBricks(cols, rows) {
 	const bricks = [];
-	const width = ((screen.width - 1)/cols);
-	const height = width/2;
+	const colors = [GrayBrick, RedBrick, YellowBrick, BlueBrick, PurpleBrick, GreenBrick];
 	for (let row = 0; row < rows; row++) {
 		for (let col = 0; col < cols; col++) {
-			bricks.push(Rect({x: col*width, y: row*height}, {width, height}));
+			bricks.push(colors[row]({x: col*2, y: row}, screen));
 		}
 	}
 	return bricks;
@@ -24,35 +24,18 @@ function createBricks(cols, rows) {
 
 const bricks = createBricks(13, 6);
 
-function drawBrick(brick) {
-	screen.save();
-
-	// screen.scale(1/brick.width);
-	// screen.pen = 1/devicePixelRatio;
-
-	screen.pen = 'black';
-	screen.brush = '#bad455';
-
-	screen.fillRect(brick);
-	screen.drawRect(brick);
-	screen.restore();
-}
-
 function draw() {
-
 	screen.save();
-	screen.brush = '#fff';
-	screen.clear();
-	screen.restore();
 
-	let i = 0;
+	screen.brush = '#222';
+	screen.clear();
+
+	screen.translate({x: (screen.width/14)/2, y: (screen.width/14)/2});
 
 	for (let brick of bricks) {
-		if (i % 2 === 0)
-			drawBrick(brick);
-		i++;
+		brick.draw();
 	}
-
+	screen.restore();
 	requestAnimationFrame(draw);
 }
 requestAnimationFrame(draw);
