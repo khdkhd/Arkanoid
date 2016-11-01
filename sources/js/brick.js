@@ -81,7 +81,7 @@ export function YellowBrick({x, y}, screen) {
 	const base = createBrick({x, y}, screen);
 	return Object.assign({}, base, {
 		draw() {
-			base.draw('hsl(60, 100%, 60%)', 'hsl(60, 100%, 80%)');
+			base.draw('hsl(55, 100%, 50%)', 'hsl(55, 100%, 80%)');
 		}
 	});
 }
