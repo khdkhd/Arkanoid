@@ -9,8 +9,6 @@ export default function createScreen(canvas_context) {
 	let snap_by = .5;
 	let snap_stack = [];
 
-	// canvas_context.scale(devicePixelRatio, devicePixelRatio);
-
 	function should_snap(w) {
 		return !(Math.round(w) === w && (w % 2) === 0);
 	}
