@@ -52,9 +52,9 @@ export default function createRect({x, y}, {width, height}) {
 		},
 		contains({x, y}) {
 			return x >= this.bottomLeft.x  && y <= this.bottomLeft.y
-				&& x >= this.topLeft.x     && y  > this.topLeft.y
-				&& x  < this.topRight.x    && y  > this.topRight.y
-				&& x  < this.bottomRight.x && y  < this.bottomRight.y;
+				&& x >= this.topLeft.x     && y >= this.topLeft.y
+				&& x <= this.topRight.x    && y >= this.topRight.y
+				&& x <= this.bottomRight.x && y <= this.bottomRight.y;
 		},
 		intersect(rect) {
 			return this.contains(rect.topRight)

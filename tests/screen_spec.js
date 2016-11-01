@@ -1,4 +1,5 @@
 import createScreen from 'screen';
+import createRect from 'rect';
 import {expect} from 'chai';
 import sinon from 'sinon';
 
@@ -61,10 +62,11 @@ describe('Screen', () => {
 
 	describe('rect', () => {
 		it('returns the rect of the screen', () => {
-			expect(screen.rect).to.deep.equal(Object.assign({
-				x: 0,
-				y: 0
-			}, canvas_context.canvas));
+			const r = screen.rect;
+			expect(r.x).to.equal(0);
+			expect(r.y).to.equal(0);
+			expect(r.width).to.equal(canvas_context.canvas.width);
+			expect(r.height).to.equal(canvas_context.canvas.height);
 		});
 	});
 

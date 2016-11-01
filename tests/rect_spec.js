@@ -2,7 +2,7 @@ import createRect from 'rect';
 import createVector from 'vector';
 import {expect} from 'chai';
 
-describe('createRect({x,y,width,height})', () => {
+describe('createRect({x, y}, {width, height})', () => {
 	const r = createRect({x:0,y:0},{width:100,height:100});
 	it('creates and return a new Rect object', () => {
 		expect(r).to.be.an('object');
@@ -82,7 +82,7 @@ describe('Rect', () => {
 	});
 	describe('contains', () => {
 		const r = createRect({x:10,y:10},{width:10,height:10});
-		const p = createVector({x: 21},{ y: 21});
+		const p = createVector({x: 21, y: 21});
 		it('returns true for the center of this rectangle', () => {
 			expect(r.contains(r.center)).to.be.true;
 		});
