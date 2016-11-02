@@ -29,12 +29,6 @@ function createBrick({x, y}, screen) {
 			screen.fillRect(inner_rect);
 
 			screen.restore();
-		},
-		get lineWidth() {
-			return line_width;
-		},
-		get scaleFactor() {
-			return scale_factor;
 		}
 	};
 }
