@@ -6,17 +6,19 @@ import Rect from 'rect';
 
 export default function createScreen(canvas_context) {
 	let snap_enabled = true;
-	let snap_by = .5;
-	let snap_stack = [];
+	let scale_factor = 1;
+	let scale_factor_stack = [];
 
 	function should_snap(w) {
 		return !(Math.round(w) === w && (w % 2) === 0);
 	}
 
 	function snap(x) {
-		const w = canvas_context.lineWidth;
-		if (snap_enabled && should_snap(w)) {
-			return Math.round(x) + snap_by;
+		if (snap_enabled) {
+			const w = canvas_context.lineWidth*scale_factor;
+			if (should_snap(w)) {
+				return (Math.round(x*scale_factor) + .5)/scale_factor;
+			}
 		}
 		return x;
 	}
@@ -54,9 +56,6 @@ export default function createScreen(canvas_context) {
 		get rect() {
 			return Rect({x: 0, y: 0}, this.size);
 		},
-		get snap() {
-			return snap_by;
-		},
 		get pen() {
 			return {
 				lineWidth: canvas_context.lineWidth,
@@ -92,16 +91,7 @@ export default function createScreen(canvas_context) {
 			}
 		},
 		clear() {
-			const {
-				width,
-				height
-			} = canvas_context.canvas;
-			this.fillRect({
-				x: 0,
-				y: 0,
-				width,
-				height
-			});
+			canvas_context.fillRect(0, 0, this.width, this.height);
 		},
 		drawRect({x, y, width, height}) {
 			const r = Rect({x, y}, {width, height});
@@ -111,12 +101,21 @@ export default function createScreen(canvas_context) {
 			this.lineTo(r.topRight);
 			this.lineTo(r.bottomRight);
 			this.lineTo(r.bottomLeft);
-			this.lineTo(r.topLeft);
-			this.strokePath();
+			this.closePath();
+			this.drawPath();
 			this.restore();
 		},
 		fillRect({ x, y, width, height}) {
-			canvas_context.fillRect(x, y, width, height);
+			const r = Rect({x, y}, {width, height});
+			this.save();
+			this.beginPath();
+			this.moveTo(r.topLeft);
+			this.lineTo(r.topRight);
+			this.lineTo(r.bottomRight);
+			this.lineTo(r.bottomLeft);
+			this.closePath();
+			this.fillPath();
+			this.restore();
 		},
 		drawLine({x: x1, y: y1}, {x: x2, y: y2}) {
 			this.save();
@@ -131,16 +130,20 @@ export default function createScreen(canvas_context) {
 			this.restore();
 		},
 		drawPath(path) {
-			canvas_context.stroke(path);
-		},
-		fillPath(path) {
-			canvas_context.fill(path);
+			if (is_nil(path)) {
+				canvas_context.stroke();
+			} else {
+				canvas_context.stroke(path);
+			}
 		},
 		beginPath() {
 			canvas_context.beginPath();
 		},
-		strokePath() {
-			canvas_context.stroke();
+		closePath() {
+			canvas_context.closePath();
+		},
+		fillPath(path) {
+			canvas_context.fill(path);
 		},
 		moveTo({x, y}) {
 			canvas_context.moveTo(snap(x), snap(y));
@@ -149,7 +152,7 @@ export default function createScreen(canvas_context) {
 			canvas_context.lineTo(snap(x), snap(y));
 		},
 		scale(f) {
-			snap_by /= f;
+			scale_factor = f;
 			canvas_context.scale(f, f);
 		},
 		translate({x, y}) {
@@ -160,11 +163,11 @@ export default function createScreen(canvas_context) {
 		},
 		save() {
 			canvas_context.save();
-			snap_stack.push(snap_by);
+			scale_factor_stack.push(scale_factor);
 		},
 		restore() {
 			canvas_context.restore();
-			snap_by = snap_stack.pop();
+			scale_factor = scale_factor_stack.pop();
 		}
 	};
 }
