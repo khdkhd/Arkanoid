@@ -1,10 +1,24 @@
 import Screen from 'screen';
 import Rect from 'rect';
-import {GrayBrick, BlueBrick, RedBrick, YellowBrick, PurpleBrick, GreenBrick} from 'brick';
+import Brick from 'brick';
 import ui from 'ui';
 
 const canvas = document.querySelector('#screen');
 const screen = Screen(canvas.getContext('2d'));
+
+const colors = [
+	'white',
+	'orange',
+	'cyan',
+	'green',
+	'red',
+	'blue',
+	'purple',
+	'yellow',
+	'gray',
+	'gold'
+]
+
 
 screen.size = {
 	width: 224*2,
@@ -13,10 +27,9 @@ screen.size = {
 
 function createBricks(cols, rows) {
 	const bricks = [];
-	const colors = [GrayBrick, RedBrick, YellowBrick, BlueBrick, PurpleBrick, GreenBrick];
 	for (let row = 0; row < rows; row++) {
 		for (let col = 0; col < cols; col++) {
-			bricks.push(colors[row]({x: col*2, y: row}, screen));
+			bricks.push(Brick(colors[row], {x: col*2, y: row}, screen));
 		}
 	}
 	return bricks;
@@ -26,12 +39,12 @@ ui.keyboard.on('direction-changed', direction => {
 	console.log(`(${direction.x}, ${direction.y})`);
 });
 
-const bricks = createBricks(13, 6);
+const bricks = createBricks(13, 7);
 
 function draw() {
 	screen.save();
 
-	screen.brush = '#222';
+	screen.brush = '#444';
 	screen.clear();
 	screen.translate({x: (screen.width/14)/2, y: 4*(screen.width/14)/2});
 
@@ -39,6 +52,6 @@ function draw() {
 		brick.draw();
 	}
 	screen.restore();
-	requestAnimationFrame(draw);
+	// requestAnimationFrame(draw);
 }
 requestAnimationFrame(draw);
