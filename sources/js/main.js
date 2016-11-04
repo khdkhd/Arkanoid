@@ -1,4 +1,4 @@
-import Screen from 'screen';
+// import Screen from 'screen';
 // import Rect from 'rect';
 import Vector from 'vector';
 import Brick from 'brick';
@@ -6,9 +6,6 @@ import Vaus from 'vaus';
 import ui from 'ui';
 
 import constant from 'lodash.constant';
-
-const canvas = document.querySelector('#screen');
-const screen = Screen(canvas.getContext('2d'));
 
 const colors = [
 	'white',
@@ -23,17 +20,11 @@ const colors = [
 	'gold'
 ]
 
-
-screen.size = {
-	width: 224*2,
-	height: 256*2
-};
-
 function createBricks(cols, rows) {
 	const bricks = [];
 	for (let row = 0; row < rows; row++) {
 		for (let col = 0; col < cols; col++) {
-			bricks.push(Brick(colors[row], {x: col*2, y: row}, screen));
+			bricks.push(Brick(colors[row], {x: col*2, y: row}, ui.screen));
 		}
 	}
 	return bricks;
@@ -41,9 +32,10 @@ function createBricks(cols, rows) {
 
 const bricks = createBricks(13, 7);
 
-const vaus = Vaus({x:0, y:0}, screen);
+const vaus = Vaus({x:0, y:0}, ui.screen);
 let speed = Vector.Null;
-function draw() {
+
+function draw(screen) {
 	screen.save();
 
 	screen.brush = '#444';
@@ -62,11 +54,9 @@ function draw() {
 
 function loop() {
 	vaus.move(speed||Vector.NULL);
-	draw();
+	draw(ui.screen);
 	requestAnimationFrame(loop);
 }
-
-
 
 let left_pressed = false;
 let right_pressed = false;
