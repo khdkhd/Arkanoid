@@ -1,6 +1,5 @@
 import Rect from 'rect';
 import Vector from 'vector';
-import ui from 'ui';
 
 export default function createVaus({x, y}, screen) {
 
@@ -14,10 +13,11 @@ export default function createVaus({x, y}, screen) {
 	const small_right_red_rect = Rect({x:6.5 + (margin * 2), y:0}, {width:.25, height:1});
 	const small_right_blue_rect = Rect({x:6.75 + margin*2, y:+margin}, {width:.25, height:1-margin*2});
 	let pos = Vector({x,y});
-	ui.keyboard.on('direction-changed', vector => {
-		pos = pos.add(vector);
-	});
+
 	return {
+		move(v) {
+			pos = pos.add(v);
+		},
 		draw(){
 			screen.save();
 			screen.scale(scale_factor);
@@ -54,7 +54,8 @@ export default function createVaus({x, y}, screen) {
 
 
 			screen.restore();
-		}
+		},
+
 	};
 
 }
