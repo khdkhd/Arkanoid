@@ -1,4 +1,4 @@
-export default function createVector({x, y}) {
+function createVector({x, y}) {
 	return {
 		get x() {
 			return x;
@@ -32,3 +32,11 @@ export default function createVector({x, y}) {
 		}
 	};
 }
+
+createVector.Null  = createVector({x:  0, y:  0});
+createVector.Up    = createVector({x:  0, y: -1});
+createVector.Right = createVector({x:  1, y:  0});
+createVector.Down  = createVector({x:  0, y:  1});
+createVector.Left  = createVector({x: -1, y:  0});
+
+export default createVector;

@@ -38,6 +38,9 @@ function createBricks(cols, rows) {
 ui.keyboard.on('direction-changed', direction => {
 	console.log(`(${direction.x}, ${direction.y})`);
 });
+ui.keyboard.on('fire', engaged => {
+	console.log(`fire ${engaged ? 'engaged' : 'disengaged'}`);
+});
 
 const bricks = createBricks(13, 7);
 
