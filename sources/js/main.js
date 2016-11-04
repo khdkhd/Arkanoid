@@ -1,8 +1,9 @@
 import Screen from 'screen';
 // import Rect from 'rect';
-import {GrayBrick, BlueBrick, RedBrick, YellowBrick, PurpleBrick, GreenBrick} from 'brick';
+import Brick from 'brick';
 import Vaus from 'vaus';
 import ui from 'ui';
+import Vector from 'vector';
 const canvas = document.querySelector('#screen');
 const screen = Screen(canvas.getContext('2d'));
 
@@ -36,15 +37,15 @@ function createBricks(cols, rows) {
 }
 
 ui.keyboard.on('direction-changed', direction => {
-	console.log(`(${direction.x}, ${direction.y})`);
+	speed = direction;
 });
 ui.keyboard.on('fire', engaged => {
-	console.log(`fire ${engaged ? 'engaged' : 'disengaged'}`);
 });
 
 const bricks = createBricks(13, 7);
 
 const vaus = Vaus({x:0, y:0}, screen);
+let speed = Vector.Null;
 function draw() {
 	screen.save();
 
@@ -60,7 +61,11 @@ function draw() {
 	screen.translate({x: screen.width/2, y: screen.height/2});
 	vaus.draw();
 	screen.restore();
-
-	requestAnimationFrame(draw);
 }
-requestAnimationFrame(draw);
+
+function loop() {
+	vaus.move(speed||Vector.NULL);
+	draw();
+	requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
