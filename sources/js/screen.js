@@ -6,18 +6,22 @@ import Rect from 'rect';
 
 export default function createScreen(canvas_context) {
 	let snap_enabled = true;
-	let scale_factor = 1;
+	let scale_factor = {x: 1, y: 1};
 	let scale_factor_stack = [];
+
+	function scale_is_uniform() {
+		return scale_factor.x === scale_factor.y;
+	}
 
 	function should_snap(w) {
 		return !(Math.round(w) === w && (w % 2) === 0);
 	}
 
 	function snap(x) {
-		if (snap_enabled) {
-			const w = canvas_context.lineWidth*scale_factor;
+		if (snap_enabled && scale_is_uniform()) {
+			const w = canvas_context.lineWidth*scale_factor.x;
 			if (should_snap(w)) {
-				return (Math.round(x*scale_factor) + .5)/scale_factor;
+				return (Math.round(x*scale_factor.x) + .5)/scale_factor.x;
 			}
 		}
 		return x;
@@ -152,7 +156,7 @@ export default function createScreen(canvas_context) {
 			canvas_context.lineTo(snap(x), snap(y));
 		},
 		scale(f) {
-			scale_factor = f;
+			scale_factor = is_number(f) ? {x: f, y: f} : f;
 			canvas_context.scale(f, f);
 		},
 		translate({x, y}) {
