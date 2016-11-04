@@ -90,6 +90,13 @@ export default function createScreen(canvas_context) {
 				canvas_context.fillStyle = brush.fillStyle;
 			}
 		},
+		createLinearGradient(x1, y1, x2, y2, colorStops){
+			const grd = canvas_context.createLinearGradient(x1,y1,x2,y2);
+			for(let stop of colorStops){
+				grd.addColorStop(stop.pos, stop.color);
+			}
+			return grd;
+		},
 		clear() {
 			canvas_context.fillRect(0, 0, this.width, this.height);
 		},
