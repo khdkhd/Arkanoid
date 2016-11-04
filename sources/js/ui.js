@@ -1,11 +1,8 @@
 import EventEmitter from 'events';
-
-import keyboard from 'keyboard';
+import Keyboard from 'keyboard';
 
 const ui = Object.assign(Object.create(new EventEmitter()), {
-	get keyboard() {
-		return keyboard;
-	}
+	Keyboard,
 });
 
 export default ui;

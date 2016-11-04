@@ -1,9 +1,12 @@
 import Screen from 'screen';
 // import Rect from 'rect';
+import Vector from 'vector';
 import Brick from 'brick';
 import Vaus from 'vaus';
 import ui from 'ui';
-import Vector from 'vector';
+
+import constant from 'lodash.constant';
+
 const canvas = document.querySelector('#screen');
 const screen = Screen(canvas.getContext('2d'));
 
@@ -36,12 +39,6 @@ function createBricks(cols, rows) {
 	return bricks;
 }
 
-ui.keyboard.on('direction-changed', direction => {
-	speed = direction;
-});
-ui.keyboard.on('fire', engaged => {
-});
-
 const bricks = createBricks(13, 7);
 
 const vaus = Vaus({x:0, y:0}, screen);
@@ -68,4 +65,56 @@ function loop() {
 	draw();
 	requestAnimationFrame(loop);
 }
+
+
+
+let left_pressed = false;
+let right_pressed = false;
+
+const keyboard = ui.Keyboard([
+	ui.Keyboard.createKeyHandler({
+		code: ui.Keyboard.LEFT_ARROW_KEY,
+		event: 'direction-changed',
+		on_keydown: () => {
+			left_pressed = true;
+			return Vector.Left;
+		},
+		on_keyup: () => {
+			left_pressed = false;
+			if (right_pressed) {
+				return Vector.Right;
+			}
+			return Vector.Null;
+		},
+		repeat: false
+	}),
+	ui.Keyboard.createKeyHandler({
+		code: ui.Keyboard.RIGHT_ARROW_KEY,
+		event: 'direction-changed',
+		on_keydown: () => {
+			right_pressed = true;
+			return Vector.Right;
+		},
+		on_keyup: () => {
+			right_pressed = false;
+			if (left_pressed) {
+				return Vector.Left;
+			}
+			return Vector.Null;
+		},
+		repeat: false
+	}),
+	ui.Keyboard.createKeyHandler({
+		code: ui.Keyboard.SPACE_BAR_KEY,
+		event: 'fire',
+		on_keydown: constant(true),
+		on_keyup: constant(false)
+	})
+]);
+
+keyboard.on('direction-changed', direction => {
+	speed = direction;
+});
+keyboard.start();
+
 requestAnimationFrame(loop);
