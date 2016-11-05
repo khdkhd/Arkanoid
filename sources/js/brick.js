@@ -64,25 +64,20 @@ const bricks_data = {
 	}
 };
 
-export default function Brick(color, {x, y}, screen) {
+const bottom_outer_rect = Rect(Vector.Null, {width: 2, height: 1});
+const top_outer_rect = Rect(Vector.Null, {width: 1.8, height: .8});
+const inner_rect = Rect(Vector.Null.add({x: .2, y: .2}), {width: 1.6, height: .6});
+
+export default function Brick(color, {x, y}, scale) {
 	const brick_data = bricks_data[color];
-	const bottom_outer_rect = Rect({x, y}, {width: 2, height: 1});
-	const top_outer_rect = Rect({x, y}, {width: 1.8, height: .8});
-	const inner_rect = Rect({x: x + .2, y: y + .2}, {width: 1.6, height: .6});
-	const scale_factor = (screen.width/14)/2;
-	const line_width = 1/scale_factor;
 	return {
 		get pos() {
 			return Vector({x, y});
 		},
-		get rect() {
+		get bbox() {
 			return Rect(this.pos, {width: 2, height: 1});
 		},
-		draw() {
-			screen.save();
-			screen.scale(scale_factor);
-			screen.pen = line_width;
-
+		draw(screen) {
 			screen.brush = brick_data.colors.bottom || 'black';
 			screen.fillRect(bottom_outer_rect);
 
@@ -91,8 +86,6 @@ export default function Brick(color, {x, y}, screen) {
 
 			screen.brush = brick_data.colors.inner;
 			screen.fillRect(inner_rect);
-
-			screen.restore();
 		}
 	};
 }
