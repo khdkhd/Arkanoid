@@ -18,56 +18,70 @@ const colors = [
 	'gold'
 ];
 
-function createBricks(cols, rows) {
+function createBricks(cols, rows, scale) {
 	const bricks = [];
 	for (let row = 0; row < rows; row++) {
 		for (let col = 0; col < cols; col++) {
-			bricks.push(Brick(colors[row], {x: col*2, y: row}, screen));
+			bricks.push(Brick(colors[row], {x: col*2, y: row}, scale));
 		}
 	}
 	return bricks;
 }
 
 export default function createGame() {
-	const scale_factor = (ui.screen.width/14)/2;
-
 	const keyboard = ui.Keyboard(gameKeybordDriver);
-	const vaus = Vaus({x: 0, y: 0}, scale_factor/2);
+	const screen = ui.screen;
+
+	screen.size = {
+		width: 224*2,
+		height: 256*2
+	};
+
+	const scale_factor = Math.round((screen.width/14)/2);
+	const columns = screen.width/scale_factor - 2;
+	const rows = screen.height/scale_factor - 2;
+
+	const vaus = Vaus({x: 0, y: rows - 1}, scale_factor);
+	const bricks = createBricks(columns/2, 7, scale_factor);
 
 	let vaus_speed = Vector.Null;
 
 	keyboard.on('direction-changed', direction => {
-		vaus_speed = direction;
+		vaus_speed = direction.mul(.4);
 	});
 
+	function draw_bricks() {
+		for (let brick of bricks) {
+			screen.save();
+			screen.translate(brick.pos);
+			brick.draw(screen);
+			screen.restore();
+		}
+	}
+
+	function draw_vaus() {
+		screen.save();
+		screen.translate(vaus.pos);
+		vaus.draw(screen);
+		screen.restore();
+	}
+
 	function draw() {
-		ui.screen.brush = '#444';
-		ui.screen.save();
-		ui.screen.clear();
-		ui.screen.scale(scale_factor);
-		ui.screen.translate({x: 1, y: 1});
-
-		ui.screen.scale(2);
-
-		// for (let brick of bricks) {
-		// 	brick.draw();
-		// }
-		ui.screen.save();
-		ui.screen.translate({x: 10, y: 10});
-		vaus.draw(ui.screen);
-		ui.screen.restore();
-
-		ui.screen.restore();
-		//const bricks = createBricks(13, 7);
-
+		screen.brush = '#123';
+		screen.clear();
+		screen.save();
+		screen.scale(scale_factor);
+		screen.translate({x: 1, y: 1});
+		draw_bricks();
+		draw_vaus();
+		screen.restore();
 	}
 
 	function loop() {
 		vaus.move(vaus_speed);
 		draw();
-		//requestAnimationFrame(loop);
+		requestAnimationFrame(loop);
 	}
-
 
 	return {
 		start() {
