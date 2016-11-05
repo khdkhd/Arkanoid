@@ -94,13 +94,6 @@ export default function createScreen(canvas_context) {
 				canvas_context.fillStyle = brush.fillStyle;
 			}
 		},
-		createLinearGradient(x1, y1, x2, y2, colorStops){
-			const grd = canvas_context.createLinearGradient(x1,y1,x2,y2);
-			for(let stop of colorStops){
-				grd.addColorStop(stop.pos, stop.color);
-			}
-			return grd;
-		},
 		clear() {
 			canvas_context.fillRect(0, 0, this.width, this.height);
 		},
@@ -114,11 +107,17 @@ export default function createScreen(canvas_context) {
 			this.lineTo(r.bottomLeft);
 			this.closePath();
 			this.drawPath();
-			this.restore();
+		},
+		lineTo({x, y}) {
+			canvas_context.lineTo(snap(x), snap(y));
+		},
+		scale(f) {
+			scale_factor = is_number(f) ? {x: f, y: f} : f;
+			canvas_context.scale(scale_factor.x, scale_factor.y);
 		},
 		fillRect({ x, y, width, height}) {
 			const r = Rect({x, y}, {width, height});
-			this.save();
+			// this.save();
 			this.beginPath();
 			this.moveTo(r.topLeft);
 			this.lineTo(r.topRight);
@@ -126,7 +125,7 @@ export default function createScreen(canvas_context) {
 			this.lineTo(r.bottomLeft);
 			this.closePath();
 			this.fillPath();
-			this.restore();
+			// this.restore();
 		},
 		drawLine({x: x1, y: y1}, {x: x2, y: y2}) {
 			this.save();
@@ -159,14 +158,8 @@ export default function createScreen(canvas_context) {
 		moveTo({x, y}) {
 			canvas_context.moveTo(snap(x), snap(y));
 		},
-		lineTo({x, y}) {
-			canvas_context.lineTo(snap(x), snap(y));
-		},
-		scale(f) {
-			scale_factor = is_number(f) ? {x: f, y: f} : f;
-			canvas_context.scale(f, f);
-		},
 		translate({x, y}) {
+			console.log(x,y);
 			canvas_context.translate(x, y);
 		},
 		rotate(angle) {
@@ -179,6 +172,13 @@ export default function createScreen(canvas_context) {
 		restore() {
 			canvas_context.restore();
 			scale_factor = scale_factor_stack.pop();
+		},
+		createLinearGradient(x1, y1, x2, y2, colorStops) {
+					const grd = canvas_context.createLinearGradient(x1,y1,x2,y2);
+					for(let stop of colorStops){
+						grd.addColorStop(stop.pos, stop.color);
+					}
+					return grd;
 		}
 	};
 }
