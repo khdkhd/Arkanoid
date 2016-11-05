@@ -78,14 +78,11 @@ export default function createVaus({x, y}, scale) {
 			const red_fill = screen.createLinearGradient(0, 0, 0, 1, [
 				{pos:  0, color: '#9c2d08'},
 				{pos: .1, color: '#9c2d08'},
-
 				{pos: .2, color: '#eec0a0'},
 				{pos: .3, color: '#eec0a0'},
-
 				{pos: .4, color: '#dd5e03'},
 				{pos: .6, color: '#dd5e03'},
 				{pos: .7, color: '#dd5e03'},
-
 				{pos: .8, color: '#8e2901'},
 				{pos:  1, color: '#8e2901'}
 			]);
