@@ -1,39 +1,51 @@
 import Vector from 'vector';
 
-const wall = new Path2D(`
-	M 0 0
-	L 1 0
-	L 1 1
-	L 0 1
-	L 0 0
+const h_wall = new Path2D(`
+	M 0 ${ 1/16}
+	L 1 ${ 1/16}
+	L 1 ${15/16}
+	L 0 ${15/16}
+	L 0 ${ 1/16}
 `);
 
 const h_left_wall = new Path2D(`
-	M 0 0
-	L 1 0
-	L 1 1
-	L 0 0
+	M ${1/16} ${ 1/16}
+	L 1 ${ 1/16}
+	L 1 ${15/16}
+	L ${15/16} ${15/16}
+	L ${1/16} ${ 1/16}
 `);
 
 const h_right_wall = new Path2D(`
-	M 0 0
-	L 1 0
-	L 0 1
-	L 0 0
+	M 0 ${ 1/16}
+	L ${15/16} ${ 1/16}
+	L ${ 1/16} ${15/16}
+	L 0 ${15/16}
+	L 0 ${ 1/16}
+`);
+
+const v_wall = new Path2D(`
+	M ${ 1/16} 0
+	L ${15/16} 0
+	L ${15/16} 1
+	L ${ 1/16} 1
+	L ${ 1/16} 0
 `);
 
 const v_left_wall = new Path2D(`
-	M 0 0
-	L 1 1
-	L 0 1
-	L 0 0
+	M ${ 1/16} ${ 1/16}
+	L ${15/16} ${15/16}
+	L ${15/16} 1
+	L ${ 1/16} 1
+	L ${ 1/16} ${ 1/16}
 `);
 
 const v_right_wall = new Path2D(`
-	M 1 0
-	L 1 1
-	L 0 1
-	L 0 1
+	M ${15/16} ${ 1/16}
+	L ${15/16} 1
+	L ${ 1/16} 1
+	L ${ 1/16} ${15/16}
+	L ${15/16} ${ 1/16}
 `);
 
 export function HorizontalWall({x, y}) {
@@ -55,7 +67,7 @@ export function HorizontalWall({x, y}) {
 			]);
 			screen.save();
 			screen.brush = {fillStyle: gradient};
-			screen.fillPath(wall);
+			screen.fillPath(h_wall);
 			screen.restore();
 		}
 	};
@@ -130,7 +142,7 @@ export function VerticalLeftWall({x, y}) {
 			]);
 			screen.save();
 			screen.brush = {fillStyle: gradient};
-			screen.fillPath(wall);
+			screen.fillPath(v_wall);
 			screen.restore();
 		}
 	};
@@ -180,7 +192,7 @@ export function VerticalRightWall({x, y}) {
 			]);
 			screen.save();
 			screen.brush = {fillStyle: gradient};
-			screen.fillPath(wall);
+			screen.fillPath(v_wall);
 			screen.restore();
 		}
 	};
