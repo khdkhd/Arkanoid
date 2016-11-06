@@ -63,7 +63,7 @@ export default function createVaus({x, y}, scale) {
 			pos = Vector({x: (x | 0) + .5, y}).mul(1/scale);
 		},
 		draw(screen) {
-			const gray_fill = screen.createLinearGradient(0, 0, 0, 1, [
+			const gray_fill = screen.createLinearGradient(Vector.Null, Vector.Down, [
 				{pos:  0, color: '#6f6f6d'},
 				{pos: .1, color: '#6f6f6d'},
 				{pos: .2, color: '#d6d6d6'},
@@ -75,7 +75,7 @@ export default function createVaus({x, y}, scale) {
 				{pos: .8, color: '#3b3b3b'},
 				{pos:  1, color: '#3b3b3b'}
 			]);
-			const red_fill = screen.createLinearGradient(0, 0, 0, 1, [
+			const red_fill = screen.createLinearGradient(Vector.Null, Vector.Down, [
 				{pos:  0, color: '#9c2d08'},
 				{pos: .1, color: '#9c2d08'},
 				{pos: .2, color: '#eec0a0'},
@@ -86,7 +86,7 @@ export default function createVaus({x, y}, scale) {
 				{pos: .8, color: '#8e2901'},
 				{pos:  1, color: '#8e2901'}
 			]);
-			const blue_fill = screen.createLinearGradient(0, 0, 0, 1, [
+			const blue_fill = screen.createLinearGradient(Vector.Null, Vector.Down, [
 				{pos:  0, color: '#13f0fa'},
 				{pos: .4, color: '#a2f7fb'},
 				{pos:  1, color: '#13f0fa'}

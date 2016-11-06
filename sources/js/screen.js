@@ -151,9 +151,9 @@ export default function createScreen(canvas_context) {
 		rotate(angle) {
 			canvas_context.rotate(angle);
 		},
-		createLinearGradient(x1, y1, x2, y2, colorStops) {
+		createLinearGradient({x: x1, y: y1}, {x: x2, y: y2}, colorStops) {
 			const grd = canvas_context.createLinearGradient(x1, y1, x2, y2);
-			for(let stop of colorStops) {
+			for (let stop of colorStops) {
 				grd.addColorStop(stop.pos, stop.color);
 			}
 			return grd;
