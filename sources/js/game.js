@@ -13,7 +13,7 @@ import {
 } from 'wall';
 import ui from 'ui';
 
-import gameKeybordDriver from 'game-keyboard-driver'
+import gameKeyboardController from 'game-keyboard-controller'
 
 const colors = [
 	'white',
@@ -55,7 +55,7 @@ function createWalls(cols, rows) {
 }
 
 export default function createGame() {
-	const keyboard = ui.Keyboard(gameKeybordDriver);
+	const keyboard = ui.Keyboard(gameKeyboardController);
 	const screen = ui.screen;
 
 	screen.size = {
