@@ -1,97 +1,99 @@
 import Rect from 'rect';
 import Vector from 'vector';
 
-export default function createVaus({x, y}) {
+const blue_box = new Path2D(`
+	M ${0/16} ${ 6/16}
+	L ${1/16} ${ 6/16}
+	L ${1/16} ${ 5/16}
+	L ${2/16} ${ 5/16}
+	L ${2/16} ${11/16}
+	L ${1/16} ${11/16}
+	L ${1/16} ${10/16}
+	L ${0/16} ${10/16}
+	L ${0/16} ${ 6/16}
+`);
+const red_box = new Path2D(`
+	M ${ 2/16} ${ 3/16}
+	L ${ 3/16} ${ 3/16}
+	L ${ 3/16} ${ 2/16}
+	L ${ 4/16} ${ 2/16}
+	L ${ 4/16} ${ 1/16}
+	L ${ 5/16} ${ 1/16}
+	L ${ 5/16} ${ 0/16}
+	L ${10/16} ${ 0/16}
+	L ${10/16} ${16/16}
+	L ${ 5/16} ${16/16}
+	L ${ 5/16} ${15/16}
+	L ${ 4/16} ${15/16}
+	L ${ 4/16} ${14/16}
+	L ${ 3/16} ${14/16}
+	L ${ 3/16} ${13/16}
+	L ${ 2/16} ${13/16}
+	L ${ 2/16} ${ 3/16}
+`);
+const margin = new Path2D(`
+	M ${10/16} ${1/16}
+	L ${12/16} ${1/16}
+	L ${12/16} ${14/16}
+	L ${10/16} ${14/16}
+	L ${10/16} ${1/16}
+`);
+const gray_box = new Path2D(`
+	M ${12/16} ${0/16}
+	L ${16/16 + .5/16} ${0/16}
+	L ${16/16 + .5/16} ${14/16}
+	L ${12/16} ${14/16}
+	L ${12/16} ${0/16}
+`);
+const segment_box = new Path2D(`
+	M ${ 0/16 + .5/16} ${ 0/16}
+	L ${16/16 + .5/16} ${ 0/16}
+	L ${16/16 + .5/16} ${14/16}
+	L ${ 0/16 + .5/16} ${14/16}
+	L ${ 0/16 + .5/16} ${ 0/16}
+`);
 
-	let pos = Vector({x,y});
-
-	const blue_box = new Path2D(`
-		M 0 ${3/8}
-		L ${1/20} ${3/8}
-		L ${1/20} ${2/8}
-		L ${1/10}  ${2/8}
-		L ${1/10} ${6/8}
-		L ${1/20} ${6/8}
-		L ${1/20} ${5/8}
-		L 0 ${5/8}
-		L 0	${3/8}
-	`);
-
-	const red_box = new Path2D(`
-		M ${1/10} ${1/8}
-		L ${3/20} ${1/8}
-		L ${3/20} 0
-		L ${9/20} 0
-		L ${9/20} 1
-		L ${3/20} 1
-		L ${3/20} ${7/8}
-		L ${1/10} ${7/8}
-		L ${1/10} ${1/8}
-	`);
-
-	function draw_red_box(screen){
-		screen.beginPath();
-		screen.moveTo({x: 1/10,y: 1/8});
-		screen.lineTo({x:3/20, y:1/8});
-		screen.lineTo({x:3/20, y:0});
-		screen.lineTo({x:9/20, y:0});
-		screen.lineTo({x:9/20, y:1});
-		screen.lineTo({x:3/20, y:1});
-		screen.lineTo({x:3/20, y:7/8});
-		screen.lineTo({x:1/10, y:7/8});
-		screen.closePath();
-		screen.fillPath();
-	}
-
-	const margin = new Path2D(`
-		M ${9/20} ${1/8}
-		L ${1/2} ${1/8}
-		L ${1/2} ${7/8}
-		L ${9/20} ${7/8}
-		L ${9/20} ${1/8}
-	`);
-
-	const gray_box = new Path2D(`
-		M ${1/2}  ${1/8}
-		L 1 ${1/8}
-		L 1 ${7/8}
-		L ${1/2} ${7/8}
-		L ${1/2} ${1/8}
-	`);
-
-
-	const grays = [
-		gray_box,
-		gray_box,
-		gray_box
-	];
+export default function createVaus({x, y}, scale) {
+	let pos = Vector({x, y});
+	let segments = 1;
 
 	return {
 		move(v) {
-			pos = pos.add(v);
+			let {x, y} = pos.add(v).mul(scale);
+			pos = Vector({x: (x | 0) + .5, y}).mul(1/scale);
 		},
-		draw(screen){
-
-			const gray_fill = screen.createLinearGradient(0,0, 0, 1,[
-					{pos: 0, color: 'gray'},
-					{pos: .3, color: 'white'},
-					{pos: .4, color: 'gray'},
-					{pos: 1, color: 'white'}
+		draw(screen) {
+			const gray_fill = screen.createLinearGradient(Vector.Null, Vector.Down, [
+				{pos:  0, color: '#6f6f6d'},
+				{pos: .1, color: '#6f6f6d'},
+				{pos: .2, color: '#d6d6d6'},
+				{pos: .3, color: '#d6d6d6'},
+				{pos: .4, color: '#8f8f8f'},
+				{pos: .5, color: '#8f8f8f'},
+				{pos: .6, color: '#696969'},
+				{pos: .7, color: '#696969'},
+				{pos: .8, color: '#3b3b3b'},
+				{pos:  1, color: '#3b3b3b'}
 			]);
-
-			const red_fill = screen.createLinearGradient(0,0, 0, 1,[
-					{pos: 0, color: 'red'},
-					{pos: .3, color: 'white'},
-					{pos: 1, color: 'red'}
+			const red_fill = screen.createLinearGradient(Vector.Null, Vector.Down, [
+				{pos:  0, color: '#9c2d08'},
+				{pos: .1, color: '#9c2d08'},
+				{pos: .2, color: '#eec0a0'},
+				{pos: .3, color: '#eec0a0'},
+				{pos: .4, color: '#dd5e03'},
+				{pos: .6, color: '#dd5e03'},
+				{pos: .7, color: '#dd5e03'},
+				{pos: .8, color: '#8e2901'},
+				{pos:  1, color: '#8e2901'}
 			]);
-
-			const blue_fill = screen.createLinearGradient(0,0, 0, 1,[
-					{pos: 0, color: 'blue'},
-					{pos: .4, color: 'white'},
-					{pos: 1, color: 'blue'}
+			const blue_fill = screen.createLinearGradient(Vector.Null, Vector.Down, [
+				{pos:  0, color: '#13f0fa'},
+				{pos: .4, color: '#a2f7fb'},
+				{pos:  1, color: '#13f0fa'}
 			]);
 
 			screen.save();
+				screen.pen = 1/scale;
 
 				screen.brush = {fillStyle: blue_fill};
 				screen.fillPath(blue_box);
@@ -99,39 +101,38 @@ export default function createVaus({x, y}) {
 				screen.brush = {fillStyle: red_fill};
 				screen.fillPath(red_box);
 
-				screen.brush = 'black';
+				screen.brush = '#222';
 				screen.fillPath(margin);
 
-				for(let gray_box of grays){
-					screen.brush = {fillStyle: gray_fill};
-					screen.fillPath(gray_box);
-					screen.translate({x:.5,y:0});
+				screen.brush = {fillStyle: gray_fill};
+				screen.fillPath(gray_box);
+
+				for (let i = 0; i < segments; ++i) {
+					screen.translate({x: 1, y: 0});
+					screen.fillPath(segment_box);
 				}
-				screen.save();
-				screen.brush = 'black';
+
+				screen.translate({x: 2, y: 0});
+				screen.scale({x: -1, y: 1});
+
+				screen.brush = {fillStyle: blue_fill};
+				screen.fillPath(blue_box);
+
+				screen.brush = {fillStyle: red_fill};
+				screen.fillPath(red_box);
+
+				screen.brush = '#222';
 				screen.fillPath(margin);
-				screen.restore();
 
-
-
-				screen.save();
-
-				screen.scale({x:-1,y:1});
-				screen.translate({x:-1,y:0});
-
-					screen.brush = {fillStyle: red_fill};
-					screen.fillPath(red_box);
-
-					screen.brush = {fillStyle: blue_fill};
-					screen.fillPath(blue_box);
-				screen.restore();
+				screen.brush = {fillStyle: gray_fill};
+				screen.fillPath(gray_box);
 
 			screen.restore();
 		},
-		get rect(){
-			return Rect(pos, {width: 1 + grays.length/2, height: 1});
+		get bbox() {
+			return Rect(pos, {width: 2 + segments, height: 1});
 		},
-		get pos(){
+		get pos() {
 			return pos;
 		}
 	};
