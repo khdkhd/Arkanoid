@@ -29,6 +29,9 @@ function createVector({x, y}) {
 		},
 		isNull() {
 			return this.x === 0 && this.y === 0;
+		},
+		toUnit() {
+			return this.mul(1/this.norm);
 		}
 	};
 }
