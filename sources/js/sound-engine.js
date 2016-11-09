@@ -102,7 +102,7 @@ function createVCA(audio_context) {
 }
 
 function createEnveloppeGenerator(){
-	let attack = .01, sustain = .8, decay =.2, release = .1;
+	let attack = .0125, sustain = .5, decay =.0025, release = .0025;
 	let param;
 	return {
 		connect({input}){
@@ -203,9 +203,9 @@ function createSequencer(slave, audio_context){
 	let time = audio_context.currentTime;
 	return {
 		playSequence({notes, duration}){
-			for(let i = 0; i<notes.length *3; i++){
-				slave.noteOn(0,{note:notes[Math.ceil(Math.random()*notes.length)], octave: 4}, time);
-				slave.noteOn(1,{note:notes[Math.ceil(Math.random()*notes.length)], octave: 5}, time);
+			for(let i = 0; i<notes.length; i++){
+				slave.noteOn(0,{note:notes[i], octave: 4}, time);
+				slave.noteOn(1,{note:notes[notes.length-1], octave: 2}, time/2);
 				time += duration;
 				slave.noteOff(0, time);
 				slave.noteOff(1, time);
@@ -216,7 +216,6 @@ function createSequencer(slave, audio_context){
 
 function createSynth(audio_context) {
 	const filter = createMoogFilter(audio_context);
-	const vca = createVCA(audio_context);
 	const master = createMasterOutput(audio_context);
 	const voices = createPolyphony(audio_context,2);
 	return {
@@ -226,8 +225,6 @@ function createSynth(audio_context) {
 			filter.resonance = 2;
 			voices.connect(filter);
 			filter.connect(master);
-			filter.connect(vca);
-			vca.connect(master);
 		},
 		noteOn(voice, {note, octave}, time) {
 			voices.voiceOn(voice, get_frequency_of_note({note, octave}), time);
