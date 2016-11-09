@@ -119,6 +119,9 @@ export default function createScreen(canvas_context) {
 		lineTo({x, y}) {
 			canvas_context.lineTo(x, y);
 		},
+		arc({x, y}, radius, start_angle, end_angle, anticlockwise) {
+			canvas_context.arc(x, y, radius, start_angle, end_angle, anticlockwise);
+		},
 		drawPath(path) {
 			if (is_nil(path)) {
 				canvas_context.stroke();
