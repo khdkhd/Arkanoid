@@ -119,7 +119,7 @@ export default function createGame() {
 				ball_speed = Vector({x: ball_speed.x, y: -ball_speed.y});
 			} else if (ball_box.bottomY >= zone.bottomY) {
 				ball_speed = Vector.Null;
-				ball = createBall(vaus);
+				ball = createBall(vaus, scale_factor);
 			}
 			ball.move(ball_speed);
 		} else {
