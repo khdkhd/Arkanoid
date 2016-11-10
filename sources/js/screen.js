@@ -130,7 +130,11 @@ export default function createScreen(canvas_context) {
 			}
 		},
 		fillPath(path) {
-			canvas_context.fill(path);
+			if (is_nil(path)) {
+				canvas_context.fill();
+			} else {
+				canvas_context.fill(path);
+			}
 		},
 		///////////////////////////////////////////////////////////////////////
 		/// Context save/restore
@@ -154,6 +158,8 @@ export default function createScreen(canvas_context) {
 		rotate(angle) {
 			canvas_context.rotate(angle);
 		},
+		///////////////////////////////////////////////////////////////////////
+		/// Gradient
 		createLinearGradient({x: x1, y: y1}, {x: x2, y: y2}, colorStops) {
 			const grd = canvas_context.createLinearGradient(x1, y1, x2, y2);
 			for (let stop of colorStops) {
