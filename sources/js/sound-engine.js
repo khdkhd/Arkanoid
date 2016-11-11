@@ -1,5 +1,23 @@
 import times from 'lodash.times';
 
+const WAVEFORM = {
+	SINE: 'sine',
+	TRIANGLE: 'triangle',
+	SAWTOOTH: 'sawtooth',
+	SQUARE: 'square'
+};
+
+const FILTER = {
+	LOWPASS: 'lowpass',
+	HIGHPASS: 'highpass',
+	BANDPASS: 'bandpass',
+	LOWSHELF: 'lowshelf',
+	HIGHSHELF: 'highshelf',
+	PEAKING: 'peaking',
+	NOTCH: 'notch',
+	ALLPASS: 'allpass'
+};
+
 function get_frequency_of_note({
 	note,
 	octave
@@ -21,6 +39,7 @@ function createMasterOutput(audio_context){
 
 function createVCO(audio_context) {
 	const osc = audio_context.createOscillator();
+	osc.type = WAVEFORM.TRIANGLE;
 	return {
 		connect({input}) {
 			osc.connect(input);
@@ -36,11 +55,12 @@ function createVCO(audio_context) {
 }
 
 
-function createPolyphony(audio_context, voices) {
+function createPolyphonicGenerator(audio_context, voices) {
 	const vcos = times(voices, () => createVCO(audio_context));
 	const vcas = times(voices, () => createVCA(audio_context));
 	const enveloppes = times(voices, () => createEnveloppeGenerator());
 	const channel_merger = audio_context.createChannelMerger();
+	const polyphonyManager = createPolyphonyManager(voices);
 	return {
 		connect({input}) {
 			times(voices, i => {
@@ -50,12 +70,22 @@ function createPolyphony(audio_context, voices) {
 			});
 			channel_merger.connect(input);
 		},
-		voiceOn(voice, freq, time) {
-			vcos[voice].gateOn(freq, time);
-			enveloppes[voice].gateOn(time);
+		get input(){
+			return this;
 		},
-		voiceOff(voice, time){
-			enveloppes[voice].gateOff(time);
+		voiceOn(freq, time) {
+			const voice = polyphonyManager.assign(freq);
+			if(!isNaN(voice)){
+				vcos[voice].gateOn(freq, time);
+				enveloppes[voice].gateOn(time);
+			}
+
+		},
+		voiceOff(freq, time){
+			const voice = polyphonyManager.unassign(freq);
+			if(!isNaN(voice)){
+				enveloppes[voice].gateOff(time);
+			}
 		},
 		set waveForm(type) {
 			vcos.forEach(vco => vco.waveForm = type);
@@ -73,6 +103,35 @@ function createPolyphony(audio_context, voices) {
 			enveloppes.forEach(enveloppe => enveloppe.release = value);
 		},
 
+	};
+}
+
+function createPolyphonyManager(voices){
+	const freqs = new Array(voices).fill(-1);
+	return {
+		assign(freq){
+			let index;
+			freqs.some(function(elem, i, freqs){
+				if(elem < 0){
+					index = i;
+					freqs[i]= freq;
+					return true;
+				}
+				return false;
+			});
+			return index;
+		},
+		unassign(freq){
+			let index;
+			freqs.some(function(elem, i, freqs){
+				if(elem==freq){
+					freqs[i] = -1;
+					index = i;
+					return true;
+				}
+			});
+			return index;
+		}
 	};
 }
 
@@ -135,17 +194,7 @@ function createEnveloppeGenerator(){
 
 function createBiquadFilter(audio_context){
 	const filter = audio_context.createBiquadFilter();
-	const types = [
-			'lowpass',
-			'highpass',
-			'bandpass',
-			'lowshelf',
-			'highshelf',
-			'peaking',
-			'notch',
-			'allpass'
-	];
-	filter.type = types[3];
+	filter.type = FILTER.LOWSHELF;
 	return {
 		connect({input}){
 			filter.connect(input);
@@ -171,7 +220,7 @@ function createBiquadFilter(audio_context){
 function createLFO(audio_context){
 	const osc = audio_context.createOscillator();
 	const gain = audio_context.createGain();
-	osc.type = 'sawtooth';
+	osc.type = WAVEFORM.SAWTOOTH;
 	return {
 		connect({input}){
 			osc.connect(gain);
@@ -195,17 +244,17 @@ function createSequencer(slave, audio_context){
 		playSequence({notes, duration}){
 			let time = audio_context.currentTime;
 			for(let i = 0; i<notes.length; i++){
-				slave.noteOn(0,{note:notes[i], octave: 4}, time);
-				slave.noteOn(1,{note:notes[notes.length-1], octave: 2}, time/2);
+				slave.noteOn({note:notes[i], octave: 4}, time);
+				slave.noteOn({note:notes[notes.length-1], octave: 4}, time/2);
 				time += duration;
-				slave.noteOff(0, time);
-				slave.noteOff(1, time);
+				slave.noteOff({note:notes[i], octave: 4}, time);
+				slave.noteOff({note:notes[notes.length-1], octave: 4}, time);
 			}
 		},
 		playNote(note, octave, duration){
 			const time = audio_context.currentTime;
-			slave.noteOn(0,{note:note, octave: octave}, time);
-			slave.noteOff(0, time + duration);
+			slave.noteOn({note:note, octave: octave}, time);
+			slave.noteOff({note:note, octave: octave}, time + duration);
 		}
 	};
 }
@@ -213,26 +262,25 @@ function createSequencer(slave, audio_context){
 function createSynth(audio_context) {
 	const filter = createBiquadFilter(audio_context);
 	const master = createMasterOutput(audio_context);
-	const voices = createPolyphony(audio_context, 2);
+	const voices = createPolyphonicGenerator(audio_context, 2);
 	const lfo = createLFO(audio_context);
 	return {
 		patch() {
-			voices.waveForm = 'square';
+			voices.waveForm = WAVEFORM.SQUARE;
 			voices.release = .5;
-			filter.frequency = 50;
-			filter.gain = 55;
+			filter.frequency = 2250;
+			filter.gain = 25;
 			voices.connect(filter);
 			filter.connect(master);
-			lfo.connect({input:filter.frequency});
 			lfo.frequency = 300;
 			lfo.waveForm = 'triangle';
 			lfo.amplitude = 15;
 		},
-		noteOn(voice, {note, octave}, time) {
-			voices.voiceOn(voice, get_frequency_of_note({note, octave}), time);
+		noteOn({note, octave}, time) {
+			voices.voiceOn(get_frequency_of_note({note, octave}), time);
 		},
-		noteOff(voice, time){
-			voices.voiceOff(voice, time);
+		noteOff({note, octave}, time){
+			voices.voiceOff(get_frequency_of_note({note, octave}), time);
 		}
 	};
 }
