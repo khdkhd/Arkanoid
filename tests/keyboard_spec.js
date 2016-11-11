@@ -15,7 +15,7 @@ describe('Keyboard.createKeyHandler(code, ev, on_keydown, on_keyup, repeat)', ()
 
 	it('returns an object width a code attribute wicth is a number', () => {
 		const kh = Keyboard.createKeyHandler({code, event, on_keydown, on_keyup});
-		expect(kh.code).to.equal(code);
+		expect(kh.code).to.be.a('number');
 	});
 	it('returns an object width a keydown attribute wicth is a function', () => {
 		const kh = Keyboard.createKeyHandler({code, event, on_keydown, on_keyup});
@@ -39,6 +39,13 @@ describe('KeyboardHandler', () => {
 	beforeEach(() => {
 		on_keydown.reset();
 		on_keyup.reset();
+	});
+
+	describe('code', () => {
+		it('is equal to the code passed at creation', () => {
+			const kh = Keyboard.createKeyHandler({code, event, on_keydown, on_keyup});
+			expect(kh.code).to.equal(code);
+		});
 	});
 
 	describe('keydown(v)', () => {
