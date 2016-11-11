@@ -20,6 +20,18 @@ export default function createRect({x, y}, {width, height}) {
 				height
 			};
 		},
+		get leftX() {
+			return x;
+		},
+		get rightX() {
+			return x + width;
+		},
+		get topY() {
+			return y;
+		},
+		get bottomY() {
+			return y + height;
+		},
 		get topLeft() {
 			return createVector({
 				x: x,

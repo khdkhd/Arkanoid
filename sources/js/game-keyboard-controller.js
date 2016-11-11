@@ -45,4 +45,4 @@ export default [
 		on_keydown: constant(true),
 		on_keyup: constant(false)
 	})
-]
+];
