@@ -1,7 +1,7 @@
 import Vector from 'vector';
 import Rect from 'rect';
 
-const radius = .35;
+const radius = .3;
 
 function Ball({x, y}, scale) {
 
@@ -29,8 +29,8 @@ function Ball({x, y}, scale) {
 		draw(screen) {
 			screen.brush = 'white';
 			screen.pen = {
-				strokeStyle: 'red',
-				lineWidth: 2/scale
+				strokeStyle: 'hsl(210, 50%, 50%)',
+				lineWidth: 1/scale
 			};
 			screen.beginPath();
 			screen.arc({x: 0, y: 0}, radius, 0, 2*Math.PI, false);
