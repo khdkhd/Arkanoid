@@ -13,8 +13,10 @@ import {
 	VerticalTopRightWall
 } from 'wall';
 import ui from 'ui';
-
 import gameKeyboardController from 'game-keyboard-controller'
+import {dispatch} from 'functional';
+
+import random from 'lodash.random';
 
 const colors = [
 	'white',
@@ -29,12 +31,12 @@ const colors = [
 	'gold'
 ];
 
-function createBall(vaus, scale_factor) {
+function create_ball(vaus, scale_factor) {
 	const vaus_box = vaus.bbox;
 	return Ball({x: vaus_box.center.x, y: vaus_box.topY - Ball.Radius}, scale_factor);
 }
 
-function createBricks(cols, rows, scale) {
+function create_bricks(cols, rows, scale) {
 	const bricks = [];
 	for (let row = 0; row < rows; row++) {
 		for (let col = 0; col < cols; col++) {
@@ -44,7 +46,7 @@ function createBricks(cols, rows, scale) {
 	return bricks;
 }
 
-function createWalls(cols, rows) {
+function create_walls(cols, rows) {
 	const walls = [];
 	for (let y = 1; y < rows; ++y) {
 		walls.push(VerticalLeftWall({x: 0, y}));
@@ -76,11 +78,11 @@ export default function createGame() {
 
 	const zone = Rect({x: 0, y: 0}, {width: columns - 2, height: rows - 2});
 
-	const walls = createWalls(columns - 1, rows);
-	const bricks = createBricks((columns - 2)/2, 7, scale_factor);
+	const walls = create_walls(columns - 1, rows);
+	const bricks = create_bricks((columns - 2)/2, 7, scale_factor);
 	const vaus = Vaus({x: 1, y: zone.height - 2}, scale_factor);
 
-	let ball = createBall(vaus, scale_factor);
+	let ball = create_ball(vaus, scale_factor);
 	let vaus_speed = Vector.Null;
 	let ball_speed = Vector.Null;
 
@@ -93,35 +95,94 @@ export default function createGame() {
 		}
 	});
 
-	// Move helpers
+	// Position helpers
 
-	function vaus_ball_collide(vaus_box, ball_box) {
-		return vaus_box.intersect(ball_box)
-			&& vaus_box.leftX < ball_box.leftX
-			&& vaus_box.rightX > ball_box.rightX;
+	function ball_neighborhood(ball) {
+		const col = Math.round(ball.pos.x);
+		const row = Math.round(ball.pos.y);
+		return bricks.filter(brick => Math.abs(col - brick.pos.x) <= 1 && Math.abs(row - brick.pos.y) <= 1);
 	}
+
+	// Collision helpers
+
+	function detect_collision(a_box, b_box, speed) {
+		const w = .5*(a_box.width + b_box.width);
+		const h = .5*(a_box.height + b_box.height);
+		const {x: dx, y: dy} = a_box.center.sub(b_box.center);
+		if (Math.abs(dx) <= w && Math.abs(dy) <= h) {
+			const wy = w*dy;
+			const hx = h*dx;
+			const r = random(-1, 1, true)/25;
+			if (wy > hx) {
+				if (wy > -hx && speed.y < 0) {
+					// bottom side collision
+					return {m11:  1, m12: 0, m21: 0, m22: -1 + r};
+				} else if (speed.x > 0) {
+					// left side collision
+					return {m11: -1 + r, m12: 0, m21: 0, m22:  1};
+				}
+			} else {
+				if (wy > -hx && speed.x < 0) {
+					// right side collision
+					return {m11: -1 + r, m12: 0, m21: 0, m22:  1};
+				} else if (speed.y > 0) {
+					// top side collision
+					return {m11:  1, m12: 0, m21: 0, m22: -1 + r};
+				}
+			}
+		}
+		return false;
+	}
+
+	function ball_collides_with_bricks(ball_box, speed) {
+		for (let brick of ball_neighborhood(ball)) {
+			const t = detect_collision(ball_box, brick.bbox, speed);
+			if (t) {
+				return speed.transform(t);
+			}
+		}
+	}
+
+	function ball_collides_with_vaus(ball_box, speed) {
+		const t = detect_collision(ball_box, vaus.bbox, speed);
+		if (t) {
+			return speed.transform(t);
+		}
+	}
+
+	function ball_collides_with_walls(ball_box, speed) {
+		if (ball_box.leftX <= zone.leftX) {
+			// collide with left wall
+			return Vector({x: -speed.x, y: speed.y});
+		} else if (ball_box.rightX >= zone.rightX) {
+			// collide with right wall
+			return Vector({x: -speed.x, y: speed.y});
+		} else if (ball_box.topY <= zone.topY) {
+			// collide with roof
+			return Vector({x: speed.x, y: -speed.y});
+		}
+	}
+
+	const ball_collides = dispatch(
+		ball_collides_with_bricks,
+		ball_collides_with_vaus,
+		ball_collides_with_walls,
+		(ball_box, speed) => speed
+	);
+
+	// Move helpers
 
 	function move_ball() {
 		if (!ball_speed.isNull()) {
 			const ball_box = ball.bbox.translate(ball_speed);
-			const vaus_box = vaus.bbox;
 
-			if (ball_box.leftX <= zone.leftX) {
-				// colide with left wall
-				ball_speed = Vector({x: -ball_speed.x, y: ball_speed.y});
-			} else if (ball_box.rightX >= zone.rightX) {
-				// colide with right wall
-				ball_speed = Vector({x: -ball_speed.x, y: ball_speed.y});
-			} else if (ball_box.topY <= zone.topY) {
-				// collision with roof
-				ball_speed = Vector({x: ball_speed.x, y: -ball_speed.y});
-			} else if (vaus_ball_collide(vaus_box, ball_box)) {
-				ball_speed = Vector({x: ball_speed.x, y: -ball_speed.y});
-			} else if (ball_box.bottomY >= zone.bottomY) {
+			if (ball_box.bottomY >= zone.bottomY) {
 				ball_speed = Vector.Null;
-				ball = createBall(vaus, scale_factor);
+				ball = create_ball(vaus, scale_factor);
+			} else {
+				ball_speed = ball_collides(ball_box, ball_speed);
+				ball.move(ball_speed);
 			}
-			ball.move(ball_speed);
 		} else {
 			ball.move(vaus_speed);
 		}
@@ -187,15 +248,22 @@ export default function createGame() {
 		draw_vaus();
 		draw_ball();
 
+		screen.pen = {
+			strokeStyle: 'hsl(210, 50%, 50%)',
+			lineWidth: 1/scale_factor
+		};
+		screen.translate({x: 0, y: .5/scale_factor});
+		screen.drawLine(zone.bottomLeft.add({x: .5, y: -.75}), zone.bottomRight.add({x: -.5, y: -.75}));
+
 		screen.restore();
 	}
 
 	// Game loop
 
 	function loop() {
-		move_vaus();
-		move_ball();
 		draw();
+		move_ball();
+		move_vaus();
 		requestAnimationFrame(loop);
 	}
 
