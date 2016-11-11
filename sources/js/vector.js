@@ -18,6 +18,12 @@ function createVector({x, y}) {
 		mul(k) {
 			return createVector({x: this.x*k, y: this.y*k});
 		},
+		transform({m11, m12, m21, m22}) {
+			return createVector({
+				x: this.x*m11 + this.y*m12,
+				y: this.x*m21 + this.y*m22
+			});
+		},
 		scalar({x, y}) {
 			return this.x*x + this.y*y;
 		},
