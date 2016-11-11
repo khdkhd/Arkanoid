@@ -18,10 +18,17 @@ const FILTER = {
 	ALLPASS: 'allpass'
 };
 
-function get_frequency_of_note({
-	note,
-	octave
-}) {
+const FACTORIES = {
+	vco: createVCO,
+	vca: createVCA,
+	biquad_filter: createBiquadFilter,
+	enveloppe_generator: createEnveloppeGenerator,
+	lfo: createLFO,
+	polyphonic_generator: createPolyphonicGenerator,
+	master: createMasterOutput
+};
+
+function get_frequency_of_note({note, octave}) {
 	const notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
 	let key_index = notes.indexOf(note);
 	key_index = key_index + ((octave - 1) * 12) + 1;
@@ -48,89 +55,11 @@ function createVCO(audio_context) {
 		gateOn(freq, time) {
 			osc.frequency.setValueAtTime(freq, time);
 		},
-		set waveForm(type) {
+		get form(){
+			return osc.type;
+		},
+		set form(type) {
 			osc.type = type;
-		}
-	};
-}
-
-
-function createPolyphonicGenerator(audio_context, voices) {
-	const vcos = times(voices, () => createVCO(audio_context));
-	const vcas = times(voices, () => createVCA(audio_context));
-	const enveloppes = times(voices, () => createEnveloppeGenerator());
-	const channel_merger = audio_context.createChannelMerger();
-	const polyphonyManager = createPolyphonyManager(voices);
-	return {
-		connect({input}) {
-			times(voices, i => {
-				vcos[i].connect(vcas[i]);
-				vcas[i].connect({input: channel_merger});
-				enveloppes[i].connect({input:vcas[i].gain});
-			});
-			channel_merger.connect(input);
-		},
-		get input(){
-			return this;
-		},
-		voiceOn(freq, time) {
-			const voice = polyphonyManager.assign(freq);
-			if(!isNaN(voice)){
-				vcos[voice].gateOn(freq, time);
-				enveloppes[voice].gateOn(time);
-			}
-
-		},
-		voiceOff(freq, time){
-			const voice = polyphonyManager.unassign(freq);
-			if(!isNaN(voice)){
-				enveloppes[voice].gateOff(time);
-			}
-		},
-		set waveForm(type) {
-			vcos.forEach(vco => vco.waveForm = type);
-		},
-		set attack(value){
-			enveloppes.forEach(enveloppe => enveloppe.attack = value);
-		},
-		set decay(value){
-			enveloppes.forEach(enveloppe => enveloppe.decay = value);
-		},
-		set sustain(value){
-			enveloppes.forEach(enveloppe => enveloppe.sustain = value);
-		},
-		set release(value){
-			enveloppes.forEach(enveloppe => enveloppe.release = value);
-		},
-
-	};
-}
-
-function createPolyphonyManager(voices){
-	const freqs = new Array(voices).fill(-1);
-	return {
-		assign(freq){
-			let index;
-			freqs.some(function(elem, i, freqs){
-				if(elem < 0){
-					index = i;
-					freqs[i]= freq;
-					return true;
-				}
-				return false;
-			});
-			return index;
-		},
-		unassign(freq){
-			let index;
-			freqs.some(function(elem, i, freqs){
-				if(elem==freq){
-					freqs[i] = -1;
-					index = i;
-					return true;
-				}
-			});
-			return index;
 		}
 	};
 }
@@ -157,6 +86,85 @@ function createVCA(audio_context) {
 		get gain(){
 			return vca.gain;
 		},
+	};
+}
+
+function createPolyphonicGenerator(audio_context, options) {
+	const voices = options.voices;
+	const vcos = times(voices, () => createVCO(audio_context));
+	const vcas = times(voices, () => createVCA(audio_context));
+	const enveloppes = times(voices, () => createEnveloppeGenerator());
+	const channel_merger = audio_context.createChannelMerger();
+	const polyphonyManager = createPolyphonyManager(voices);
+	return {
+		connect({input}) {
+			times(voices, i => {
+				vcos[i].connect(vcas[i]);
+				vcas[i].connect({input: channel_merger});
+				enveloppes[i].connect({input:vcas[i].gain});
+			});
+			channel_merger.connect(input);
+		},
+		voiceOn(freq, time) {
+			const voice = polyphonyManager.assign(freq);
+			if(!isNaN(voice)){
+				vcos[voice].gateOn(freq, time);
+				enveloppes[voice].gateOn(time);
+			}
+
+		},
+		voiceOff(freq, time){
+			const voice = polyphonyManager.unassign(freq);
+			if(!isNaN(voice)){
+				enveloppes[voice].gateOff(time);
+			}
+		},
+		get form(){
+			return vcos[0].form;
+		},
+		set form(type) {
+			vcos.forEach(vco => vco.form = type);
+		},
+		set attack(value){
+			enveloppes.forEach(enveloppe => enveloppe.attack = value);
+		},
+		set decay(value){
+			enveloppes.forEach(enveloppe => enveloppe.decay = value);
+		},
+		set sustain(value){
+			enveloppes.forEach(enveloppe => enveloppe.sustain = value);
+		},
+		set release(value){
+			enveloppes.forEach(enveloppe => enveloppe.release = value);
+		}
+	};
+}
+
+function createPolyphonyManager(voices){
+	const freqs = new Array(voices).fill(-1);
+	return {
+		assign(freq) {
+			let index;
+			freqs.some(function(elem, i, freqs) {
+				if (elem < 0) {
+					index = i;
+					freqs[i] = freq;
+					return true;
+				}
+			});
+			return index;
+		},
+		unassign(freq) {
+			let index;
+			freqs.some(function(elem, i, freqs) {
+				if (elem == freq) {
+					freqs[i] = -1;
+					index = i;
+					return true;
+				}
+			});
+			return index;
+		}
 	};
 }
 
@@ -194,10 +202,12 @@ function createEnveloppeGenerator(){
 
 function createBiquadFilter(audio_context){
 	const filter = audio_context.createBiquadFilter();
+	const enveloppe = createEnveloppeGenerator();
 	filter.type = FILTER.LOWSHELF;
 	return {
 		connect({input}){
 			filter.connect(input);
+			enveloppe.connect({input: filter.gain});
 		},
 		get input(){
 			return filter;
@@ -213,7 +223,19 @@ function createBiquadFilter(audio_context){
 		},
 		set gain(value){
 			filter.gain.value = value;
-		}
+		},
+		set attack(value){
+			enveloppe.attack = value;
+		},
+		set decay(value){
+			enveloppe.decay = value;
+		},
+		set sustain(value){
+			enveloppe.sustain = value;
+		},
+		set release(value){
+			enveloppe.release = value;
+		},
 	};
 }
 
@@ -233,13 +255,14 @@ function createLFO(audio_context){
 		set amplitude(value){
 			gain.gain.value = value;
 		},
-		set waveForm(type){
+		set form(type){
 			osc.type = type;
 		}
 	};
 }
 
-function createSequencer(slave, audio_context){
+function createSequencer(audio_context, options){
+	const slave = options.slave;
 	return {
 		playSequence({notes, duration}){
 			let time = audio_context.currentTime;
@@ -260,29 +283,35 @@ function createSequencer(slave, audio_context){
 }
 
 function createSynth(audio_context) {
-	const filter = createBiquadFilter(audio_context);
-	const master = createMasterOutput(audio_context);
-	const voices = createPolyphonicGenerator(audio_context, 2);
-	const lfo = createLFO(audio_context);
+	const signal_generators = [];
 	return {
-		patch() {
-			voices.waveForm = WAVEFORM.SQUARE;
-			voices.release = .5;
-			filter.frequency = 2250;
-			filter.gain = 25;
-			voices.connect(filter);
-			filter.connect(master);
-			lfo.frequency = 300;
-			lfo.waveForm = 'triangle';
-			lfo.amplitude = 15;
+		patch(patch) {
+			const synth_parts = patch.nodes.map(function(synth_part){
+				const part = Object.assign(FACTORIES[synth_part.type](audio_context, synth_part.options), synth_part.config);
+				if(synth_part.generator){
+					signal_generators.push(part);
+				}
+				return part;
+			});
+			for(let con of patch.connexions){
+				synth_parts[con[0]].connect(synth_parts[con[1]]);
+			}
 		},
 		noteOn({note, octave}, time) {
-			voices.voiceOn(get_frequency_of_note({note, octave}), time);
+			signal_generators.forEach(function(generator){
+				generator.voiceOn(get_frequency_of_note({note, octave}), time);
+
+			});
 		},
 		noteOff({note, octave}, time){
-			voices.voiceOff(get_frequency_of_note({note, octave}), time);
+			signal_generators.forEach(function(generator){
+				generator.voiceOff(get_frequency_of_note({note, octave}), time);
+			});
 		}
 	};
 }
+
+
+
 
 export { createSynth, createSequencer };
