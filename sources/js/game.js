@@ -262,8 +262,8 @@ export default function createGame() {
 
 	function loop() {
 		draw();
-		move_ball();
 		move_vaus();
+		move_ball();
 		requestAnimationFrame(loop);
 	}
 
