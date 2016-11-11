@@ -102,7 +102,7 @@ function createVCA(audio_context) {
 }
 
 function createEnveloppeGenerator(){
-	let attack = .0125, sustain = .5, decay =.0025, release = .0025;
+	let attack = .0125, sustain = .25, decay =.00025, release = .0025;
 	let param;
 	return {
 		connect({input}){
@@ -116,8 +116,7 @@ function createEnveloppeGenerator(){
 		},
 		gateOff(time){
 			param.cancelScheduledValues(time);
-			param.setValueAtTime(param.value, time);
-			param.linearRampToValueAtTime(0.0001, time + release);
+			param.linearRampToValueAtTime(0, time + release);
 		},
 		set attack(value){
 			attack = value;
@@ -134,58 +133,50 @@ function createEnveloppeGenerator(){
 	};
 }
 
-function createMoogFilter(audio_context) {
-	const bufferSize = 4096;
-	const node = audio_context.createScriptProcessor(bufferSize, 1, 1);
-	let in1, in2, in3, in4, out1, out2, out3, out4;
-	in1 = in2 = in3 = in4 = out1 = out2 = out3 = out4 = 0.0;
-	node.cutoff = .85; // between 0.0 and 1.0
-	node.resonance = 2.99; // between 0.0 and 4.0
-	node.onaudioprocess = function(e) {
-		const input = e.inputBuffer.getChannelData(0);
-		const output = e.outputBuffer.getChannelData(0);
-		const f = node.cutoff * 1.16;
-		const fb = node.resonance * (1.0 - 0.15 * f * f);
-		for (let i = 0; i < bufferSize; i++) {
-			input[i] -= out4 * fb;
-			input[i] *= 0.35013 * (f * f) * (f * f);
-			out1 = input[i] + 0.3 * in1 + (1 - f) * out1; // Pole 1
-			in1 = input[i];
-			out2 = out1 + 0.3 * in2 + (1 - f) * out2; // Pole 2
-			in2 = out1;
-			out3 = out2 + 0.3 * in3 + (1 - f) * out3; // Pole 3
-			in3 = out2;
-			out4 = out3 + 0.3 * in4 + (1 - f) * out4; // Pole 4
-			in4 = out3;
-			output[i] = out4;
-		}
-	}
+function createBiquadFilter(audio_context){
+	const filter = audio_context.createBiquadFilter();
+	const types = [
+			'lowpass',
+			'highpass',
+			'bandpass',
+			'lowshelf',
+			'highshelf',
+			'peaking',
+			'notch',
+			'allpass'
+	];
+	filter.type = types[3];
 	return {
 		connect({input}){
-			node.connect(input);
+			filter.connect(input);
 		},
 		get input(){
-			return node;
+			return filter;
+		},
+		set type(type){
+			filter.type = type;
 		},
 		set frequency(value){
-			return node.cutoff = value;
+			filter.frequency.value = value;
 		},
-		set resonance(value){
-			node.resonance = value;
+		get frequency(){
+			return filter.frequency;
 		},
-		get cutoff(){
-			return node.cutoff;
+		set gain(value){
+			filter.gain.value = value;
 		}
-	}
+	};
 }
 
 function createLFO(audio_context){
 	const osc = audio_context.createOscillator();
 	const gain = audio_context.createGain();
+	osc.type = 'sawtooth';
 	return {
 		connect({input}){
 			osc.connect(gain);
 			gain.connect(input);
+			osc.start();
 		},
 		set frequency(value){
 			osc.frequency.value = value;
@@ -200,9 +191,9 @@ function createLFO(audio_context){
 }
 
 function createSequencer(slave, audio_context){
-	let time = audio_context.currentTime;
 	return {
 		playSequence({notes, duration}){
+			let time = audio_context.currentTime;
 			for(let i = 0; i<notes.length; i++){
 				slave.noteOn(0,{note:notes[i], octave: 4}, time);
 				slave.noteOn(1,{note:notes[notes.length-1], octave: 2}, time/2);
@@ -211,20 +202,31 @@ function createSequencer(slave, audio_context){
 				slave.noteOff(1, time);
 			}
 		},
+		playNote(note, octave, duration){
+			const time = audio_context.currentTime;
+			slave.noteOn(0,{note:note, octave: octave}, time);
+			slave.noteOff(0, time + duration);
+		}
 	};
 }
 
 function createSynth(audio_context) {
-	const filter = createMoogFilter(audio_context);
+	const filter = createBiquadFilter(audio_context);
 	const master = createMasterOutput(audio_context);
-	const voices = createPolyphony(audio_context,2);
+	const voices = createPolyphony(audio_context, 2);
+	const lfo = createLFO(audio_context);
 	return {
 		patch() {
 			voices.waveForm = 'square';
-			filter.frequency = .9;
-			filter.resonance = 2;
+			voices.release = .5;
+			filter.frequency = 50;
+			filter.gain = 55;
 			voices.connect(filter);
 			filter.connect(master);
+			lfo.connect({input:filter.frequency});
+			lfo.frequency = 300;
+			lfo.waveForm = 'triangle';
+			lfo.amplitude = 15;
 		},
 		noteOn(voice, {note, octave}, time) {
 			voices.voiceOn(voice, get_frequency_of_note({note, octave}), time);
