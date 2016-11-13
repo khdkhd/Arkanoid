@@ -1,7 +1,5 @@
 import Vector from 'vector';
 
-import random from 'lodash.random';
-
 const NONE = 0;
 
 const LEFT = 1;
@@ -122,13 +120,13 @@ export function bounce(a_box, {x, y}, b_box, epsilon = 1) {
 			return Vector({x: -x, y});
 
 		case TOP:
-			if (y > 0) {
+			if (y < 0) {
 				return Vector({x: -x, y});
 			}
 			return Vector({x, y: -y});
 
 		case BOTTOM:
-			if (y < 0) {
+			if (y > 0) {
 				return Vector({x: -x, y});
 			}
 			return Vector({x, y: -y});
