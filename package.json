@@ -56,6 +56,7 @@
     "lodash.isstring": "^4.0.1",
     "lodash.noop": "^3.0.1",
     "lodash.random": "^3.2.0",
+    "lodash.remove": "^4.7.0",
     "mocha": "^3.1.2",
     "sinon": "^1.17.6",
     "vinyl-buffer": "^1.0.0",
