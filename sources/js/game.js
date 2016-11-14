@@ -18,6 +18,7 @@ import {dispatch} from 'functional';
 import {bounce} from 'physics';
 
 import random from 'lodash.random';
+import remove from 'lodash.remove';
 import is_nil from 'lodash.isnil';
 
 const colors = [
@@ -87,6 +88,7 @@ export default function createGame() {
 	let ball = create_ball(vaus, scale_factor);
 	let vaus_speed = Vector.Null;
 	let ball_speed = Vector.Null;
+	let score = 0;
 
 	keyboard.on('direction-changed', direction => {
 		vaus_speed = direction.mul(.4);
@@ -95,6 +97,19 @@ export default function createGame() {
 		if (ball_speed.isNull()) {
 			ball_speed = Vector({x: 1, y: -1}).toUnit().mul(.2);
 		}
+	});
+
+	bricks.forEach(brick => {
+		brick.on('hit', (id, point) => {
+			score += point;
+			console.log(score);
+		});
+		brick.once('destroyed', (id) => {
+			brick.removeAllListeners();
+			remove(bricks, brick => {
+				return brick.id === id;
+			});
+		});
 	});
 
 	// Position helpers
