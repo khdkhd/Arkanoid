@@ -1,4 +1,4 @@
-import Vector from 'vector';
+import Vector from 'maths/vector';
 
 const NONE = 0;
 

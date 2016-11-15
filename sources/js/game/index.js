@@ -1,8 +1,10 @@
-import Rect from 'rect';
-import Vector from 'vector';
-import Brick from 'brick';
-import Ball from 'ball';
-import Vaus from 'vaus';
+import {dispatch} from 'common/functional';
+import {bounce} from 'physics';
+import Rect from 'maths/rect';
+import Vector from 'maths/vector';
+import Brick from 'game/brick';
+import Ball from 'game/ball';
+import Vaus from 'game/vaus';
 import {
 	HorizontalWall,
 	HorizontalLeftWall,
@@ -11,11 +13,9 @@ import {
 	VerticalRightWall,
 	VerticalTopLeftWall,
 	VerticalTopRightWall
-} from 'wall';
+} from 'game/wall';
 import ui from 'ui';
-import gameKeyboardController from 'game-keyboard-controller'
-import {dispatch} from 'functional';
-import {bounce} from 'physics';
+import gameKeyboardController from 'game/keyboard-controller';
 
 import random from 'lodash.random';
 import remove from 'lodash.remove';

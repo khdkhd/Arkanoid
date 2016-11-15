@@ -1,5 +1,5 @@
-import Keyboard from 'keyboard';
-import Vector from 'vector';
+import Keyboard from 'ui/Keyboard';
+import Vector from 'maths/vector';
 
 import constant from 'lodash.constant';
 

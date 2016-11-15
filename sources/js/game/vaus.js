@@ -1,5 +1,5 @@
-import Rect from 'rect';
-import Vector from 'vector';
+import Rect from 'maths/rect';
+import Vector from 'maths/vector';
 
 const blue_box = new Path2D(`
 	M ${0/16} ${ 6/16}

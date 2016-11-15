@@ -1,7 +1,7 @@
-import Animation from 'animation';
-import Vector from 'vector';
-import Rect from 'rect';
-import Entity from 'entity';
+import Animation from 'common/animation';
+import Vector from 'maths/vector';
+import Rect from 'maths/rect';
+import Entity from 'game/entity';
 import {EventEmitter} from 'events';
 import is_nil from 'lodash.isnil';
 

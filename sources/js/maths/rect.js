@@ -1,4 +1,4 @@
-import createVector from 'vector';
+import createVector from 'maths/vector';
 
 export default function createRect({x, y}, {width, height}) {
 	return {

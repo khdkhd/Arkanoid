@@ -1,4 +1,4 @@
-import Vector from 'vector';
+import Vector from 'maths/vector';
 
 const h_wall = new Path2D(`
 	M 0 ${ 1/16}

@@ -1,5 +1,5 @@
-import Rect from 'rect';
-import Vector from 'vector';
+import Rect from 'maths/rect';
+import Vector from 'maths/vector';
 
 export default function(state, {x, y}, {width, height}, bbox_center = 'center') {
 	let pos_ = Vector({x, y});
