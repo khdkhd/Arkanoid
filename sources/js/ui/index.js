@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 
 import Keyboard from 'ui/keyboard';
-import Screen from 'graphism/screen';
+import Screen from 'graphics/screen';
 
 const canvas = document.querySelector('#screen');
 const screen = Screen(canvas.getContext('2d'));

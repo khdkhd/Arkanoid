@@ -1,4 +1,4 @@
-import Screen from 'graphism/screen';
+import Screen from 'graphics/screen';
 import Rect from 'maths/rect';
 
 import {expect} from 'chai';
