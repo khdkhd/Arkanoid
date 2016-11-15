@@ -2,7 +2,7 @@ import Screen from 'screen';
 import {expect} from 'chai';
 import sinon from 'sinon';
 
-import Rect from 'rect';
+import Rect from 'maths/rect';
 
 const screen_width  = 200;
 const screen_height = 200;

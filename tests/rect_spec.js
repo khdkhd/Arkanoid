@@ -1,5 +1,5 @@
-import Rect from 'rect';
-import Vector from 'vector';
+import Rect from 'maths/rect';
+import Vector from 'maths/vector';
 import {expect} from 'chai';
 
 describe('Rect({x, y}, {width, height})', () => {

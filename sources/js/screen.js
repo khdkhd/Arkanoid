@@ -2,7 +2,7 @@ import is_nil from 'lodash/isNil';
 import is_number from 'lodash/isNumber';
 import is_string from 'lodash/isString';
 
-import Rect from 'rect';
+import Rect from 'maths/rect';
 
 export default function createScreen(canvas_context) {
 	let scale_factor = {x: 1, y: 1};
