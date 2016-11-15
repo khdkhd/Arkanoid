@@ -1,5 +1,5 @@
-import Vector from 'vector';
-import Rect from 'rect';
+import Vector from 'maths/vector';
+import Rect from 'maths/rect';
 
 const bricks_data = {
 	'white': {

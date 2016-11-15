@@ -1,4 +1,4 @@
-import Vector from 'vector';
+import Vector from 'maths/vector';
 import identity from 'lodash.identity';
 
 export default function Mover(state, acceleration, init_speed, init_time, snap = identity) {
