@@ -7,5 +7,8 @@ module.exports = {
 	},
 	get outputDirectory() {
 		return process.env.BUILD_OUTPUT_DIR || 'public';
+	},
+	get target() {
+		return process.env.TARGET || 'main.js'
 	}
 }

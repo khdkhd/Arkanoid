@@ -14,7 +14,8 @@ const watchify = require('watchify');
 
 const output_dir = path.join(env.outputDirectory, 'assets', 'js');
 const sources_dir = path.join('sources', 'js');
-const app_source = path.join(sources_dir, 'main.js');
+
+const app_source = path.join(sources_dir, env.target);
 
 const browserify_base_options = {
 	debug: true,
