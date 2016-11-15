@@ -1,4 +1,4 @@
-import Keyboard from 'ui/Keyboard';
+import Keyboard from 'ui/keyboard';
 import Vector from 'maths/vector';
 
 import constant from 'lodash.constant';
