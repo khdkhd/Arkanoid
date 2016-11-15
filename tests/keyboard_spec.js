@@ -1,4 +1,4 @@
-import Keyboard from 'keyboard';
+import Keyboard from 'ui/keyboard';
 import {expect} from 'chai';
 import sinon from 'sinon';
 

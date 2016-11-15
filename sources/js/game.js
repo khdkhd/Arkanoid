@@ -1,5 +1,5 @@
-import Rect from 'rect';
-import Vector from 'vector';
+import Rect from 'maths/rect';
+import Vector from 'maths/vector';
 import Brick from 'brick';
 import Ball from 'ball';
 import Vaus from 'vaus';
