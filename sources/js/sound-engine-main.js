@@ -1,17 +1,16 @@
-import {createSynth as Synth, createSequencer as Sequencer } from 'sound-engine';
+import {Synth, Seq, Note } from 'sound';
 import Game from 'game';
 
 
 const audio_context = new AudioContext();
-const notes = ['C', 'A', 'A#', 'B', 'E', 'F', 'G#', 'C#'];
 const synth = Synth(audio_context);
-const seq = Sequencer(audio_context, {slave:synth});
+const seq = Seq(audio_context, {slave:synth});
 const patch = {
 	nodes: [
 		{
 			id: 0,
-			type: 'polyphonic_generator',
-			generator: true,
+			factory: 'polyphonic_generator',
+			type: 'generator',
 			options: {
 				voices: 2
 			},
@@ -22,31 +21,77 @@ const patch = {
 		},
 		{
 			id: 1,
-			type: 'biquad_filter',
+			factory: 'biquad_filter',
 			config: {
-				frequency: 1550,
+				frequency: 250,
 				gain: 15
 			}
 		},
 		{
 			id: 2,
-			type: 'lfo',
+			factory: 'lfo',
 			config: {
 				form: 'triangle',
+				frequency: 100,
+				amplitude: 100
 			}
 		},
 		{
 			id: 3,
-			type: 'master'
+			factory: 'master'
 		}
 	],
 	connexions: [
 		[0,1],
-		[1,3]
+		[1,3],
+		[2,1]
 	]
 };
 
+const DURATION = {
+	WHOLE: 1,
+	HALF: 1/2,
+	QUARTER: 1/4,
+	EIGHTH: 1/8
+}
+
+let pattern = [[
+	Note('A',4,DURATION.HALF),
+	{},
+	{},
+	{},
+	Note('C#',2,DURATION.HALF),
+	{},
+	{},
+	{},
+	Note('A',4,DURATION.HALF),
+	{},
+	{},
+	{},
+	Note('B',4,DURATION.HALF),
+	{},
+	{},
+	{},
+	Note('A',4,DURATION.HALF),
+	{},
+	{},
+	{},
+	Note('E',4,DURATION.HALF),
+	{},
+	{},
+	{},
+	Note('A',4,DURATION.HALF),
+	{},
+	{},
+	{},
+	Note('E',4,DURATION.HALF),
+	{},
+	{},
+	{}
+]];
 synth.patch(patch);
-seq.playNote('C', 4, .25);
+seq.loadPattern(pattern);
+seq.start();
+seq.play();
 const game = Game();
 game.start();
