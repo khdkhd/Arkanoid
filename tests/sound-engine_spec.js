@@ -1,4 +1,4 @@
-import { createSynth as Synth, createSequencer as Seq } from 'sound-engine';
+import {Synth, Seq} from 'sound';
 import {expect} from 'chai';
 import sinon from 'sinon';
 
@@ -25,7 +25,8 @@ describe('createSynth(audio_context)',()=>{
 
 describe('createSequencer(audio_context)',()=>{
 	it('creates and return a new Sequencer object', () => {
-		const seq = Seq(createAudioContextMock());
+		const synth = Synth(createAudioContextMock());
+		const seq = Seq(createAudioContextMock(), {slave:synth});
 		expect(seq).to.be.an('object');
 	});
 });
