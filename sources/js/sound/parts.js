@@ -1,22 +1,20 @@
 import times from 'lodash.times';
 
-const WAVEFORM = {
-	SINE: 'sine',
-	TRIANGLE: 'triangle',
-	SAWTOOTH: 'sawtooth',
-	SQUARE: 'square'
-};
+const WAVEFORM_SINE = 'sine';
+const WAVEFORM_TRIANGLE = 'triangle';
+const WAVEFORM_SAWTOOTH = 'sawtooth';
+const WAVEFORM_SQUARE = 'square';
 
-const FILTER = {
-	LOWPASS: 'lowpass',
-	HIGHPASS: 'highpass',
-	BANDPASS: 'bandpass',
-	LOWSHELF: 'lowshelf',
-	HIGHSHELF: 'highshelf',
-	PEAKING: 'peaking',
-	NOTCH: 'notch',
-	ALLPASS: 'allpass'
-};
+
+const FILTER_LOWPASS = 'lowpass';
+const FILTER_HIGHPASS = 'highpass';
+const FILTER_BANDPASS = 'bandpass';
+const FILTER_LOWSHELF = 'lowshelf';
+const FILTER_HIGHSHELF = 'highshelf';
+const FILTER_PEAKING = 'peaking';
+const FILTER_NOTCH = 'notch';
+const FILTER_ALLPASS = 'allpass';
+
 
 function createMasterOutput(audio_context){
 	const _input = audio_context.destination;
@@ -29,7 +27,6 @@ function createMasterOutput(audio_context){
 
 function createVCO(audio_context) {
 	const osc = audio_context.createOscillator();
-	osc.type = WAVEFORM.TRIANGLE;
 	return {
 		connect({input}) {
 			osc.connect(input);
@@ -49,7 +46,6 @@ function createVCO(audio_context) {
 
 function createVCA(audio_context) {
 	const vca = audio_context.createGain();
-	vca.gain.value = 0.0001;
 	return {
 		connect({input}) {
 			vca.connect(input);
@@ -69,6 +65,9 @@ function createVCA(audio_context) {
 		get gain(){
 			return vca.gain;
 		},
+		set value(value){
+			vca.gain.value = value;
+		}
 	};
 }
 
@@ -185,7 +184,6 @@ function createEnveloppeGenerator(){
 function createBiquadFilter(audio_context){
 	const filter = audio_context.createBiquadFilter();
 	const enveloppe = createEnveloppeGenerator();
-	filter.type = FILTER.LOWSHELF;
 	return {
 		connect({input}){
 			filter.connect(input);
@@ -227,7 +225,6 @@ function createBiquadFilter(audio_context){
 function createLFO(audio_context){
 	const osc = audio_context.createOscillator();
 	const gain = audio_context.createGain();
-	osc.type = WAVEFORM.SAWTOOTH;
 	return {
 		connect({param}){
 			osc.connect(gain);
@@ -253,5 +250,41 @@ export default  {
 	enveloppe_generator: createEnveloppeGenerator,
 	lfo: createLFO,
 	polyphonic_generator: createPolyphonicGenerator,
-	master: createMasterOutput
+	master: createMasterOutput,
+	get WAVEFORM_SINE(){
+		return WAVEFORM_SINE;
+	},
+	get WAVEFORM_SQUARE(){
+		return WAVEFORM_SQUARE;
+	},
+	get WAVEFORM_TRIANGLE(){
+		return WAVEFORM_TRIANGLE;
+	},
+	get WAVEFORM_SAWTOOTH(){
+		return WAVEFORM_SAWTOOTH;
+	},
+	get FILTER_LOWPASS(){
+		return FILTER_LOWPASS;
+	},
+	get FILTER_HIGHPASS(){
+		return FILTER_HIGHPASS;
+	},
+	get FILTER_LOWSHELF(){
+		return FILTER_LOWSHELF;
+	},
+	get FILTER_HIGHSHELF(){
+		return FILTER_HIGHSHELF;
+	},
+	get FILTER_BANDPASS(){
+		return FILTER_BANDPASS;
+	},
+	get FILTER_ALLPASS(){
+		return FILTER_ALLPASS;
+	},
+	get FILTER_NOTCH(){
+		return FILTER_NOTCH;
+	},
+	get FILTER_PEAKING(){
+		return FILTER_PEAKING;
+	}
 };
