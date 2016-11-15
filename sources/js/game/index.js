@@ -1,3 +1,5 @@
+import {dispatch} from 'common/functional';
+import {bounce} from 'physics';
 import Rect from 'maths/rect';
 import Vector from 'maths/vector';
 import Brick from 'game/brick';
@@ -13,10 +15,11 @@ import {
 	VerticalTopRightWall
 } from 'game/wall';
 import ui from 'ui';
-import gameKeyboardController from 'game/keyboard-controller'
-import {dispatch} from 'common/functional';
+import gameKeyboardController from 'game/keyboard-controller';
 
 import random from 'lodash.random';
+import remove from 'lodash.remove';
+import is_nil from 'lodash.isnil';
 
 const colors = [
 	'white',
@@ -85,6 +88,7 @@ export default function createGame() {
 	let ball = create_ball(vaus, scale_factor);
 	let vaus_speed = Vector.Null;
 	let ball_speed = Vector.Null;
+	let score = 0;
 
 	keyboard.on('direction-changed', direction => {
 		vaus_speed = direction.mul(.4);
@@ -95,58 +99,43 @@ export default function createGame() {
 		}
 	});
 
+	bricks.forEach(brick => {
+		brick.on('hit', (id, point) => {
+			score += point;
+		});
+		brick.once('destroyed', (id) => {
+			brick.removeAllListeners();
+			remove(bricks, brick => {
+				return brick.id === id;
+			});
+		});
+	});
+
 	// Position helpers
 
 	function ball_neighborhood(ball) {
 		const col = Math.round(ball.pos.x);
 		const row = Math.round(ball.pos.y);
-		return bricks.filter(brick => Math.abs(col - brick.pos.x) <= 1 && Math.abs(row - brick.pos.y) <= 1);
+		return bricks
+			.filter(brick => Math.abs(col - brick.pos.x) <= 2 && Math.abs(row - brick.pos.y) <= 1);
 	}
 
 	// Collision helpers
 
-	function detect_collision(a_box, b_box, speed) {
-		const w = .5*(a_box.width + b_box.width);
-		const h = .5*(a_box.height + b_box.height);
-		const {x: dx, y: dy} = a_box.center.sub(b_box.center);
-		if (Math.abs(dx) <= w && Math.abs(dy) <= h) {
-			const wy = w*dy;
-			const hx = h*dx;
-			const r = random(-1, 1, true)/25;
-			if (wy > hx) {
-				if (wy > -hx && speed.y < 0) {
-					// bottom side collision
-					return {m11:  1, m12: 0, m21: 0, m22: -1 + r};
-				} else if (speed.x > 0) {
-					// left side collision
-					return {m11: -1 + r, m12: 0, m21: 0, m22:  1};
-				}
-			} else {
-				if (wy > -hx && speed.x < 0) {
-					// right side collision
-					return {m11: -1 + r, m12: 0, m21: 0, m22:  1};
-				} else if (speed.y > 0) {
-					// top side collision
-					return {m11:  1, m12: 0, m21: 0, m22: -1 + r};
-				}
-			}
-		}
-		return false;
-	}
-
 	function ball_collides_with_bricks(ball_box, speed) {
 		for (let brick of ball_neighborhood(ball)) {
-			const t = detect_collision(ball_box, brick.bbox, speed);
-			if (t) {
-				return speed.transform(t);
+			const v = bounce(ball_box, speed, brick.bbox, .001);
+			if (!is_nil(v)) {
+				brick.hit();
+				return v.add({x: random(-1, 1, true)/1000, y: random(-1, 1, true)/1000}).toUnit().mul(.2);
 			}
 		}
 	}
 
 	function ball_collides_with_vaus(ball_box, speed) {
-		const t = detect_collision(ball_box, vaus.bbox, speed);
-		if (t) {
-			return speed.transform(t);
+		const v = bounce(ball_box, speed, vaus.bbox, 1/scale_factor);
+		if (!is_nil(v)) {
+			return v;
 		}
 	}
 
@@ -159,6 +148,10 @@ export default function createGame() {
 			return Vector({x: -speed.x, y: speed.y});
 		} else if (ball_box.topY <= zone.topY) {
 			// collide with roof
+			return Vector({x: speed.x, y: -speed.y});
+		} else if (ball_box.bottomY >= zone.bottomY) {
+			// collide width floor
+			// it should only happened if end of round has not been checked
 			return Vector({x: speed.x, y: -speed.y});
 		}
 	}
@@ -175,7 +168,6 @@ export default function createGame() {
 	function move_ball() {
 		if (!ball_speed.isNull()) {
 			const ball_box = ball.bbox.translate(ball_speed);
-
 			if (ball_box.bottomY >= zone.bottomY) {
 				ball_speed = Vector.Null;
 				ball = create_ball(vaus, scale_factor);
