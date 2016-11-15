@@ -16,8 +16,6 @@ const output_dir = path.join(env.outputDirectory, 'assets', 'js');
 const sources_dir = path.join('sources', 'js');
 const app_source = path.join(sources_dir, 'main.js');
 
-gulp.task('bundle-clean', () => del(output_dir));
-
 const browserify_base_options = {
 	debug: true,
 	paths: ['node_modules', sources_dir],
@@ -68,7 +66,7 @@ function create_watchify_bundler(bundle) {
 }
 
 gulp.task('bundle', () => bundle(create_browserify_bundler()));
-
+gulp.task('bundle-clean', () => del(output_dir));
 gulp.task('bundle-watch', ['bundle'], () => bundle(create_watchify_bundler(bundle)));
 
 module.exports = {
