@@ -1,8 +1,8 @@
-import Screen from 'screen';
+import Screen from 'graphism/screen';
+import Rect from 'maths/rect';
+
 import {expect} from 'chai';
 import sinon from 'sinon';
-
-import Rect from 'maths/rect';
 
 const screen_width  = 200;
 const screen_height = 200;
