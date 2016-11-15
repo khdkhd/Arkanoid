@@ -1,4 +1,4 @@
-import Animation from 'animation';
+import {Animation} from 'animation';
 import Vector from 'vector';
 import Rect from 'rect';
 import Entity from 'entity';
@@ -107,6 +107,7 @@ export default function Brick(color, {x, y}, level) {
 	const destroyed = () => {
 		return !is_nil(state.hits) && state.hits === 0;
 	};
+
 	const bottom_outer_rect_color = Animation(
 		hit_animation_frame_count,
 		v => {
@@ -120,7 +121,6 @@ export default function Brick(color, {x, y}, level) {
 			if (!destroyed()) {
 				state.hits = state.hits - 1;
 				emitter.emit('hit', state.id, state.points);
-
 				if (destroyed()) {
 					// stat destroyed animation
 					emitter.emit('destroyed', state.id);

@@ -102,7 +102,6 @@ export default function createGame() {
 	bricks.forEach(brick => {
 		brick.on('hit', (id, point) => {
 			score += point;
-			console.log(score);
 		});
 		brick.once('destroyed', (id) => {
 			brick.removeAllListeners();
@@ -169,7 +168,6 @@ export default function createGame() {
 	function move_ball() {
 		if (!ball_speed.isNull()) {
 			const ball_box = ball.bbox.translate(ball_speed);
-
 			if (ball_box.bottomY >= zone.bottomY) {
 				ball_speed = Vector.Null;
 				ball = create_ball(vaus, scale_factor);
