@@ -1,4 +1,4 @@
-import {Animation} from 'animation';
+import Animation from 'animation';
 import Vector from 'vector';
 import Rect from 'rect';
 import Entity from 'entity';
