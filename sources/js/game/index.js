@@ -66,7 +66,7 @@ function create_walls(cols, rows) {
 }
 
 export default function createGame() {
-	const keyboard = ui.Keyboard(gameKeyboardController);
+	const keyboard = ui.keyboard;
 	const screen = ui.screen;
 
 	screen.size = {
@@ -259,7 +259,7 @@ export default function createGame() {
 
 	return {
 		start() {
-			keyboard.start();
+			keyboard.use(gameKeyboardController);
 			requestAnimationFrame(loop);
 		}
 	};
