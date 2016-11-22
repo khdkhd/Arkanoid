@@ -1,4 +1,5 @@
 import identity from 'lodash.identity';
+import is_nil from 'lodash.isnil';
 
 /// Automation clock
 ///
@@ -19,34 +20,60 @@ export function Clock(t0) {
 	};
 }
 
+const AUTOMATION_GENERATOR_SYMBOL = Symbol();
+
 /// Automation(duration[, transform = identity])
 ///
-export function Automation(duration, clock, ease = identity) {
-	let running = false;
+export function Automation(duration, clock, ease = identity, fallback) {
 	let t0;
+	let generator;
+
+	const create_generator = function* () {
+		for (let d = 0;  d < duration; d = clock.current - t0) {
+			yield ease(d/duration);
+		}
+	};
+	const is_running = () => !is_nil(generator);
 	const reset = () => t0 = clock.current;
+	const start = () => {
+		reset();
+		generator = create_generator();
+	};
+	const stop = () => {
+		generator = null;
+	};
+
 	return {
 		reset() {
 			reset();
 			return this;
 		},
 		start() {
-			reset();
-			running = true;
+			start();
 			return this;
 		},
 		stop() {
-			running = false;
+			stop();
 			return this;
 		},
-		generator: function*() {
-			for (let d = 0; running && d < duration; d = clock.current - t0) {
-				yield ease(d/duration);
-			}
-			running = false;
-		},
 		get isRunning() {
-			return running;
+			return is_running();
+		},
+		get value() {
+			if (is_running()) {
+				const v = generator.next().value;
+				if (!is_nil(v)) {
+					return v;
+				}
+				stop();
+			}
+			if (!is_nil(fallback)) {
+				return ease(fallback);
+			}
+		},
+		[AUTOMATION_GENERATOR_SYMBOL]: function* () {
+			start();
+			yield* generator;
 		}
 	};
 }
@@ -54,56 +81,88 @@ export function Automation(duration, clock, ease = identity) {
 /// RepeatAutomation(duration[, transform = identity])
 ///
 export function RepeatAutomation(automation) {
+	let generator;
 	let running = false;
+
+	const create_generator = function*() {
+		while (running) {
+			yield* automation[AUTOMATION_GENERATOR_SYMBOL]();
+		}
+	};
+	const is_running = () => running || automation.isRunning;
+	const start = () => {
+		running = true;
+		generator = create_generator();
+	}
 	return {
 		reset() {
 			automation.reset();
 			return this;
 		},
 		start() {
-			automation.start();
-			running = true;
+			start();
 			return this;
 		},
 		stop() {
-			automation.stop();
 			running = false;
+			automation.stop();
 			return this;
 		},
 		completeAndStop() {
 			running = false;
 			return this;
 		},
-		generator: function*() {
-			while (running) {
-				yield* automation.start().generator();
-			}
-		},
 		get isRunning() {
-			return automation.isRunning;
+			return running || automation.isRunning;
+		},
+		get value() {
+			if (is_running()) {
+				return generator.next().value;
+			}
+			return automation.value;
+		},
+		[AUTOMATION_GENERATOR_SYMBOL]: function* () {
+			start();
+			yield* generator;
 		}
 	}
 }
 
-/// CompositeAutomation(duration[, transform = identity])
+/// SequenceAutomation(duration[, transform = identity])
 ///
 export function SequenceAutomation(...automations) {
 	let running = false;
 	let current = 0;
-	const reset = () => {
-		for (let automation of automations) {
-			automation.stop();
+	let generator;
+
+	const create_generator = function* () {
+		for (;running && current < automations.length; ++current) {
+			const automation = automations[current];
+			automation.start();
+			for (let value of automation.generator()) {
+				yield value;
+			}
 		}
-		current = 0;
 	};
+	const is_running = () => running || automations.some(a => a.isRunning);
+	const reset = () => {
+		current = 0;
+		automations.forEach(a => a.stop());
+		generator = create_generator();
+	};
+	const start = () => {
+		reset();
+		running = true;
+		generator = create_generator();
+	};
+
 	return {
 		reset() {
 			reset();
 			return this;
 		},
 		start() {
-			reset();
-			running = true;
+			start();
 			return this;
 		},
 		stop() {
@@ -115,56 +174,75 @@ export function SequenceAutomation(...automations) {
 			running = false;
 			return this;
 		},
-		generator: function*() {
-			for (;running && current < automations.length; ++current) {
-				const automation = automations[current];
-				automation.start();
-				for (let value of automation.generator()) {
-					yield value;
+		get isRunning() {
+			return is_running();
+		},
+		get value() {
+			if (is_running()) {
+				const v =  generator.next().value;
+				if (!is_nil(v)) {
+					return v;
 				}
 			}
-			running = false;
+			// maybe a fallback value ?
+			return (automations.first(a => is_nil(a.value))).value;
 		},
-		get isRunning() {
-			return running || automations.some(a => a.isRunning);
+		[AUTOMATION_GENERATOR_SYMBOL]: function* () {
+			start();
+			yield* generator;
 		}
 	}
 }
 
+/// CompositeAutomation(automations)
+///
 export function CompositeAutomation(automations) {
-	const generators = Object.entries(automations).reduce(
-		(res, [prop, automation]) => Object.assign(res, {
-			[prop]: automation.generator()
-	}), {});
 	const is_running = () => {
-		return Object.values(automations).every(automation => {
+		return Object.values(automations).some(automation => {
 			return automation.isRunning;
 		});
 	};
-	return {
-		reset() {
-			Object.values(automations).forEach(a => a.reset());
-			return this;
-		},
-		start() {
-			Object.values(automations).forEach(a => {
-				a.start();
-			});
-			return this;
-		},
-		stop() {
-			Object.values(automations).forEach(a => a.stop());
-			return this;
-		},
-		generator: function*() {
-			while (is_running()) {
-				yield Object.entries(generators).reduce((res, [prop, gen]) => {
-					return Object.assign(res, {[prop]: gen.next().value});
-				}, {});
+
+	const values = Object.entries(automations).reduce((prop_values, [prop, a]) => {
+		const prop_value = Object.create({}, {[prop]: {
+			get: () => a,
+			enumerable: true
+		}});
+		return Object.assign(prop_values, prop_value);
+	}, {});
+
+	return Object.assign({
+		reset(prop) {
+			if (is_nil(prop)) {
+				Object.values(automations).forEach(a => a.reset());
+			} else {
+				automations[prop].reset();
 			}
+			return this;
+		},
+		start(prop) {
+			if (is_nil(prop)) {
+				Object.values(automations).forEach(a => a.start());
+			} else {
+				automations[prop].reset();
+			}
+			return this;
+		},
+		stop(prop) {
+			if (is_nil(prop)) {
+				Object.values(automations).forEach(a => a.stop());
+			} else {
+				automations[prop].stop();
+			}
+			return this;
 		},
 		get isRunning() {
 			return is_running();
+		},
+		get value() {
+			return Object.entries(automations).reduce((v, [prop, a]) => {
+				return Object.assign(v, {[prop]: a.value});
+			}, {});
 		}
-	};
+	}, values);
 }
