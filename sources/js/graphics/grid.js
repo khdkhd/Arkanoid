@@ -1,4 +1,4 @@
-export default function draw_grid(cols, rows, screen, scale_factor, {line_width = 1, color = 'red'}) {
+export default function drawGrid(cols, rows, screen, scale_factor, {line_width = 1, color = 'red'}) {
 	screen.save();
 	screen.translate({x: -.5, y: -.5});
 	screen.scale(scale_factor);
