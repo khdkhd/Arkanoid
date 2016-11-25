@@ -1,5 +1,6 @@
 import identity from 'lodash.identity';
 import is_nil from 'lodash.isnil';
+import first from 'lodash.first';
 
 /// Automation clock
 ///
@@ -68,7 +69,7 @@ export function Automation(duration, clock, ease = identity, fallback) {
 				stop();
 			}
 			if (!is_nil(fallback)) {
-				return ease(fallback);
+				return fallback;
 			}
 		},
 		[AUTOMATION_GENERATOR_SYMBOL]: function* () {
@@ -139,7 +140,7 @@ export function SequenceAutomation(...automations) {
 		for (;running && current < automations.length; ++current) {
 			const automation = automations[current];
 			automation.start();
-			for (let value of automation.generator()) {
+			for (let value of automation[AUTOMATION_GENERATOR_SYMBOL]()) {
 				yield value;
 			}
 		}
@@ -185,7 +186,7 @@ export function SequenceAutomation(...automations) {
 				}
 			}
 			// maybe a fallback value ?
-			return (automations.first(a => is_nil(a.value))).value;
+			return (first(automations, a => is_nil(a.value))).value;
 		},
 		[AUTOMATION_GENERATOR_SYMBOL]: function* () {
 			start();
