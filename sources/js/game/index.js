@@ -67,7 +67,7 @@ function create_walls(cols, rows) {
 }
 
 export default function createGame() {
-	const keyboard = ui.Keyboard(gameKeyboardController);
+	const keyboard = ui.keyboard;
 	const screen = ui.screen;
 
 	screen.size = {
@@ -89,7 +89,6 @@ export default function createGame() {
 	let ball = create_ball(vaus, scale_factor);
 	let vaus_speed = Vector.Null;
 	let ball_speed = Vector.Null;
-	let score = 0;
 
 	keyboard.on('direction-changed', direction => {
 		vaus_speed = direction.mul(.4);
@@ -101,9 +100,8 @@ export default function createGame() {
 	});
 
 	bricks.forEach(brick => {
-		brick.on('hit', (id, point) => {
-			score += point;
-		});
+		// brick.on('hit', (id, point) => {
+		// });
 		brick.once('destroyed', (id) => {
 			brick.removeAllListeners();
 			remove(bricks, brick => {
@@ -262,7 +260,7 @@ export default function createGame() {
 
 	return {
 		start() {
-			keyboard.start();
+			keyboard.use(gameKeyboardController);
 			requestAnimationFrame(loop);
 		}
 	};

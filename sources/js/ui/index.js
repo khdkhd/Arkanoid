@@ -1,13 +1,13 @@
 import EventEmitter from 'events';
 
-import Keyboard from 'ui/keyboard';
+import keyboard from 'ui/keyboard';
 import Screen from 'graphics/screen';
 
 const canvas = document.querySelector('#screen');
 const screen = Screen(canvas.getContext('2d'));
 
 const ui = Object.assign(Object.create(new EventEmitter()), {
-	Keyboard,
+	keyboard,
 	screen,
 });
 

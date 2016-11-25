@@ -7,76 +7,109 @@ function create_key_handler({
 	event,
 	on_keydown,
 	on_keyup,
+	on_keypressed,
 	repeat = true}) {
 	let pressed = false;
-	return {
-		code,
-		keydown(arg) {
-			if (!pressed || repeat) {
-				pressed = true;
-				const data = on_keydown(arg);
-				return Object.assign({event}, is_nil(data) ? {} : {data});
-			}
-		},
-		keyup(arg) {
-			pressed = false;
-			const data = on_keyup(arg);
-			return Object.assign({event}, is_nil(data) ? {} : {data});
-		}
+	const invoke = (handler, arg) => {
+		const data = handler(arg);
+		return Object.assign({event}, is_nil(data) ? {} : {data});
 	}
+	const callbacks = Object.assign(is_nil(on_keypressed)
+		? {
+			keydown(arg) {
+				if (!pressed || repeat) {
+					pressed = true;
+					return invoke(on_keydown, arg);
+				}
+			},
+			keyup(arg) {
+				pressed = false;
+				return invoke(on_keyup, arg);
+			}
+		}
+		: {keypressed(arg) {return invoke(on_keypressed, arg);}}
+	);
+	return Object.assign({code}, callbacks);
 }
 
-function keydown_handler(key_handlers, keyboard) {
-	const handle = cond(key_handlers.map(handler => [
-		key => key === handler.code,
-		handler.keydown
-	]));
+function keydown_handler(key_handlers, emitter) {
+	const handle = cond(
+		key_handlers
+			.filter(handler => !(is_nil(handler.keydown) || is_nil(handler.keyup)))
+			.map(handler => [key => key === handler.code, handler.keydown])
+		);
 	return ev => {
 		const event_data = handle(ev.keyCode);
 		if (!is_nil(event_data)) {
-			keyboard.emit(event_data.event, event_data.data);
+			emitter.emit(event_data.event, event_data.data);
 			ev.preventDefault();
 			ev.stopPropagation();
 		}
 	};
 }
 
-function keyup_handler(key_handlers, keyboard) {
-	const handle = cond(key_handlers.map(handler => [
-		key => key === handler.code,
-		handler.keyup
-	]));
+function keyup_handler(key_handlers, emitter) {
+	const filtered = key_handlers
+		.filter(handler => !(is_nil(handler.keydown) || is_nil(handler.keyup)))
+		.map(handler => [key => key === handler.code, handler.keyup])
+	const handle = cond(filtered);
 	return ev => {
 		const event_data = handle(ev.keyCode);
 		if (!is_nil(event_data)) {
-			keyboard.emit(event_data.event, event_data.data);
+			emitter.emit(event_data.event, event_data.data);
 			ev.preventDefault();
 			ev.stopPropagation();
 		}
 	}
 }
 
-export default function Keyboard(handlers) {
-	let keydown_event_handler;
-	let keydup_event_handler;
-	return Object.assign(
-		new EventEmitter(),
-		{
-			start() {
-				keydown_event_handler = keydown_handler(handlers, this)
-				keydup_event_handler = keyup_handler(handlers, this)
-				document.addEventListener('keydown', keydown_event_handler);
-				document.addEventListener('keyup', keydup_event_handler);
-			},
-			stop() {
-				document.removeEventLisstener(keydown_event_handler);
-				document.removeEventLisstener(keydup_event_handler);
-			}
-		}
+function keypress_handler(key_handlers, emitter) {
+	const handle = cond(
+		key_handlers
+			.filter(handler => !is_nil(handler.keypressed))
+			.map(handler => [key => key === handler.code, handler.keyup])
 	);
+	return ev => {
+		const event_data = handle(ev.keyCode);
+		if (!is_nil(event_data)) {
+			emitter.emit(event_data.event, event_data.data);
+			ev.preventDefault();
+			ev.stopPropagation();
+		}
+	}
 }
 
-Keyboard.createKeyHandler = create_key_handler;
-Keyboard.LEFT_ARROW_KEY = 37;
-Keyboard.RIGHT_ARROW_KEY = 39;
-Keyboard.SPACE_BAR_KEY = 32;
+export function Keyboard() {
+	const emitter = new EventEmitter();
+
+	let keydown_event_handler;
+	let keydup_event_handler;
+	let keypress_event_handler;
+
+	const instance = Object.assign(emitter, {
+		use(handlers) {
+			document.removeEventListener('keydown', keydown_event_handler);
+			document.removeEventListener('keyup', keydup_event_handler);
+			document.removeEventListener('keypress', keypress_event_handler);
+
+			keydown_event_handler = keydown_handler(handlers, emitter);
+			keydup_event_handler = keyup_handler(handlers, emitter);
+			keypress_event_handler = keypress_handler(handlers, emitter);
+
+			document.addEventListener('keydown', keydown_event_handler);
+			document.addEventListener('keyup', keydup_event_handler);
+			document.addEventListener('keypress', keypress_event_handler);
+		}
+	});
+
+	Object.defineProperties(instance, {
+		'LEFT_ARROW_KEY':   {value: 37},
+		'RIGHT_ARROW_KEY':  {value: 39},
+		'SPACE_BAR_KEY':    {value: 32},
+		'createKeyHandler': {value: create_key_handler}
+	});
+
+	return instance;
+}
+
+export default Keyboard();

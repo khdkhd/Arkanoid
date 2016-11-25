@@ -3,4 +3,4 @@ node_js:
   - "7"
 
 before_install: npm install -g gulp-cli
-script: npm run test && npm run build
+script: ./tools/scripts/travis.sh
