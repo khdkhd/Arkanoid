@@ -5,6 +5,7 @@ import Vector from 'maths/vector';
 import Brick from 'game/brick';
 import Ball from 'game/ball';
 import Vaus from 'game/vaus';
+
 import {
 	HorizontalWall,
 	HorizontalLeftWall,

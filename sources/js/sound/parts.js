@@ -71,8 +71,7 @@ function createVCA(audio_context) {
 	};
 }
 
-function createPolyphonicGenerator(audio_context, options) {
-	const voices = options.voices;
+function createPolyphonicGenerator(audio_context, {voices}) {
 	const vcos = times(voices, () => createVCO(audio_context));
 	const vcas = times(voices, () => createVCA(audio_context));
 	const enveloppes = times(voices, () => createEnveloppeGenerator());
@@ -89,14 +88,14 @@ function createPolyphonicGenerator(audio_context, options) {
 		},
 		voiceOn(freq, time) {
 			const voice = polyphonyManager.assign(freq);
-			if(!isNaN(voice)){
+			if(voice >= 0){
 				vcos[voice].gateOn(freq, time);
 				enveloppes[voice].gateOn(time);
 			}
 		},
 		voiceOff(freq, time){
 			const voice = polyphonyManager.unassign(freq);
-			if(!isNaN(voice)){
+			if(voice >= 0){
 				enveloppes[voice].gateOff(time);
 			}
 		},
@@ -115,6 +114,9 @@ function createPolyphonicGenerator(audio_context, options) {
 		set sustain(value){
 			enveloppes.forEach(enveloppe => enveloppe.sustain = value);
 		},
+		set gain(value){
+			vcas.forEach(vca => vca.value = value);
+		},
 		set release(value){
 			enveloppes.forEach(enveloppe => enveloppe.release = value);
 		}
@@ -122,31 +124,18 @@ function createPolyphonicGenerator(audio_context, options) {
 }
 
 function createPolyphonyManager(voices){
-	const freqs = new Array(voices).fill(-1);
+	const freqs = new Array(voices);
+	let index = 0;
 	return {
 		assign(freq) {
-			let index;
-			freqs.some(function(elem, i, freqs) {
-				if (elem < 0) {
-					index = i;
-					freqs[i] = freq;
-					return true;
-				}
-			});
+			index = ++index % freqs.length;
+			freqs[index] = freq;
 			return index;
 		},
 		unassign(freq) {
-			let index;
-			freqs.some(function(elem, i, freqs) {
-				if (elem == freq) {
-					freqs[i] = -1;
-					index = i;
-					return true;
-				}
-			});
-			return index;
+			return freqs.indexOf(freq);
 		}
-	};
+	}
 }
 
 function createEnveloppeGenerator(){

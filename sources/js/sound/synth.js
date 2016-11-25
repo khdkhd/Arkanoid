@@ -13,7 +13,7 @@ export default function createSynth(audio_context) {
 		patch(patch) {
 			const synth_parts = patch.nodes.map(function(synth_part){
 				const part = Object.assign(Part[synth_part.factory](audio_context, synth_part.options), synth_part.config);
-				if(synth_part.type == 'generator'){
+				if(synth_part.type === 'generator'){
 					signal_generators.push(part);
 				}
 				return part;
