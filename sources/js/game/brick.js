@@ -1,16 +1,21 @@
-import Animation from 'common/animation';
 import Vector from 'maths/vector';
 import Rect from 'maths/rect';
-import Entity from 'game/entity';
 import {EventEmitter} from 'events';
+
+import BoudingBox from 'game/bounding-box';
+
 import is_nil from 'lodash.isnil';
 
-const bricks_data = {
+const BOTTOM_OUTER_RECT = Rect(Vector.Null, {width: 2, height: 1});
+const TOP_OUTER_RECT = Rect(Vector.Null, {width: 1.8, height: .8});
+const INNER_RECT = Rect(Vector.Null.add({x: .2, y: .2}), {width: 1.6, height: .6});
+
+const bricks_state = {
 	'gold': () => ({
 		points: 0,
 		colors: {
 			inner: 'hsl(58, 65%, 43%)',
-			top: 'hsl(58, 65%, 63%)',
+			top: 'hsl(58, 65%, 63%)'
 		}
 	}),
 	'white': () => ({
@@ -87,67 +92,64 @@ const bricks_data = {
 	})
 };
 
-const bottom_outer_rect = Rect(Vector.Null, {width: 2, height: 1});
-const top_outer_rect = Rect(Vector.Null, {width: 1.8, height: .8});
-const inner_rect = Rect(Vector.Null.add({x: .2, y: .2}), {width: 1.6, height: .6});
-
-const hit_animation_frame_count = 30;
-
-function auto_increment_id(current) {
-	return () => current++;
-}
-
-const next_id = auto_increment_id(0);
-
-export default function Brick(color, {x, y}, level) {
-	const emitter = new EventEmitter();
-	const entity = Entity(null, {x, y}, {width: 2, height: 1});
-
-	const state = Object.assign({id: next_id()}, bricks_data[color](level));
-	const destroyed = () => {
-		return !is_nil(state.hits) && state.hits === 0;
-	};
-
-	const bottom_outer_rect_color = Animation(
-		hit_animation_frame_count,
-		v => {
-			const lightness = Math.round(50*v)
-			return `hsl(0, 100%, ${lightness}%)`;
-		}
-	);
-
-	return Object.assign(emitter, entity, {
+function BrickController(state) {
+	return {
 		hit() {
-			if (!destroyed()) {
+			if (!(is_nil(state.hits) || state.destroyed)) {
 				state.hits = state.hits - 1;
-				emitter.emit('hit', state.id, state.points);
-				if (destroyed()) {
-					// stat destroyed animation
-					emitter.emit('destroyed', state.id);
-				} else {
-					// start hitten animation
-					bottom_outer_rect_color.start();
+				state.emitter.emit('hit', state.points);
+				if (state.hits === 0) {
+					state.destroyed = true;
+					state.emitter.emit('destroyed');
 				}
 			}
 		},
-		get destroyed() {
-			return destroyed();
+		update() {
 		},
-		get id() {
-			return state.id;
+		get destroyed() {
+			return state.destroyed;
 		},
 		get points() {
 			return state.points;
-		},
-		draw(screen) {
-			screen.brush = bottom_outer_rect_color.next();
-			screen.fillRect(bottom_outer_rect);
+		}
+	};
+}
+
+function BrickView(state) {
+	return {
+		render(screen) {
+			screen.save();
+
+			screen.translate(state.position);
+			screen.fillRect(BOTTOM_OUTER_RECT);
 
 			screen.brush = state.colors.top || state.colors.inner;
-			screen.fillRect(top_outer_rect);
+			screen.fillRect(TOP_OUTER_RECT);
 
 			screen.brush = state.colors.inner;
-			screen.fillRect(inner_rect);
+			screen.fillRect(INNER_RECT);
+
+			screen.restore();
 		}
-	});
+	};
+}
+
+export default function Brick(color, {x, y}, level) {
+	const state = Object.assign(
+		{},
+		bricks_state[color](level),
+		{
+			color,
+			destroyed: false,
+			position: Vector({x, y}),
+			size: {width: 2, height: 1},
+			emitter: new EventEmitter(),
+		}
+	);
+	return Object.assign(
+		state.emitter,
+		BoudingBox(state),
+		BrickController(state),
+		BrickView(state)
+	);
 }
