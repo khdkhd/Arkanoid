@@ -27,7 +27,7 @@ function create_vca(state) {
 	};
 }
 
-export default(audio_context)=>{
+export default(audio_context) => {
 	const state = {
 		audio_context: audio_context,
 		emitter: new EventEmitter()

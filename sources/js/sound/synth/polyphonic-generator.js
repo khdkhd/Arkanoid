@@ -32,8 +32,26 @@ function create_polyphonic_generator(state) {
 				enveloppes[voice].gateOff(time);
 			}
 		},
-		get form(){
-			return vcos[0].form;
+		get type(){
+			return {
+				set value(value){
+					vcos.forEach(vco => vco.type = value);
+				}
+			};
+		},
+		get gain(){
+			return {
+				set value(value){
+					vcas.forEach(vca => vca.value = value);
+				}
+			};
+		},
+		get release(){
+			return {
+				set value(value){
+					enveloppes.forEach(enveloppe => enveloppe.release = value);
+				}
+			}
 		},
 		set form(type) {
 			vcos.forEach(vco => vco.form = type);
@@ -47,9 +65,9 @@ function create_polyphonic_generator(state) {
 		set sustain(value){
 			enveloppes.forEach(enveloppe => enveloppe.sustain = value);
 		},
-		set gain(value){
-			vcas.forEach(vca => vca.value = value);
-		},
+		// set gain(value){
+		// 	vcas.forEach(vca => vca.value = value);
+		// },
 		set release(value){
 			enveloppes.forEach(enveloppe => enveloppe.release = value);
 		}

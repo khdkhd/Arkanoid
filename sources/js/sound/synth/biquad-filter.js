@@ -16,6 +16,13 @@ function create_biquad_filter(state){
 		get param(){
 			return filter.frequency;
 		},
+		get type(){
+			return {
+				set value(value) {
+					filter.value = value;
+				}
+			}
+		},
 		set type(type){
 			filter.type = type;
 		},
@@ -24,7 +31,18 @@ function create_biquad_filter(state){
 			state.emitter.emit('frequency-change', value);
 		},
 		get frequency(){
-			return filter.frequency;
+			return assign(state.emitter, {
+					set value(value){
+						filter.frequency.value = (state.frequency_range.max - state.frequency_range.min) * value;
+						state.emitter.emit('change', value);
+					},
+					get value(){
+						return filter.frequency.value/(state.frequency_range.max - state.frequency_range.min);
+					}
+			});
+		},
+		get gain(){
+			return filter.gain;
 		},
 		set gain(value){
 			filter.gain.value = value;
@@ -53,7 +71,11 @@ function create_biquad_filter(state){
 export default(audio_context)=> {
 	const state = {
 		audio_context: audio_context,
-		emitter: new EventEmitter()
+		emitter: new EventEmitter(),
+		frequency_range :{
+			min: 0,
+			max: 2000
+		}
 	};
 	return assign(state.emitter, create_biquad_filter(state));
 }

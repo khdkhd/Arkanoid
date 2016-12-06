@@ -10,10 +10,10 @@ function create_vco(state) {
 		gateOn(freq, time) {
 			osc.frequency.setValueAtTime(freq, time);
 		},
-		get form(){
+		get type(){
 			return osc.type;
 		},
-		set form(type) {
+		set type(type) {
 			osc.type = type;
 		}
 	};

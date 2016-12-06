@@ -1,8 +1,8 @@
-import BiquadFilter from 'sound/synth/biquad-filter';
-import PolyphonicGenerator from 'sound/synth/polyphonic-generator';
-import LFO from 'sound/synth/lfo';
-import EnveloppeGenerator from 'sound/synth/enveloppe-generator';
-import MasterOutput from 'sound/synth/master-output';
+import biquadFilter from 'sound/synth/biquad-filter';
+import polyphonicGenerator from 'sound/synth/polyphonic-generator';
+import lfo from 'sound/synth/lfo';
+import enveloppeGenerator from 'sound/synth/enveloppe-generator';
+import masterOutput from 'sound/synth/master-output';
 
 const WAVEFORM_SINE = 'sine';
 const WAVEFORM_TRIANGLE = 'triangle';
@@ -20,11 +20,11 @@ const FILTER_NOTCH = 'notch';
 const FILTER_ALLPASS = 'allpass';
 
 export default  {
-	biquad_filter: BiquadFilter,
-	enveloppe_generator: EnveloppeGenerator,
-	lfo: LFO,
-	polyphonic_generator: PolyphonicGenerator,
-	master: MasterOutput,
+	biquad_filter: biquadFilter,
+	enveloppe_generator: enveloppeGenerator,
+	lfo: lfo,
+	polyphonic_generator: polyphonicGenerator,
+	master: masterOutput,
 	get WAVEFORM_SINE(){
 		return WAVEFORM_SINE;
 	},
