@@ -8,7 +8,7 @@ function create_biquad_filter(state){
 	return {
 		connect({input}){
 			filter.connect(input);
-			enveloppe.connect({input: filter.gain});
+			enveloppe.connect({ input: filter.gain });
 		},
 		get input(){
 			return filter;
@@ -22,14 +22,6 @@ function create_biquad_filter(state){
 					filter.type = value;
 				}
 			}
-		},
-		set type(type){
-			filter.type = type;
-		},
-		set frequency(value){
-			console.log('value', value);
-			filter.frequency.value = value;
-			state.emitter.emit('frequency-change', value);
 		},
 		get frequency(){
 			return assign(state.emitter, {

@@ -6,13 +6,9 @@ import { completeAssign as assign } from 'common/utils';
 
 const offset = 0;
 const curve_start = -Math.PI/2 + offset;
-console.log(curve_start);
 const curve_end = 2*Math.PI - Math.PI/2 - offset;
-console.log(curve_end);
 const curve_length = curve_end - curve_start;
-console.log(curve_length);
 const inc_factor = 25;
-const radius = 50;
 
 function clamp(angle){
 	return _clamp(angle, curve_start, curve_end);
@@ -29,22 +25,22 @@ function create_knob_view(state){
 			screen.pen =1;
 			screen.pen = '#fff';
 			screen.beginPath();
-			screen.arc(state.pos, radius - 8, 0, 2*Math.PI);
+			screen.arc(state.pos, state.radius - 8, 0, 2*Math.PI);
 			screen.drawPath();
 			screen.beginPath();
-			screen.arc(state.pos, radius - 32, 0, 2*Math.PI);
+			screen.arc(state.pos, state.radius - 32, 0, 2*Math.PI);
 			screen.drawPath();
 			screen.pen = 16;
 			screen.pen = '#ccc';
 			screen.beginPath();
-			screen.arc(state.pos, radius - 20, curve_start, curve_end);
+			screen.arc(state.pos, state.radius - 20, curve_start, curve_end);
 			screen.drawPath();
 			screen.restore();
 			screen.save();
 			screen.pen = '#fff';
 			screen.pen = 16;
 			screen.beginPath();
-			screen.arc(state.pos, radius - 20, curve_start, state.angle);
+			screen.arc(state.pos, state.radius - 20, curve_start, state.angle);
 			screen.drawPath();
 			screen.restore();
 		}
@@ -86,11 +82,10 @@ function create_knob_controller(state) {
 
 	return {
 		set param(audio_param){
-			console.log(audio_param);
 			state.param = audio_param;
-			state.param.on('change', event => {
+			state.param.on('change', value => {
 				if(!state.isActive){
-					update(event.value);
+					update(value);
 				}
 			});
 			update(audio_param.value);
@@ -101,10 +96,11 @@ function create_knob_controller(state) {
 	};
 }
 
-export default ({x,y})=> {
+export default ({pos, radius})=> {
 	const state = {
-		pos: {x,y},
-		bbox: Rect(Vector({x,y}).add({x: -radius, y: -radius}), {width: radius*2, height: radius*2}),
+		pos: pos,
+		radius: radius,
+		bbox: Rect(Vector(pos).add({x: -radius, y: -radius}), {width: radius*2, height: radius*2}),
 		angle: curve_start,
 		isActive: false,
 		param: {

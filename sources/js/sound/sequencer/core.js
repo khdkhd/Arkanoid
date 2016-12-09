@@ -1,3 +1,5 @@
+import Note from 'sound/sequencer/note';
+
 export default function createSequencer(audio_context, {slave}){
 	let grid = [[{}]];
 	let [tempo, time, pos] = [120,0,0];
@@ -38,7 +40,13 @@ export default function createSequencer(audio_context, {slave}){
 			tempo = value;
 		},
 		set grid(matrix2d){
-			grid = matrix2d;
+			grid = matrix2d.map(row =>
+				row.map(step => {
+					if(step.note){
+						return Note.createNote(step);
+					}
+					return {};
+			}));
 		}
 	};
 }

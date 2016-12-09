@@ -1,4 +1,6 @@
 import synthFactory from 'sound/synth/factory';
+import controlFactory from 'sound/controls/factory';
+import is_nil from 'lodash.isnil';
 
 function get_frequency_of_note(note, octave) {
 	const notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
@@ -10,23 +12,26 @@ function get_frequency_of_note(note, octave) {
 export default function createSynth(audio_context) {
 	const signal_generators = [];
 	let synth_parts = [];
+	const views = [];
 	return {
 		patch(patch) {
 			synth_parts = patch.nodes.map(node => {
-				console.log(node);
-				const part = Object.assign(synthFactory[node.factory](audio_context, node.options));
-				Object.keys(node.config).forEach(param => {
-					console.log('param',param);
-					console.log(node.config[param]);
-					console.log(part[param]);
-					part[param].value = node.config[param].value
+				const part = synthFactory[node.factory](audio_context, node.options);
+				const config = node.config;
+				Object.keys(config).forEach(param => {
+					part[param].value = config[param].value;
+					if(!is_nil(config[param].view)){
+						console.log(config[param].view.factory);
+						const view = controlFactory[config[param].view.factory](config[param].view.options);
+						view.param = part[param];
+						views.push(view);
+					}
 				});
 				if(node.type === 'generator'){
 					signal_generators.push(part);
 				}
 				return part;
 			});
-			console.log(synth_parts);
 			for(let con of patch.connexions){
 				synth_parts[con[0]].connect(synth_parts[con[1]]);
 			}
@@ -41,8 +46,10 @@ export default function createSynth(audio_context) {
 				generator.voiceOff(get_frequency_of_note(note, octave), time);
 			});
 		},
-		get synth_parts(){
-			return synth_parts;
+		render(screen){
+			screen.brush = '#123';
+			screen.clear();
+			views.forEach(view => view.render(screen));
 		}
 	};
 }
