@@ -133,7 +133,3 @@ export function bounce(a_box, {x, y}, b_box, epsilon = 1) {
 		}
 	}
 }
-
-// export function bounce2(a_box, a_speed, b_box, fx_calback, epsilon) {
-// 	const side = overlap(a_box, b_box, epsilon);
-// }

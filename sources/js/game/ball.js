@@ -1,44 +1,70 @@
+import {completeAssign} from 'common/utils';
+import BoundingBox from 'graphics/bounding-box';
 import Vector from 'maths/vector';
-import Rect from 'maths/rect';
+import VerletModel from 'physics/verlet-model';
 
 const radius = .3;
 
-function Ball({x, y}, scale) {
-
-	let pos = Vector({x, y});
+function BallController({verlet}) {
 	return {
-		get pos() {
-			return pos;
+		reset({x, y}) {
+			verlet.velocity = Vector.Null;
+			verlet.position = Vector({x, y});
 		},
-		set pos({x, y}) {
-			pos = Vector({x, y});
-		},
-		get bbox() {
-			return Rect(pos.add({x: -radius, y: -radius}), {width: radius*2, height: radius*2});
-		},
-		set bbox({x, y}) {
-			pos = Vector({x, y}).add({x: radius, y: radius});
+		update() {
+			verlet.position = verlet.position.add(verlet.velocity);
 		},
 		get radius() {
 			return radius;
-		},
-		move(v){
-			let {x, y} = pos.add(v).mul(scale);
-			pos = Vector({x: (x | 0) + .5, y}).mul(1/scale);
-		},
-		draw(screen) {
+		}
+	};
+}
+
+function BallView(state) {
+	const {screen} = state.scene;
+	return {
+		render() {
 			screen.brush = 'white';
 			screen.pen = {
 				strokeStyle: 'hsl(210, 50%, 50%)',
-				lineWidth: 1/scale
+				lineWidth: 1/state.scene.scale
 			};
 			screen.beginPath();
-			screen.arc({x: 0, y: 0}, radius, 0, 2*Math.PI, false);
+			screen.arc(state.verlet.position, state.radius, 0, 2*Math.PI, false);
 			screen.closePath();
 			screen.fillPath();
 			screen.drawPath();
 		}
 	};
+}
+
+function BallBoundingBox(state) {
+	return BoundingBox(completeAssign(
+		{},
+		{size: state.size},
+		state.verlet
+	), true);
+}
+
+function Ball({x, y}, scene) {
+	const verlet = VerletModel(Vector({x, y}));
+	const size = {width: 2*radius, height: 2*radius};
+	const boundingBox = BallBoundingBox({verlet, size});
+	const state = completeAssign(boundingBox, {
+		radius,
+		size,
+		scene,
+		verlet,
+	});
+	const ball = completeAssign(
+		{},
+		verlet,
+		boundingBox,
+		BallController(state),
+		BallView(state)
+	);
+	scene.add(ball);
+	return ball;
 }
 
 Ball.Radius = radius;

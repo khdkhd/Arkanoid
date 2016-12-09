@@ -1,8 +1,10 @@
-import Vector from 'maths/vector';
+import {completeAssign} from 'common/utils';
+import BoundingBox from 'graphics/bounding-box';
 import Rect from 'maths/rect';
-import {EventEmitter} from 'events';
+import Vector from 'maths/vector';
+import VerletModel from 'physics/verlet-model';
 
-import BoudingBox from 'game/bounding-box';
+import {EventEmitter} from 'events';
 
 import is_nil from 'lodash.isnil';
 
@@ -92,6 +94,14 @@ const bricks_state = {
 	})
 };
 
+function BrickBoundingBox(state) {
+	return BoundingBox(completeAssign(
+		{},
+		state.verlet,
+		{size: state.size}
+	));
+}
+
 function BrickController(state) {
 	return {
 		hit() {
@@ -116,40 +126,47 @@ function BrickController(state) {
 }
 
 function BrickView(state) {
+	const {screen} = state.scene;
 	return {
-		render(screen) {
-			screen.save();
+		render() {
+			if (!state.destroyed) {
+				screen.save();
 
-			screen.translate(state.position);
-			screen.fillRect(BOTTOM_OUTER_RECT);
+				screen.translate(state.verlet.position);
 
-			screen.brush = state.colors.top || state.colors.inner;
-			screen.fillRect(TOP_OUTER_RECT);
+				screen.brush = 'black';
+				screen.fillRect(BOTTOM_OUTER_RECT);
 
-			screen.brush = state.colors.inner;
-			screen.fillRect(INNER_RECT);
+				screen.brush = state.colors.top || state.colors.inner;
+				screen.fillRect(TOP_OUTER_RECT);
 
-			screen.restore();
+				screen.brush = state.colors.inner;
+				screen.fillRect(INNER_RECT);
+
+				screen.restore();
+			}
 		}
 	};
 }
 
-export default function Brick(color, {x, y}, level) {
-	const state = Object.assign(
-		{},
+export default function Brick({x, y}, color, level, scene) {
+	const state = completeAssign(
 		bricks_state[color](level),
 		{
-			color,
 			destroyed: false,
-			position: Vector({x, y}),
-			size: {width: 2, height: 1},
 			emitter: new EventEmitter(),
+			scene,
+			size: {width: 2, height: 1},
+			verlet: VerletModel(Vector({x, y})),
 		}
 	);
-	return Object.assign(
+	const brick = completeAssign(
 		state.emitter,
-		BoudingBox(state),
+		state.verlet,
+		BrickBoundingBox(state),
 		BrickController(state),
 		BrickView(state)
 	);
+	scene.add(brick);
+	return brick;
 }

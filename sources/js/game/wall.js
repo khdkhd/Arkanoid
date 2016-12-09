@@ -1,224 +1,137 @@
 import Vector from 'maths/vector';
 
-const h_wall = new Path2D(`
-	M 0 ${ 1/16}
-	L 1 ${ 1/16}
-	L 1 ${15/16}
-	L 0 ${15/16}
-	L 0 ${ 1/16}
-`);
-
-const h_left_wall = new Path2D(`
-	M ${1/16} ${ 1/16}
-	L 1 ${ 1/16}
-	L 1 ${15/16}
-	L ${15/16} ${15/16}
-	L ${1/16} ${ 1/16}
-`);
-
-const h_right_wall = new Path2D(`
-	M 0 ${ 1/16}
-	L ${15/16} ${ 1/16}
-	L ${ 1/16} ${15/16}
-	L 0 ${15/16}
-	L 0 ${ 1/16}
-`);
-
-const v_wall = new Path2D(`
-	M ${ 1/16} 0
-	L ${15/16} 0
-	L ${15/16} 1
-	L ${ 1/16} 1
-	L ${ 1/16} 0
-`);
-
-const v_left_wall = new Path2D(`
-	M ${ 1/16} ${ 1/16}
-	L ${15/16} ${15/16}
-	L ${15/16} 1
-	L ${ 1/16} 1
-	L ${ 1/16} ${ 1/16}
-`);
-
-const v_right_wall = new Path2D(`
-	M ${15/16} ${ 1/16}
-	L ${15/16} 1
-	L ${ 1/16} 1
-	L ${ 1/16} ${15/16}
-	L ${15/16} ${ 1/16}
-`);
-
-export function HorizontalWall({x, y}) {
-	const pos = Vector({x, y});
-	return {
-		get pos() {
-			return pos;
-		},
-		draw(screen) {
-			const gradient = screen.createLinearGradient(Vector.Null, Vector.Down, [
-				{pos: 0,    color: '#6d6d6d'},
-				{pos: .125, color: '#6f6f6d'},
-				{pos: .375, color: '#c8c8c8'},
-				{pos: .500, color: '#8d8d8d'},
-				{pos: .625, color: '#7c7c7c'},
-				{pos: .750, color: '#7c7c7c'},
-				{pos: .875, color: '#555555'},
-				{pos: 1,    color: '#555555'}
-			]);
-			screen.save();
-			screen.brush = {fillStyle: gradient};
-			screen.fillPath(h_wall);
-			screen.restore();
-		}
-	};
+function WallBrush(start, stop, screen) {
+	return {fillStyle: screen.createLinearGradient(start, stop, [
+		{pos: 0,    color: '#6d6d6d'},
+		{pos: .125, color: '#6f6f6d'},
+		{pos: .375, color: '#c8c8c8'},
+		{pos: .500, color: '#8d8d8d'},
+		{pos: .625, color: '#7c7c7c'},
+		{pos: .750, color: '#7c7c7c'},
+		{pos: .875, color: '#555555'},
+		{pos: 1,    color: '#555555'}
+	])};
 }
 
-export function HorizontalLeftWall({x, y}) {
-	const pos = Vector({x, y});
-	return {
-		get pos() {
-			return pos;
+function Wall(state) {
+	const {screen} = state.scene;
+	const brush = WallBrush(state.gradientStart, state.gradientStop, screen);
+	const wall = {
+		get position() {
+			return state.position;
 		},
-		draw(screen) {
-			const gradient = screen.createLinearGradient(Vector.Null, Vector.Down, [
-				{pos: 0,    color: '#6d6d6d'},
-				{pos: .125, color: '#6f6f6d'},
-				{pos: .375, color: '#c8c8c8'},
-				{pos: .500, color: '#8d8d8d'},
-				{pos: .625, color: '#7c7c7c'},
-				{pos: .750, color: '#7c7c7c'},
-				{pos: .875, color: '#555555'},
-				{pos: 1,    color: '#555555'}
-			]);
+		render() {
 			screen.save();
-			screen.brush = {fillStyle: gradient};
-			screen.fillPath(h_left_wall);
+			screen.translate(state.position);
+			screen.brush = brush;
+			screen.fillPath(state.path);
 			screen.restore();
 		}
 	};
+	state.scene.add(wall);
+	return wall;
 }
 
-export function HorizontalRightWall({x, y}) {
-	const pos = Vector({x, y});
-	return {
-		get pos() {
-			return pos;
-		},
-		draw(screen) {
-			const gradient = screen.createLinearGradient(Vector.Null, Vector.Down, [
-				{pos: 0,    color: '#6d6d6d'},
-				{pos: .125, color: '#6f6f6d'},
-				{pos: .375, color: '#c8c8c8'},
-				{pos: .500, color: '#8d8d8d'},
-				{pos: .625, color: '#7c7c7c'},
-				{pos: .750, color: '#7c7c7c'},
-				{pos: .875, color: '#555555'},
-				{pos: 1,    color: '#555555'}
-			]);
-			screen.save();
-			screen.brush = {fillStyle: gradient};
-			screen.fillPath(h_right_wall);
-			screen.restore();
-		}
-	};
+function VerticalWall({x, y}, gradientStart, gradientStop, scene) {
+	return Wall({
+		gradientStart,
+		gradientStop,
+		path: new Path2D(`
+			M ${ 1/16} 0
+			L ${15/16} 0
+			L ${15/16} 1
+			L ${ 1/16} 1
+			L ${ 1/16} 0
+		`),
+		position: Vector({x, y}),
+		scene
+	});
 }
 
-export function VerticalLeftWall({x, y}) {
-	const pos = Vector({x, y});
-	return {
-		get pos() {
-			return pos;
-		},
-		draw(screen) {
-			const gradient = screen.createLinearGradient(Vector.Null, Vector.Right, [
-				{pos: 0,    color: '#6d6d6d'},
-				{pos: .125, color: '#6f6f6d'},
-				{pos: .375, color: '#c8c8c8'},
-				{pos: .500, color: '#8d8d8d'},
-				{pos: .625, color: '#7c7c7c'},
-				{pos: .750, color: '#7c7c7c'},
-				{pos: .875, color: '#555555'},
-				{pos: 1,    color: '#555555'}
-			]);
-			screen.save();
-			screen.brush = {fillStyle: gradient};
-			screen.fillPath(v_wall);
-			screen.restore();
-		}
-	};
+export function VerticalLeftWall({x, y}, scene) {
+	return VerticalWall({x, y}, {x: 0, y: 0}, {x: 1, y: 0}, scene);
 }
 
-export function VerticalTopLeftWall({x, y}) {
-	const pos = Vector({x, y});
-	return {
-		get pos() {
-			return pos;
-		},
-		draw(screen) {
-			const gradient = screen.createLinearGradient(Vector.Null, Vector.Right, [
-				{pos: 0,    color: '#6d6d6d'},
-				{pos: .125, color: '#6f6f6d'},
-				{pos: .375, color: '#c8c8c8'},
-				{pos: .500, color: '#8d8d8d'},
-				{pos: .625, color: '#7c7c7c'},
-				{pos: .750, color: '#7c7c7c'},
-				{pos: .875, color: '#555555'},
-				{pos: 1,    color: '#555555'}
-			]);
-			screen.save();
-			screen.brush = {fillStyle: gradient};
-			screen.fillPath(v_left_wall);
-			screen.restore();
-		}
-	};
+export function VerticalRightWall({x, y}, scene) {
+	return VerticalWall({x, y}, {x: 1, y: 0}, {x: 0, y: 0}, scene);
 }
 
-export function VerticalRightWall({x, y}) {
-	const pos = Vector({x, y});
-	return {
-		get pos() {
-			return pos;
-		},
-		draw(screen) {
-			const gradient = screen.createLinearGradient(Vector.Null, Vector.Right, [
-				{pos: 1 - 1,    color: '#555555'},
-				{pos: 1 - .875, color: '#555555'},
-				{pos: 1 - .625, color: '#7c7c7c'},
-				{pos: 1 - .750, color: '#7c7c7c'},
-				{pos: 1 - .500, color: '#8d8d8d'},
-				{pos: 1 - .375, color: '#c8c8c8'},
-				{pos: 1 - .125, color: '#6f6f6d'},
-				{pos: 1 - 0,    color: '#6d6d6d'},
-			]);
-			screen.save();
-			screen.brush = {fillStyle: gradient};
-			screen.fillPath(v_wall);
-			screen.restore();
-		}
-	};
+export function VerticalTopLeftWall({x, y}, scene) {
+	return Wall({
+		gradientStart: {x: 0, y: 0},
+		gradientStop: {x: 1, y: 0},
+		path: new Path2D(`
+			M ${ 1/16} ${ 1/16}
+			L ${15/16} ${15/16}
+			L ${15/16} 1
+			L ${ 1/16} 1
+			L ${ 1/16} ${ 1/16}
+		`),
+		position: Vector({x, y}),
+		scene
+	});
 }
 
-export function VerticalTopRightWall({x, y}) {
-	const pos = Vector({x, y});
-	return {
-		get pos() {
-			return pos;
-		},
-		draw(screen) {
-			const gradient = screen.createLinearGradient(Vector.Null, Vector.Right, [
-				{pos: 1 - 1,    color: '#555555'},
-				{pos: 1 - .875, color: '#555555'},
-				{pos: 1 - .625, color: '#7c7c7c'},
-				{pos: 1 - .750, color: '#7c7c7c'},
-				{pos: 1 - .500, color: '#8d8d8d'},
-				{pos: 1 - .375, color: '#c8c8c8'},
-				{pos: 1 - .125, color: '#6f6f6d'},
-				{pos: 1 - 0,    color: '#6d6d6d'},
-			]);
-			screen.save();
-			screen.brush = {fillStyle: gradient};
-			screen.fillPath(v_right_wall);
-			screen.restore();
-		}
-	};
+export function VerticalTopRightWall({x, y}, scene) {
+	return Wall({
+		gradientStart: {x: 1, y: 0},
+		gradientStop: {x: 0, y: 0},
+		path: new Path2D(`
+			M ${15/16} ${ 1/16}
+			L ${15/16} 1
+			L ${ 1/16} 1
+			L ${ 1/16} ${15/16}
+			L ${15/16} ${ 1/16}
+		`),
+		position: Vector({x, y}),
+		scene
+	});
+}
+
+export function HorizontalWall({x, y}, scene) {
+	return Wall({
+		gradientStart: {x: 0, y: 0},
+		gradientStop: {x: 0, y: 1},
+		path: new Path2D(`
+			M 0 ${ 1/16}
+			L 1 ${ 1/16}
+			L 1 ${15/16}
+			L 0 ${15/16}
+			L 0 ${ 1/16}
+		`),
+		position: Vector({x, y}),
+		scene,
+	});
+}
+
+export function HorizontalLeftWall({x, y}, scene) {
+	return Wall({
+		gradientStart: {x: 0, y: 0},
+		gradientStop: {x: 0, y: 1},
+		path: new Path2D(`
+			M ${1/16} ${ 1/16}
+			L 1 ${ 1/16}
+			L 1 ${15/16}
+			L ${15/16} ${15/16}
+			L ${1/16} ${ 1/16}
+		`),
+		position: Vector({x, y}),
+		scene
+	});
+}
+
+export function HorizontalRightWall({x, y}, scene) {
+	return Wall({
+		gradientStart: {x: 0, y: 0},
+		gradientStop: {x: 0, y: 1},
+		path: new Path2D(`
+			M 0 ${ 1/16}
+			L ${15/16} ${ 1/16}
+			L ${ 1/16} ${15/16}
+			L 0 ${15/16}
+			L 0 ${ 1/16}
+		`),
+		position: Vector({x, y}),
+		scene
+	});
 }
