@@ -11,29 +11,28 @@ function get_frequency_of_note(note, octave) {
 
 export default function createSynth(audio_context) {
 	const signal_generators = [];
-	let synth_parts = [];
+	let mods = [];
 	const views = [];
 	return {
 		patch(patch) {
-			synth_parts = patch.nodes.map(node => {
-				const part = synthFactory[node.factory](audio_context, node.options);
+			mods = patch.nodes.reduce((mods, node)=> {
+				mods[node.id] = synthFactory[node.factory](audio_context, node.options);
 				const config = node.config;
 				Object.keys(config).forEach(param => {
-					part[param].value = config[param].value;
+					mods[node.id][param].value = config[param].value;
 					if(!is_nil(config[param].view)){
-						console.log(config[param].view.factory);
 						const view = controlFactory[config[param].view.factory](config[param].view.options);
-						view.param = part[param];
+						view.param = mods[node.id][param];
 						views.push(view);
 					}
 				});
 				if(node.type === 'generator'){
-					signal_generators.push(part);
+					signal_generators.push(mods[node.id]);
 				}
-				return part;
-			});
+				return mods;
+			}, {});
 			for(let con of patch.connexions){
-				synth_parts[con[0]].connect(synth_parts[con[1]]);
+				mods[con[0]].connect(mods[con[1]]);
 			}
 		},
 		noteOn(note, octave, time) {

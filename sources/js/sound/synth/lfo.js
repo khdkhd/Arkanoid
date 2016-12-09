@@ -13,10 +13,10 @@ function create_lfo(state){
 		},
 		get frequency(){
 			return assign(
-				state.emitter,{
+				new EventEmitter(),{
 					set value(value) {
 						osc.frequency.value = (state.frequency_range.max - state.frequency_range.min) * value;
-						state.emitter.emit('change', value);
+						this.emit('change', value);
 					},
 					get value(){
 						return osc.frequency.value/(state.frequency_range.max - state.frequency_range.min);
@@ -25,11 +25,11 @@ function create_lfo(state){
 		},
 		get gain(){
 			return assign(
-				state.emitter,
+				new EventEmitter(),
 				gain.gain, {
 					set value(value){
-						gain.gain.value = value;
-						state.emitter.emit('change', value);
+						gain.gain.value = (state.gain_range.max - state.gain_range.min) * value;
+						this.emit('change', value);
 					}
 				}
 			);
@@ -51,11 +51,14 @@ function create_lfo(state){
 export default(audio_context)=> {
 	const state = {
 		audio_context: audio_context,
-		emitter: new EventEmitter(),
 		frequency_range :{
 			min: 0,
-			max: 2000
+			max: 20
+		},
+		gain_range: {
+			min: 500,
+			max: 1000
 		}
 	};
-	return assign(state.emitter, create_lfo(state));
+	return create_lfo(state);
 }

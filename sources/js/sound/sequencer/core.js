@@ -1,52 +1,41 @@
-import Note from 'sound/sequencer/note';
+import Track from 'sound/sequencer/track';
 
-export default function createSequencer(audio_context, {slave}){
-	let grid = [[{}]];
-	let [tempo, time, pos] = [120,0,0];
+function create_sequencer(state) {
 
 	function tick(){
-		return tempo / (60 * grid[0].length);
-	}
-
-	function get_col(grid, col){
-		return grid.map(row => row[col]);
-	}
-
-	function playNotes(notes){
-		notes.forEach(note=>{
-			if(note.note){
-				playNote(note);
-			}
-		});
-	}
-
-	function playNote({note, octave, time, duration}){
-		slave.noteOn(note, octave, time);
-		slave.noteOff(note, octave, time + duration * grid.length);
+		return state.tempo / (60 * state.length);
 	}
 
 	return {
 		start() {
-			time = audio_context.currentTime;
+			state.time = state.audio_context.currentTime;
 		},
 		play(){
-			if(time + tick() >= audio_context.currentTime){
-				time += tick();
-				pos = ++pos % grid[0].length;
-				playNotes(get_col(grid, pos).map(step=>Object.assign({time:time},step)));
+			if(state.time + tick() >= state.audio_context.currentTime){
+				state.time += tick();
+				state.tracks.forEach(track => track.schedule(state.time));
 			}
 		},
 		set tempo(value){
-			tempo = value;
+			state.tempo = value;
 		},
-		set grid(matrix2d){
-			grid = matrix2d.map(row =>
-				row.map(step => {
-					if(step.note){
-						return Note.createNote(step);
-					}
-					return {};
-			}));
+		assign(track_id, slave){
+			state.tracks[track_id].assign(slave);
+		},
+		get tracks(){
+			return state.tracks;
 		}
 	};
+}
+
+export default (audio_context) => {
+	const state = {
+		audio_context: audio_context,
+		tracks: [Track()],
+		length: 32,
+		tempo: 120,
+		time: 0,
+		pos: 0
+	};
+	return create_sequencer(state);
 }

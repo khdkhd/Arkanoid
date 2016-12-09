@@ -1,7 +1,6 @@
 import VCO from 'sound/synth/vco';
 import VCA from 'sound/synth/vca';
 import EnveloppeGenerator from 'sound/synth/enveloppe-generator';
-import EventEmitter from 'events';
 import times from 'lodash.times';
 
 function create_polyphonic_generator(state) {
@@ -37,7 +36,7 @@ function create_polyphonic_generator(state) {
 				set value(value){
 					vcos.forEach(vco => vco.type = value);
 				}
-			};
+			}
 		},
 		get gain(){
 			return {
@@ -46,30 +45,36 @@ function create_polyphonic_generator(state) {
 				}
 			};
 		},
+		get attack(){
+			return  {
+				set value(value){
+					enveloppes.forEach(enveloppe => enveloppe.attack = value);
+				}
+			}
+
+		},
+		get decay(){
+			return  {
+				set value(value){
+					enveloppes.forEach(enveloppe => enveloppe.decay = value);
+				}
+			}
+
+		},
+		get sustain(){
+			return  {
+				set value(value){
+					enveloppes.forEach(enveloppe => enveloppe.sustain = value);
+				}
+			}
+
+		},
 		get release(){
 			return {
 				set value(value){
 					enveloppes.forEach(enveloppe => enveloppe.release = value);
 				}
 			}
-		},
-		set form(type) {
-			vcos.forEach(vco => vco.form = type);
-		},
-		set attack(value){
-			enveloppes.forEach(enveloppe => enveloppe.attack = value);
-		},
-		set decay(value){
-			enveloppes.forEach(enveloppe => enveloppe.decay = value);
-		},
-		set sustain(value){
-			enveloppes.forEach(enveloppe => enveloppe.sustain = value);
-		},
-		// set gain(value){
-		// 	vcas.forEach(vca => vca.value = value);
-		// },
-		set release(value){
-			enveloppes.forEach(enveloppe => enveloppe.release = value);
 		}
 	};
 }
@@ -92,8 +97,7 @@ function create_polyphony_manager(num_voices){
 export default(audio_context, {num_voices})=> {
 	const state = {
 		audio_context: audio_context,
-		emitter: new EventEmitter(),
 		num_voices: num_voices
 	};
-	return Object.assign(state.emitter, create_polyphonic_generator(state));
+	return create_polyphonic_generator(state);
 }
