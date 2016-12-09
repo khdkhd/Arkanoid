@@ -85,23 +85,21 @@ export default function createScreen(canvas_context) {
 			this.lineTo({x: x2, y: y2});
 			this.drawPath();
 		},
-		drawRect({x, y, width, height}) {
-			const r = Rect({x, y}, {width, height});
+		drawRect({topLeft, topRight, bottomLeft, bottomRight}) {
 			this.beginPath();
-			this.moveTo(r.topLeft);
-			this.lineTo(r.topRight);
-			this.lineTo(r.bottomRight);
-			this.lineTo(r.bottomLeft);
+			this.moveTo(topLeft);
+			this.lineTo(topRight);
+			this.lineTo(bottomRight);
+			this.lineTo(bottomLeft);
 			this.closePath();
 			this.drawPath();
 		},
-		fillRect({x, y, width, height}) {
-			const r = Rect({x, y}, {width, height});
+		fillRect({topLeft, topRight, bottomLeft, bottomRight}) {
 			this.beginPath();
-			this.moveTo(r.topLeft);
-			this.lineTo(r.topRight);
-			this.lineTo(r.bottomRight);
-			this.lineTo(r.bottomLeft);
+			this.moveTo(topLeft);
+			this.lineTo(topRight);
+			this.lineTo(bottomRight);
+			this.lineTo(bottomLeft);
 			this.closePath();
 			this.fillPath();
 		},
@@ -135,6 +133,17 @@ export default function createScreen(canvas_context) {
 			} else {
 				canvas_context.fill(path);
 			}
+		},
+		///////////////////////////////////////////////////////////////////////
+		/// Clip
+		clipRect({topLeft, topRight, bottomLeft, bottomRight}) {
+			this.beginPath();
+			this.moveTo(topLeft);
+			this.lineTo(topRight);
+			this.lineTo(bottomRight);
+			this.lineTo(bottomLeft);
+			this.closePath();
+			canvas_context.clip();
 		},
 		///////////////////////////////////////////////////////////////////////
 		/// Context save/restore

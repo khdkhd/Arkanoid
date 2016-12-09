@@ -67,7 +67,7 @@ function keypress_handler(key_handlers, emitter) {
 	const handle = cond(
 		key_handlers
 			.filter(handler => !is_nil(handler.keypressed))
-			.map(handler => [key => key === handler.code, handler.keyup])
+			.map(handler => [key => key === handler.code, handler.keypressed])
 	);
 	return ev => {
 		const event_data = handle(ev.keyCode);
@@ -103,9 +103,49 @@ export function Keyboard() {
 	});
 
 	Object.defineProperties(instance, {
-		'LEFT_ARROW_KEY':   {value: 37},
-		'RIGHT_ARROW_KEY':  {value: 39},
-		'SPACE_BAR_KEY':    {value: 32},
+		'KEY_ENTER': {value: 13},
+		'KEY_SPACE': {value: 32},
+		'KEY_LEFT':  {value: 37},
+		'KEY_UP':    {value: 38},
+		'KEY_RIGHT': {value: 39},
+		'KEY_DOWN':  {value: 40},
+		'KEY_0':     {value: 48},
+		'KEY_1':     {value: 49},
+		'KEY_2':     {value: 50},
+		'KEY_3':     {value: 51},
+		'KEY_4':     {value: 52},
+		'KEY_5':     {value: 53},
+		'KEY_6':     {value: 54},
+		'KEY_7':     {value: 55},
+		'KEY_8':     {value: 56},
+		'KEY_9':     {value: 57},
+		'KEY_A':     {value: 97},
+		'KEY_B':     {value: 98},
+		'KEY_C':     {value: 99},
+		'KEY_D':     {value: 100},
+		'KEY_E':     {value: 101},
+		'KEY_F':     {value: 102},
+		'KEY_G':     {value: 103},
+		'KEY_H':     {value: 104},
+		'KEY_I':     {value: 105},
+		'KEY_J':     {value: 106},
+		'KEY_K':     {value: 107},
+		'KEY_L':     {value: 108},
+		'KEY_M':     {value: 109},
+		'KEY_N':     {value: 110},
+		'KEY_O':     {value: 111},
+		'KEY_P':     {value: 112},
+		'KEY_Q':     {value: 113},
+		'KEY_R':     {value: 114},
+		'KEY_S':     {value: 115},
+		'KEY_T':     {value: 116},
+		'KEY_U':     {value: 117},
+		'KEY_V':     {value: 118},
+		'KEY_W':     {value: 119},
+		'KEY_X':     {value: 120},
+		'KEY_Y':     {value: 121},
+		'KEY_Z':     {value: 122},
+
 		'createKeyHandler': {value: create_key_handler}
 	});
 

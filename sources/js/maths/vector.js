@@ -9,6 +9,9 @@ function createVector({x, y}) {
 		get norm() {
 			return Math.sqrt(this.x*this.x + this.y*this.y);
 		},
+		get opposite() {
+			return createVector({x: -x, y: -y});
+		},
 		add({x, y}) {
 			return createVector({x: this.x + x, y: this.y + y});
 		},

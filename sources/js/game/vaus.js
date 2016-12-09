@@ -1,5 +1,8 @@
-import Rect from 'maths/rect';
+import {completeAssign} from 'common/utils';
+import BoundingBox from 'graphics/bounding-box';
 import Vector from 'maths/vector';
+import Rect from 'maths/rect';
+import VerletModel from 'physics/verlet-model';
 
 const blue_box = new Path2D(`
 	M ${0/16} ${ 6/16}
@@ -12,6 +15,7 @@ const blue_box = new Path2D(`
 	L ${0/16} ${10/16}
 	L ${0/16} ${ 6/16}
 `);
+
 const red_box = new Path2D(`
 	M ${ 2/16} ${ 3/16}
 	L ${ 3/16} ${ 3/16}
@@ -31,6 +35,7 @@ const red_box = new Path2D(`
 	L ${ 2/16} ${13/16}
 	L ${ 2/16} ${ 3/16}
 `);
+
 const margin = new Path2D(`
 	M ${10/16} ${1/16}
 	L ${12/16} ${1/16}
@@ -38,6 +43,7 @@ const margin = new Path2D(`
 	L ${10/16} ${14/16}
 	L ${10/16} ${1/16}
 `);
+
 const gray_box = new Path2D(`
 	M ${12/16} ${0/16}
 	L ${16/16 + .5/16} ${0/16}
@@ -45,95 +51,156 @@ const gray_box = new Path2D(`
 	L ${12/16} ${14/16}
 	L ${12/16} ${0/16}
 `);
-const segment_box = new Path2D(`
-	M ${ 0/16 + .5/16} ${ 0/16}
-	L ${16/16 + .5/16} ${ 0/16}
-	L ${16/16 + .5/16} ${14/16}
-	L ${ 0/16 + .5/16} ${14/16}
-	L ${ 0/16 + .5/16} ${ 0/16}
-`);
 
-export default function createVaus({x, y}, scale) {
-	let pos = Vector({x, y});
-	let segments = 1;
+function gray_brush(screen) {
+	return {fillStyle: screen.createLinearGradient(Vector.Null, Vector.Down, [
+		{pos:  0, color: '#6f6f6d'},
+		{pos: .1, color: '#6f6f6d'},
+		{pos: .2, color: '#d6d6d6'},
+		{pos: .3, color: '#d6d6d6'},
+		{pos: .4, color: '#8f8f8f'},
+		{pos: .5, color: '#8f8f8f'},
+		{pos: .6, color: '#696969'},
+		{pos: .7, color: '#696969'},
+		{pos: .8, color: '#3b3b3b'},
+		{pos:  1, color: '#3b3b3b'}
+	])};
+}
 
+function red_brush(screen) {
+	return {fillStyle: screen.createLinearGradient(Vector.Null, Vector.Down, [
+		{pos:  0, color: '#9c2d08'},
+		{pos: .1, color: '#9c2d08'},
+		{pos: .2, color: '#eec0a0'},
+		{pos: .3, color: '#eec0a0'},
+		{pos: .4, color: '#dd5e03'},
+		{pos: .6, color: '#dd5e03'},
+		{pos: .7, color: '#dd5e03'},
+		{pos: .8, color: '#8e2901'},
+		{pos:  1, color: '#8e2901'}
+	])};
+}
+
+function blue_brush(screen) {
+	return {fillStyle: screen.createLinearGradient(Vector.Null, Vector.Down, [
+		{pos:  0, color: '#13f0fa'},
+		{pos: .4, color: '#a2f7fb'},
+		{pos:  1, color: '#13f0fa'}
+	])};
+}
+
+function VausBoundingBox(state) {
+	return BoundingBox(completeAssign({}, {size: state.size}, state.verlet));
+}
+
+function VausView(state) {
+	const screen = state.scene.screen;
+	const brushes = {
+		blue: blue_brush(screen),
+		red:  red_brush (screen),
+		gray: gray_brush(screen)
+	};
 	return {
-		move(v) {
-			let {x, y} = pos.add(v).mul(scale);
-			pos = Vector({x: (x | 0) + .5, y}).mul(1/scale);
-		},
-		draw(screen) {
-			const gray_fill = screen.createLinearGradient(Vector.Null, Vector.Down, [
-				{pos:  0, color: '#6f6f6d'},
-				{pos: .1, color: '#6f6f6d'},
-				{pos: .2, color: '#d6d6d6'},
-				{pos: .3, color: '#d6d6d6'},
-				{pos: .4, color: '#8f8f8f'},
-				{pos: .5, color: '#8f8f8f'},
-				{pos: .6, color: '#696969'},
-				{pos: .7, color: '#696969'},
-				{pos: .8, color: '#3b3b3b'},
-				{pos:  1, color: '#3b3b3b'}
-			]);
-			const red_fill = screen.createLinearGradient(Vector.Null, Vector.Down, [
-				{pos:  0, color: '#9c2d08'},
-				{pos: .1, color: '#9c2d08'},
-				{pos: .2, color: '#eec0a0'},
-				{pos: .3, color: '#eec0a0'},
-				{pos: .4, color: '#dd5e03'},
-				{pos: .6, color: '#dd5e03'},
-				{pos: .7, color: '#dd5e03'},
-				{pos: .8, color: '#8e2901'},
-				{pos:  1, color: '#8e2901'}
-			]);
-			const blue_fill = screen.createLinearGradient(Vector.Null, Vector.Down, [
-				{pos:  0, color: '#13f0fa'},
-				{pos: .4, color: '#a2f7fb'},
-				{pos:  1, color: '#13f0fa'}
-			]);
+		render() {
+			const pad_size = state.size.padSize;
 
 			screen.save();
-				screen.pen = 1/scale;
 
-				screen.brush = {fillStyle: blue_fill};
-				screen.fillPath(blue_box);
+			screen.translate(state.verlet.position);
 
-				screen.brush = {fillStyle: red_fill};
-				screen.fillPath(red_box);
+			screen.pen = 1/state.scene.scale;
 
-				screen.brush = '#222';
-				screen.fillPath(margin);
+			screen.brush = brushes.blue;
+			screen.fillPath(blue_box);
 
-				screen.brush = {fillStyle: gray_fill};
-				screen.fillPath(gray_box);
+			screen.brush = brushes.red;
+			screen.fillPath(red_box);
 
-				for (let i = 0; i < segments; ++i) {
-					screen.translate({x: 1, y: 0});
-					screen.fillPath(segment_box);
-				}
+			screen.brush = '#222';
+			screen.fillPath(margin);
 
-				screen.translate({x: 2, y: 0});
-				screen.scale({x: -1, y: 1});
+			screen.brush = brushes.gray;
+			screen.fillPath(gray_box);
 
-				screen.brush = {fillStyle: blue_fill};
-				screen.fillPath(blue_box);
+			screen.fillRect(Rect({x: 1, y: 0}, {width: pad_size, height: 14/16}));
 
-				screen.brush = {fillStyle: red_fill};
-				screen.fillPath(red_box);
+			screen.translate({x: 2 + pad_size, y: 0});
+			screen.scale({x: -1, y: 1});
 
-				screen.brush = '#222';
-				screen.fillPath(margin);
+			screen.brush = brushes.blue;
+			screen.fillPath(blue_box);
 
-				screen.brush = {fillStyle: gray_fill};
-				screen.fillPath(gray_box);
+			screen.brush = brushes.red;
+			screen.fillPath(red_box);
+
+			screen.brush = '#222';
+			screen.fillPath(margin);
+
+			screen.brush = brushes.gray;
+			screen.fillPath(gray_box);
 
 			screen.restore();
-		},
-		get bbox() {
-			return Rect(pos, {width: 2 + segments, height: 1});
-		},
-		get pos() {
-			return pos;
 		}
 	};
+}
+
+function VausController(state) {
+	const verlet = state.verlet;
+	const thrust = () => 1/state.scene.scale;
+	const max_speed = () => 8/state.scene.scale;
+
+	let acceleration = Vector.Null;
+	let moving = false;
+
+	return {
+		move(direction) {
+			moving = !direction.isNull();
+			if (moving) {
+				acceleration = direction.mul(thrust());
+			} else if (verlet.velocity.scalar(acceleration) > 0) {
+				acceleration = acceleration.opposite;
+			}
+		},
+		update() {
+			const velocity = verlet.velocity.add(acceleration);
+			const scalar = velocity.scalar(acceleration);
+			const speed = Math.abs(velocity.x); // equivalent to velocity.norm
+
+			if (!moving && speed <= thrust()) {
+				verlet.velocity = Vector.Null;
+			} else if (moving && scalar >= 0 && Math.abs(speed - max_speed()) <= thrust()) {
+				verlet.velocity = Vector({x: Math.sign(acceleration.x)*max_speed(), y: 0});
+			} else {
+				verlet.velocity = velocity;
+			}
+
+			verlet.position = verlet.position.add(verlet.velocity);
+		}
+	};
+}
+
+export default function Vaus({x, y}, scene) {
+	let padSize = 1;
+	const verlet = VerletModel(Vector({x, y}));
+	const size = {
+		get padSize()  { return padSize; },
+		set padSize(w) { padSize = w; },
+		get width()    { return 2 + padSize; },
+		get height()   { return 1; }
+	};
+	const boundingBox = VausBoundingBox({size, verlet});
+	const state = completeAssign(boundingBox, {
+		verlet,
+		size,
+		scene
+	});
+	const vaus = completeAssign(
+		{},
+		boundingBox,
+		verlet,
+		VausController(state),
+		VausView(state)
+	);
+	scene.add(vaus);
+	return vaus;
 }
