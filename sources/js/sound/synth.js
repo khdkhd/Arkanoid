@@ -1,4 +1,4 @@
-import Part from 'sound/parts';
+import synthFactory from 'sound/synth/factory';
 
 function get_frequency_of_note(note, octave) {
 	const notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
@@ -9,15 +9,24 @@ function get_frequency_of_note(note, octave) {
 
 export default function createSynth(audio_context) {
 	const signal_generators = [];
+	let synth_parts = [];
 	return {
 		patch(patch) {
-			const synth_parts = patch.nodes.map(function(synth_part){
-				const part = Object.assign(Part[synth_part.factory](audio_context, synth_part.options), synth_part.config);
-				if(synth_part.type === 'generator'){
+			synth_parts = patch.nodes.map(node => {
+				console.log(node);
+				const part = Object.assign(synthFactory[node.factory](audio_context, node.options));
+				Object.keys(node.config).forEach(param => {
+					console.log('param',param);
+					console.log(node.config[param]);
+					console.log(part[param]);
+					part[param].value = node.config[param].value
+				});
+				if(node.type === 'generator'){
 					signal_generators.push(part);
 				}
 				return part;
 			});
+			console.log(synth_parts);
 			for(let con of patch.connexions){
 				synth_parts[con[0]].connect(synth_parts[con[1]]);
 			}
@@ -31,6 +40,9 @@ export default function createSynth(audio_context) {
 			signal_generators.forEach(function(generator){
 				generator.voiceOff(get_frequency_of_note(note, octave), time);
 			});
+		},
+		get synth_parts(){
+			return synth_parts;
 		}
 	};
 }

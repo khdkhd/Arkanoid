@@ -23,6 +23,7 @@ function create_polyphonic_generator(state) {
 		},
 		voiceOn(freq, time) {
 			const voice = polyphony_manager.assign(freq);
+			console.log(vcos);
 			vcos[voice].gateOn(freq, time);
 			enveloppes[voice].gateOn(time);
 		},

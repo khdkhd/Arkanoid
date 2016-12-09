@@ -19,7 +19,7 @@ function create_biquad_filter(state){
 		get type(){
 			return {
 				set value(value) {
-					filter.value = value;
+					filter.type = value;
 				}
 			}
 		},
@@ -27,6 +27,7 @@ function create_biquad_filter(state){
 			filter.type = type;
 		},
 		set frequency(value){
+			console.log('value', value);
 			filter.frequency.value = value;
 			state.emitter.emit('frequency-change', value);
 		},
