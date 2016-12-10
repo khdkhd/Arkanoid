@@ -1,4 +1,9 @@
-import Game from 'game';
+import Game from 'game/index';
+import ui from 'ui';
 
-const game = Game();
-game.start();
+ui.screen.size = {
+	width: 224*2,
+	height: 256*2
+};
+
+Game().start();
