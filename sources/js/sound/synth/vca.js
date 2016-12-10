@@ -31,8 +31,7 @@ function create_vca(state) {
 export default(audio_context) => {
 	const state = {
 		audio_context: audio_context,
-		emitter: new EventEmitter(),
 		gain: 0
 	};
-	return Object.assign(state.emitter, create_vca(state));
+	return create_vca(state);
 }
