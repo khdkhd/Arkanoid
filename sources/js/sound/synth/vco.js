@@ -13,7 +13,7 @@ function create_vco(state) {
 		get type(){
 			return osc.type;
 		},
-		set type(type) {
+		set type(type){
 			osc.type = type;
 		}
 	};
@@ -21,8 +21,7 @@ function create_vco(state) {
 
 export default(audio_context)=>{
 	const state = {
-		audio_context: audio_context,
-		emitter: new EventEmitter()
+		audio_context: audio_context
 	};
-	return Object.assign(state.emitter, create_vco(state));
+	return create_vco(state);
 }
