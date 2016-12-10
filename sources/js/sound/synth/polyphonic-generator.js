@@ -8,7 +8,7 @@ function create_polyphonic_generator(state) {
 	const vcos = times(state.num_voices, () => VCO(state.audio_context));
 	const vcas = times(state.num_voices, () => VCA(state.audio_context));
 	const enveloppes = times(state.num_voices, () => EnveloppeGenerator());
-	const channel_merger = state.audio_context.createChannelMerger();
+	const channel_merger = state.audio_context.createChannelMerger(state.num_voices);
 	const polyphony_manager = create_polyphony_manager(state.num_voices);
 
 	return {
