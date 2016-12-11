@@ -25,22 +25,22 @@ function create_knob_view(state){
 			screen.pen =1;
 			screen.pen = '#fff';
 			screen.beginPath();
-			screen.arc(state.pos, state.radius - 8, 0, 2*Math.PI);
+			screen.arc(state.pos, state.outer_radius, 0, 2*Math.PI);
 			screen.drawPath();
 			screen.beginPath();
-			screen.arc(state.pos, state.radius - 32, 0, 2*Math.PI);
+			screen.arc(state.pos, state.inner_radius, 0, 2*Math.PI);
 			screen.drawPath();
-			screen.pen = 16;
+			screen.pen = state.cursor_width;
 			screen.pen = '#ccc';
 			screen.beginPath();
-			screen.arc(state.pos, state.radius - 20, curve_start, curve_end);
+			screen.arc(state.pos, state.cursor_radius, curve_start, curve_end);
 			screen.drawPath();
 			screen.restore();
 			screen.save();
 			screen.pen = '#fff';
-			screen.pen = 16;
+			screen.pen = state.cursor_width;
 			screen.beginPath();
-			screen.arc(state.pos, state.radius - 20, curve_start, state.angle);
+			screen.arc(state.pos, state.cursor_radius, curve_start, state.angle);
 			screen.drawPath();
 			screen.restore();
 		}
@@ -55,7 +55,7 @@ function create_knob_controller(state) {
 	}
 
 	function update(value){
-		state.angle = curve_length * value - Math.PI/2;
+		state.angle = curve_length*value - Math.PI/2;
 	}
 
 	document.addEventListener('mousedown', event => {
@@ -82,13 +82,13 @@ function create_knob_controller(state) {
 
 	return {
 		set param(audio_param){
-			state.param = audio_param;
-			state.param.on('change', value => {
+			audio_param.on('change', value => {
 				if(!state.isActive){
 					update(value);
 				}
 			});
 			update(audio_param.value);
+			state.param = audio_param;
 		},
 		get param(){
 			return state.param;
@@ -99,7 +99,10 @@ function create_knob_controller(state) {
 export default ({pos, radius})=> {
 	const state = {
 		pos: pos,
-		radius: radius,
+		outer_radius: radius,
+		inner_radius: radius - radius*.64,
+		cursor_radius: radius - radius*.32,
+		cursor_width: radius*.4,
 		bbox: Rect(Vector(pos).add({x: -radius, y: -radius}), {width: radius*2, height: radius*2}),
 		angle: curve_start,
 		isActive: false,
