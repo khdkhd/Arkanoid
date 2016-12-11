@@ -10,14 +10,6 @@ const curve_end = 2*Math.PI - Math.PI/2 - offset;
 const curve_length = curve_end - curve_start;
 const inc_factor = 25;
 
-function clamp(angle){
-	return _clamp(angle, curve_start, curve_end);
-}
-
-function get_angle_increment(event){
-	return Math.sign(-event.movementY)*curve_length/inc_factor;
-}
-
 function create_knob_view(state){
 	return  {
 		render(screen){
@@ -48,6 +40,14 @@ function create_knob_view(state){
 }
 
 function create_knob_controller(state) {
+
+	function clamp(angle){
+		return _clamp(angle, curve_start, curve_end);
+	}
+
+	function get_angle_increment(event){
+		return Math.sign(-event.movementY)*curve_length/inc_factor;
+	}
 
 	function tweak(event) {
 		state.angle = clamp(state.angle + get_angle_increment(event));
