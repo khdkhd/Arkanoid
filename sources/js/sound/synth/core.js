@@ -20,10 +20,12 @@ export default function createSynth(audio_context) {
 				const config = node.config;
 				Object.keys(config).forEach(param => {
 					mods[node.id][param].value = config[param].value;
-					if(!is_nil(config[param].view)){
-						const view = controlFactory[config[param].view.factory](config[param].view.options);
-						view.param = mods[node.id][param];
-						views.push(view);
+					if(!is_nil(config[param].views)){
+						config[param].views.forEach(view_def =>{
+							const view = controlFactory[view_def.factory](view_def.options);
+							view.param = mods[node.id][param];
+							views.push(view);
+						});
 					}
 				});
 				if(node.type === 'generator'){

@@ -1,11 +1,26 @@
 import EventEmitter from 'events';
+import { completeAssign as assign } from 'common/utils';
 
 function create_vca(state) {
 	const vca = state.audio_context.createGain();
 	vca.gain.value = 0;
+
+	const gain = assign(new EventEmitter(), {
+		set value(value){
+			vca.gain.value = value;
+			this.emit('change', value);
+		},
+		get value(){
+			return vca.gain.value;
+		}
+	});
+
 	return {
 		connect({input}) {
 			vca.connect(input);
+		},
+		get input() {
+			return vca;
 		},
 		setValueAtTime(value, time) {
 			vca.gain.setValueAtTime(value, time)
@@ -16,14 +31,8 @@ function create_vca(state) {
 		cancelScheduledValues(time){
 			vca.gain.cancelScheduledValues(time);
 		},
-		get input() {
-			return vca;
-		},
 		get gain(){
 			return vca.gain;
-		},
-		set value(value){
-			vca.gain.value = value;
 		}
 	};
 }

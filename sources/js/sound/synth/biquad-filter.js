@@ -90,8 +90,8 @@ export default(audio_context)=> {
 	const state = {
 		audio_context: audio_context,
 		frequency_range :{
-			min: 60,
-			max: 1415
+			min: 0,
+			max: 2500
 		},
 		gain_range: {
 			min: 0,

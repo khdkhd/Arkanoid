@@ -1,5 +1,6 @@
 import EventEmitter from 'events';
 import { completeAssign as assign } from 'common/utils';
+import { scale, unscale } from 'sound/common/utils';
 
 function create_lfo(state){
 	const osc = state.audio_context.createOscillator();
@@ -15,28 +16,26 @@ function create_lfo(state){
 			return assign(
 				new EventEmitter(),{
 					set value(value) {
-						osc.frequency.value = (state.frequency_range.max - state.frequency_range.min) * value;
+						osc.frequency.value = scale(state.frequency_range, value);
 						this.emit('change', value);
 					},
 					get value(){
-						return osc.frequency.value/(state.frequency_range.max - state.frequency_range.min);
+						return unscale(state.frequency_range, osc.frequency.value);
 					}
 			});
 		},
 		get gain(){
 			return assign(
-				new EventEmitter(),
-				gain.gain, {
+				new EventEmitter(), {
 					set value(value){
-						gain.gain.value = (state.gain_range.max - state.gain_range.min) * value;
+						gain.gain.value = scale(state.gain_range, value);
 						this.emit('change', value);
+					},
+					get value(){
+						return unscale(state.gain_range, gain.gain.value);
 					}
 				}
 			);
-		},
-		set amplitude(value){
-			gain.gain.value = value;
-			state.emitter.emit('amplitude-change', value);
 		},
 		get type(){
 			return {
@@ -53,7 +52,7 @@ export default(audio_context)=> {
 		audio_context: audio_context,
 		frequency_range :{
 			min: 0,
-			max: 20
+			max: 50
 		},
 		gain_range: {
 			min: 500,
