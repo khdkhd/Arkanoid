@@ -1,10 +1,53 @@
 import EnveloppeGenerator from 'sound/synth/enveloppe-generator';
 import EventEmitter from 'events';
 import { completeAssign as assign } from 'common/utils';
+import { scale, unscale } from 'sound/common/utils';
 
 function create_biquad_filter(state){
+
 	const filter = state.audio_context.createBiquadFilter();
 	const enveloppe = EnveloppeGenerator();
+
+	const frequency = assign(new EventEmitter(),{
+		set value(value){
+			filter.frequency.value = scale(state.frequency_range, value);
+			this.emit('change', value);
+		},
+		get value(){
+			return unscale(state.frequency_range, filter.frequency.value);
+		}
+	});
+
+	const gain = assign(new EventEmitter(), {
+		set value(value) {
+			filter.gain.value = scale(state.gain_range, value);
+			this.emit('change', value);
+		},
+		get value(){
+			return unscale(state.gain_range, filter.gain.value);
+		}
+	});
+
+	const Q = assign(new EventEmitter(), {
+		set value(value){
+			filter.Q.value = scale(state.Q_range, value);
+			this.emit('change', value);
+		},
+		get value(){
+			return unscale(state.Q_range, filter.Q.value);
+		}
+	});
+
+
+	const type = assign (new EventEmitter(),{
+		set value(value) {
+			filter.type = value;
+		},
+		get value(){
+			return filter.type;
+		}
+	});
+
 	return {
 		connect({input}){
 			filter.connect(input);
@@ -17,65 +60,28 @@ function create_biquad_filter(state){
 			return filter.frequency;
 		},
 		get type(){
-			return {
-				set value(value) {
-					filter.type = value;
-				}
-			}
+			return type;
 		},
 		get frequency(){
-			return assign(new EventEmitter(), {
-					set value(value){
-						filter.frequency.value = (state.frequency_range.max - state.frequency_range.min) * value;
-						this.emit('change', value);
-					},
-					get value(){
-						return filter.frequency.value/(state.frequency_range.max - state.frequency_range.min);
-					}
-			});
+			return frequency;
 		},
 		get gain(){
-			return assign(new EventEmitter(), {
-				set value(value) {
-					filter.gain.value = (state.gain_range.max - state.gain_range.min) * value;
-					this.emit('change', value);
-				},
-				get value(){
-					return filter.gain.value/(state.gain_range.max - state.gain_range.min);
-				}
-			});
+			return gain;
+		},
+		get Q(){
+			return Q;
 		},
 		get attack(){
-			return assign(new EventEmitter(), {
-				set value(value){
-					enveloppe.attack = value;
-					this.emit('change', value);
-				}
-			});
+			return enveloppe.attack;
 		},
 		get decay(){
-			return assign(new EventEmitter(), {
-				set value(value){
-					enveloppe.decay = value;
-					this.emit('change', value);
-				}
-			});
+			return enveloppe.decay;
 		},
 		get sustain(){
-			return assign(new EventEmitter(), {
-				set value(value){
-					enveloppe.sustain = value;
-					this.emit('change', value);
-				}
-			});
+			return enveloppe.sustain;
 		},
 		get release(){
-			return assign(new EventEmitter(), {
-				set value(value){
-					enveloppe.release = value;
-					this.emit('change', value);
-				}
-			});
+			return enveloppe.release;
 		}
 	};
 }
@@ -84,12 +90,16 @@ export default(audio_context)=> {
 	const state = {
 		audio_context: audio_context,
 		frequency_range :{
-			min: 1150,
-			max: 4200
+			min: 60,
+			max: 1415
 		},
 		gain_range: {
 			min: 0,
-			max: 50
+			max: 10
+		},
+		Q_range: {
+			min: 0,
+			max: 100
 		}
 	};
 	return create_biquad_filter(state);
