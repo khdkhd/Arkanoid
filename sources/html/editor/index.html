@@ -9,70 +9,72 @@
 	</head>
 	<body>
 		<h1>Arkanoid</h1>
-		<div id="palette">
-			<form>
-				<ul id="bricks">
-					<li class="item">
-						<input id="gray" name="brick" type="radio">
-						<label for="gray"></label>
-					</li>
-					<li class="item">
-						<input id="gold" name="brick" type="radio">
-						<label for="gold"></label>
-					</li>
-					<li class="item">
-						<input id="white" name="brick" type="radio">
-						<label for="white"></label>
-					</li>
-					<li class="item">
-						<input id="orange" name="brick" type="radio">
-						<label for="orange"></label>
-					</li>
-					<li class="item">
-						<input id="cyan" name="brick" type="radio">
-						<label for="cyan"></label>
-					</li>
-					<li class="item">
-						<input id="green" name="brick" type="radio">
-						<label for="green"></label>
-					</li>
-					<li class="item">
-						<input id="red" name="brick" type="radio">
-						<label for="red"></label>
-					</li>
-					<li class="item">
-						<input id="blue" name="brick" type="radio">
-						<label for="blue"></label>
-					</li>
-					<li class="item">
-						<input id="purple" name="brick" type="radio">
-						<label for="purple"></label>
-					</li>
-					<li class="item">
-						<input id="yellow" name="brick" type="radio">
-						<label for="yellow"></label>
-					</li>
-				</ul>
-				<ul id="modes">
-					<li class="item">
-						<input id="add" name="mode" type="radio">
-						<label for="add"></label>
-					</li>
-					<li class="item">
-						<input id="remove" name="mode" type="radio">
-						<label for="remove"></label>
-					</li>
-				</ul>
-				<ul id="actions">
-					<li class="item">
-						<button id="export"><i class="fa fa-save"></i></button>
-					</li>
-				</ul>
-			</form>
+		<div id="editor">
+			<div id="palette">
+				<form>
+					<ul id="bricks">
+						<li class="item">
+							<input id="gray" name="brick" type="radio" checked>
+							<label for="gray"></label>
+						</li>
+						<li class="item">
+							<input id="gold" name="brick" type="radio">
+							<label for="gold"></label>
+						</li>
+						<li class="item">
+							<input id="white" name="brick" type="radio">
+							<label for="white"></label>
+						</li>
+						<li class="item">
+							<input id="orange" name="brick" type="radio">
+							<label for="orange"></label>
+						</li>
+						<li class="item">
+							<input id="cyan" name="brick" type="radio">
+							<label for="cyan"></label>
+						</li>
+						<li class="item">
+							<input id="green" name="brick" type="radio">
+							<label for="green"></label>
+						</li>
+						<li class="item">
+							<input id="red" name="brick" type="radio">
+							<label for="red"></label>
+						</li>
+						<li class="item">
+							<input id="blue" name="brick" type="radio">
+							<label for="blue"></label>
+						</li>
+						<li class="item">
+							<input id="purple" name="brick" type="radio">
+							<label for="purple"></label>
+						</li>
+						<li class="item">
+							<input id="yellow" name="brick" type="radio">
+							<label for="yellow"></label>
+						</li>
+					</ul>
+					<ul id="modes">
+						<li class="item">
+							<input id="add" name="mode" type="radio" checked>
+							<label for="add"></label>
+						</li>
+						<li class="item">
+							<input id="remove" name="mode" type="radio">
+							<label for="remove"></label>
+						</li>
+					</ul>
+					<ul id="actions">
+						<li class="item">
+							<button id="export"><i class="fa fa-save"></i></button>
+						</li>
+					</ul>
+				</form>
+			</div>
+			<canvas id="screen" width="300" height="300">
+				Your browser does not support canvas!
+			</canvas>
 		</div>
-		<canvas id="screen" width="300" height="300">
-			Your browser does not support canvas!
-		</canvas>
 		<script type="text/javascript" src="/assets/js/editor.js"></script>
 	</body>
 </html>

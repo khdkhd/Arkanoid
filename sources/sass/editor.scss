@@ -20,6 +20,11 @@ $brick-colors: (
 	}
 }
 
+#editor {
+	margin: 0 auto;
+	width: 600px;
+}
+
 #palette {
 	float: left;
 	border: 4px solid $palette-border-color;
