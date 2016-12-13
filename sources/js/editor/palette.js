@@ -1,4 +1,7 @@
+import {Prompt} from 'ui/dialog';
+
 import is_function from 'lodash.isfunction';
+import is_nil from 'lodash.isnil';
 
 const palette = document.querySelector('#palette');
 const export_button = palette.querySelector('#export');
@@ -17,9 +20,14 @@ function download(blob, filename) {
 export_button.addEventListener('click', ev => {
 	ev.preventDefault();
 	ev.stopPropagation();
-	download(new Blob([export_callback()], {
-		type: 'application/octet-stream'
-	}), 'level-data.json');
+	const default_filename = 'level.json';
+	Prompt(default_filename).run().then(value => {
+		if (!is_nil(value)) {
+			download(new Blob([export_callback()], {
+				type: 'application/octet-stream'
+			}), `${(value || default_filename).trim()}`);
+		}
+	});
 });
 
 export default {
