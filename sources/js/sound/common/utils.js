@@ -3,7 +3,7 @@ function scale(range, value){
 }
 
 function unscale(range, value){
-	return (value-range.max)/(range.max-range.min);
+	return (value-range.min)/(range.max-range.min);
 }
 
 export {
