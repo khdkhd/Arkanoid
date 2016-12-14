@@ -58,6 +58,7 @@
     "lodash.isnumber": "^3.0.3",
     "lodash.isstring": "^4.0.1",
     "lodash.noop": "^3.0.1",
+    "lodash.oversome": "^4.7.0",
     "lodash.random": "^3.2.0",
     "lodash.remove": "^4.7.0",
     "lodash.throttle": "^4.1.1",
