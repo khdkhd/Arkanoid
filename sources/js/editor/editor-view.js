@@ -10,7 +10,9 @@ import Rect from 'maths/rect';
 import ui from 'ui';
 
 import clamp from 'lodash.clamp';
+import constant from 'lodash.constant';
 import is_nil from 'lodash.isnil';
+import is_function from 'lodash.isfunction';
 import throttle from 'lodash.throttle';
 
 const emitter = new EventEmitter();
@@ -52,43 +54,51 @@ function event_coordinate(ev) {
 }
 
 function MouseDropMark(position, size, scene) {
+	let display = false;
 	const mouse_drop_mark = {
 		render() {
-			const {screen} = scene;
-			screen.save();
-			screen.translate(position);
-			screen.brush = mouse_drop_mark_color;
-			screen.fillRect(Rect(Vector.Null, size));
-			screen.restore();
+			if (display) {
+				const {screen} = scene;
+				screen.save();
+				screen.translate(position);
+				screen.brush = mouse_drop_mark_color;
+				screen.fillRect(Rect(Vector.Null, size));
+				screen.restore();
+			}
 		},
 		get position() {
 			return position;
 		},
 		set position(p) {
 			position = p;
+		},
+		set toggleDisplay(b) {
+			display = is_nil(b) ? !display : b;
 		}
 	};
 	scene.add(mouse_drop_mark);
 	return mouse_drop_mark;
 }
 
-let mouse_drop_mark;
+let overlap = constant(false);
+const mouse_drop_mark = MouseDropMark({x: 0, y: 0}, {width: 2, height: 1}, scene);
+const on_mouse_move = throttle(ev => {
+	const pos = event_coordinate(ev);
 
-editor.addEventListener('mousemove', throttle(ev => {
-	const pos = event_coordinate(ev);
-	if (!is_nil(mouse_drop_mark)) {
-		mouse_drop_mark.position = pos;
-	}
+	mouse_drop_mark.position = pos;
+	mouse_drop_mark.toggleDisplay = !overlap(pos);
+
 	render();
-}, 64));
-editor.addEventListener('mouseenter', ev => {
-	const pos = event_coordinate(ev);
-	mouse_drop_mark = MouseDropMark(pos, {width: 2, height: 1}, scene);
+}, 64);
+
+editor.addEventListener('mouseenter', () => {
+	editor.addEventListener('mousemove', on_mouse_move);
 	render();
 });
 editor.addEventListener('mouseleave', () => {
-	scene.remove(mouse_drop_mark);
-	mouse_drop_mark = null;
+	mouse_drop_mark.toggleDisplay = false;
+	on_mouse_move.cancel();
+	editor.removeEventListener('mousemove', on_mouse_move);
 	render();
 });
 editor.addEventListener('click', ev => {
@@ -98,6 +108,12 @@ editor.addEventListener('click', ev => {
 export default completeAssign(emitter, {
 	get scene() {
 		return scene;
+	},
+	set overlap(fn) {
+		if (! is_function(fn)) {
+			throw new Error('argument must be a function');
+		}
+		overlap = fn;
 	},
 	render
 });
