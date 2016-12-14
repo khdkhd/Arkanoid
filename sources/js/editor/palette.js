@@ -39,7 +39,7 @@ export default {
 		const mode = palette.querySelector('#modes input:checked');
 		return mode.id;
 	},
-	set onExport(fn) {
+	set export(fn) {
 		if (!is_function(fn)) {
 			throw TypeError('argument must be a function');
 		}

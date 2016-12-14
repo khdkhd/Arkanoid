@@ -38,7 +38,7 @@ editorView.on('click', position => {
 });
 editorView.overlap = overlap;
 
-palette.onExport = () => {
+palette.export = () => {
 	return JSON.stringify(bricks.map(brick => {
 		const {position, color} = brick;
 		return {
