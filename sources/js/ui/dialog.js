@@ -2,7 +2,9 @@ import {EventEmitter} from 'events';
 
 import is_function from 'lodash.isfunction';
 import is_nil from 'lodash.isnil';
+import is_string from 'lodash.isstring';
 import noop from 'lodash.noop';
+import uniq from 'lodash.uniq';
 
 function overlay(parent) {
 	let overlay = parent.querySelector('body > #modal-overlay');
@@ -27,16 +29,16 @@ function dialog_button(parent, role, label = '') {
 	return button;
 }
 
-function dialog_buttons(parent, buttons_descriptors) {
+function dialog_init_buttons(parent, buttons_descriptors) {
 	const buttons_wrapper = document.createElement('ul');
 	const emitter = new EventEmitter();
 
 	parent.appendChild(buttons_wrapper);
 	buttons_wrapper.className = 'buttons-wrapper';
-	buttons_descriptors.forEach(({id, label}) => {
-		const button = dialog_button(buttons_wrapper, id, label);
+	buttons_descriptors.forEach(({role, label}) => {
+		const button = dialog_button(buttons_wrapper, role, label);
 		const on_click = () => {
-			emitter.emit('click', id);
+			emitter.emit('click', role);
 			button.removeEventListener('click', on_click);
 		}
 		button.addEventListener('click', on_click);
@@ -45,33 +47,37 @@ function dialog_buttons(parent, buttons_descriptors) {
 	return emitter;
 }
 
-function dialog_content(parent) {
+function dialog_init_content(parent, content) {
 	const content_wrapper = document.createElement('div');
 	content_wrapper.className = 'content-wrapper';
+	if (is_string(content)) {
+		parent.innerHTML = content;
+	} else {
+		content_wrapper.appendChild(content);
+	}
 	parent.appendChild(content_wrapper);
 	return content_wrapper;
 }
 
-export function Dialog() {
+export function Dialog({
+	aboutToClose = noop,
+	className = [],
+	content,
+	id = ''
+} = {}) {
 	const parent = document.querySelector('body');
 	const dialog = document.createElement('div');
 
-	const content = dialog_content(dialog);
-	const buttons = dialog_buttons(dialog, [{id: 'cancel', label: 'Cancel'}, {id: 'ok', label: 'Ok'}]);
-	let about_to_close = noop;
+	dialog_init_content(dialog, content);
+	const buttons_ = dialog_init_buttons(dialog, [{role: 'cancel', label: 'Cancel'}, {role: 'ok', label: 'Ok'}]);
 
-	dialog.className = 'dialog';
+	dialog.className = uniq([].concat(className, 'dialog')).join(' ');
+	dialog.id = id;
 
 	return {
-		get content() {
-			return content;
-		},
-		set content(c) {
-
-		},
 		set aboutToClose(fn) {
 			if (is_function(fn)) {
-				about_to_close = fn;
+				aboutToClose = fn;
 				return ;
 			}
 			throw new TypeError('argument must be a function');
@@ -87,9 +93,9 @@ export function Dialog() {
 			dialog.style.top = `${(window.innerHeight - dialog.clientHeight)/2}px`;
 			return new Promise((resolve, reject) => {
 				try {
-					buttons.once('click', action => {
+					buttons_.once('click', action => {
 						terminate();
-						resolve(about_to_close(action));
+						resolve(aboutToClose(action));
 					});
 				} catch (err) {
 					terminate();
@@ -101,15 +107,28 @@ export function Dialog() {
 }
 
 export function Prompt(placeholder = '') {
-	const dialog = Dialog();
 	const input = document.createElement('input');
+
 	input.type = 'text';
 	input.placeholder = placeholder;
-	dialog.content.appendChild(input);
-	dialog.aboutToClose = (reason) => {
-		if (reason === 'ok') {
-			return input.value;
-		}
-	};
-	return dialog;
+
+	return Dialog({
+		aboutToClose: (role) => {
+			if (role === 'ok') {
+				return input.value;
+			}
+		},
+		className: 'prompt',
+		content: input
+	});
+}
+
+export function Confirm(message) {
+	return Dialog({
+		aboutToClose: (role) => {
+			return role === 'ok';
+		},
+		className: 'confirm',
+		content: `<p>${message}</p>`
+	});
 }
