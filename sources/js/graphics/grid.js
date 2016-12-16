@@ -11,6 +11,7 @@ export default function Grid(cols, rows, step, color, scene) {
 
 				// Vertical guides
 				screen.save();
+				screen.translate({x: .5/scale, y: .5/scale});
 				times(cols, () => {
 					screen.translate({x: step, y: 0});
 					screen.drawLine({x: 0, y: 0}, {x: 0, y: rows*step});
