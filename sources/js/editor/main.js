@@ -5,6 +5,9 @@ import Brick from 'game/brick';
 
 import Rect from 'maths/rect';
 
+import constant from 'lodash.constant';
+import identity from 'lodash.identity';
+import negate from 'lodash.negate';
 import over_some from 'lodash.oversome';
 import remove from 'lodash.remove';
 
@@ -21,12 +24,13 @@ function match_position(position) {
 }
 
 function overlap(position) {
+	const transform = palette.mode === 'add' ? identity : negate(identity);
 	const check = over_some(
 		match_position(position.add({x: -1, y: 0})),
 		match_position(position),
 		match_position(position.add({x:  1, y: 0}))
 	);
-	return bricks.some(check) || !bricks_zone.contains(position);
+	return transform(bricks.some(check)) || !bricks_zone.contains(position);
 }
 
 editorView.on('click', position => {
@@ -54,6 +58,14 @@ palette.export = () => {
 			position: {x: position.x, y: position.y}
 		};
 	}));
+};
+palette.import = data => {
+	const scene = editorView.scene;
+	remove(bricks, constant(true)).forEach(brick => scene.remove(brick));
+	for (let brick of data) {
+		bricks.push(Brick(brick.position, brick.color, 1, scene));
+	}
+	editorView.render();
 };
 
 editorView.render();
