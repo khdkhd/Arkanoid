@@ -1,12 +1,20 @@
-import Brick from 'game/brick';
-
 import palette from 'editor/palette';
 import editorView from 'editor/editor-view';
+
+import Brick from 'game/brick';
+
+import Rect from 'maths/rect';
 
 import over_some from 'lodash.oversome';
 import remove from 'lodash.remove';
 
+const scene_size = editorView.scene.boundingBox.absolute.size;
+
 const bricks = [];
+const bricks_zone = Rect({x: 1, y: 1}, {
+	width:  scene_size.width - 4,
+	height: scene_size.height - 1
+});
 
 function match_position(position) {
 	return brick => brick.position.equal(position);
@@ -18,7 +26,7 @@ function overlap(position) {
 		match_position(position),
 		match_position(position.add({x:  1, y: 0}))
 	);
-	return bricks.some(check);
+	return bricks.some(check) || !bricks_zone.contains(position);
 }
 
 editorView.on('click', position => {

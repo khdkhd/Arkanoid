@@ -1,6 +1,16 @@
 import {completeAssign} from 'common/utils';
 import {EventEmitter} from 'events';
 
+import {
+	HorizontalWall,
+	HorizontalLeftWall,
+	HorizontalRightWall,
+	VerticalLeftWall,
+	VerticalRightWall,
+	VerticalTopLeftWall,
+	VerticalTopRightWall
+} from 'game/wall';
+
 import Grid from 'graphics/grid';
 import Scene from 'graphics/scene';
 
@@ -30,7 +40,6 @@ screen.size = {
 	width: 224*2,
 	height: 256*2
 };
-screen.translate({x: .5, y: .5});
 
 const scale = Math.round((screen.width/14)/2);
 
@@ -41,6 +50,19 @@ const scene = Scene(screen, screen.rect.scale(1/scale), scale, editor_bg_color);
 
 Grid(columns,   rows,   1, editor_grid1_color, scene);
 Grid(columns/2, rows/2, 2, editor_grid2_color, scene);
+((rows, cols) => {
+	for (let y = 1; y < rows; ++y) {
+		VerticalLeftWall({x: 0, y}, scene);
+		VerticalRightWall({x: cols, y}, scene);
+	}
+	VerticalTopLeftWall({x: 0, y: 0}, scene);
+	VerticalTopRightWall({x: cols, y: 0}, scene);
+	for (let x = 1; x < cols ; ++x) {
+		HorizontalWall({x, y: 0}, scene);
+	}
+	HorizontalLeftWall({x: 0, y: 0}, scene);
+	HorizontalRightWall({x: cols, y: 0}, scene);
+})(rows, columns - 1);
 
 function render() {
 	scene.render();
@@ -80,13 +102,16 @@ function MouseDropMark(position, size, scene) {
 	return mouse_drop_mark;
 }
 
-let overlap = constant(false);
+let overlap_callback = constant(false);
 const mouse_drop_mark = MouseDropMark({x: 0, y: 0}, {width: 2, height: 1}, scene);
 const on_mouse_move = throttle(ev => {
 	const pos = event_coordinate(ev);
+	const overlap = overlap_callback(pos);
 
 	mouse_drop_mark.position = pos;
-	mouse_drop_mark.toggleDisplay = !overlap(pos);
+	mouse_drop_mark.toggleDisplay = !overlap;
+
+	editor.dataset.overlap = overlap;
 
 	render();
 }, 64);
@@ -113,7 +138,7 @@ export default completeAssign(emitter, {
 		if (! is_function(fn)) {
 			throw new Error('argument must be a function');
 		}
-		overlap = fn;
+		overlap_callback = fn;
 	},
 	render
 });
