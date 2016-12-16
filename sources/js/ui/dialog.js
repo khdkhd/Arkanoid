@@ -3,6 +3,8 @@ import {EventEmitter} from 'events';
 import is_function from 'lodash.isfunction';
 import is_nil from 'lodash.isnil';
 import is_string from 'lodash.isstring';
+import cond from 'lodash.cond';
+import constant from 'lodash.constant';
 import noop from 'lodash.noop';
 import uniq from 'lodash.uniq';
 
@@ -132,3 +134,24 @@ export function Confirm(message) {
 		content: `<p>${message}</p>`
 	});
 }
+
+const NOTICE_MESSAGE = 0;
+const NOTICE_WARNING = 1;
+const NOTICE_ERROR = 2;
+
+const notice_icon = cond([
+	[status => status === NOTICE_WARNING, constant('<i class="fa fa-times-circle"></i>')],
+	[status => status === NOTICE_ERROR,   constant('<i class="fa fa-exclamation-circle"></i>')],
+	[constant(true), constant('')]
+]);
+
+export function Notice(message, status = NOTICE_MESSAGE) {
+	return Dialog({
+		className: 'notice',
+		content: `<p>${notice_icon(status)}${message}</p>`
+	});
+}
+
+Notice.Error = NOTICE_ERROR;
+Notice.Warning = NOTICE_WARNING;
+Notice.Message = NOTICE_MESSAGE;
