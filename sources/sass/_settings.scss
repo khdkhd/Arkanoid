@@ -11,6 +11,8 @@ $dialog-padding: 16px;
 $dialog-z-index: $overlay-z-index + 1;
 
 $dialog-bg-color: #123;
+$dialog-border-color: lighten($dialog-bg-color, 15);
+$dialog-fg-color: lighten($dialog-bg-color, 20);
 
 $dialog-input-padding: 6px;
 $dialog-input-border-color: darken($dialog-bg-color, 5);
@@ -20,7 +22,7 @@ $dialog-input-fg-color: darken($dialog-bg-color, 5);
 $dialog-button-bg-color: darken($dialog-bg-color, 5);
 $dialog-button-hover-bg-color: lighten($dialog-bg-color, 15);
 
-$dialog-button-fg-color: lighten($dialog-bg-color, 15);
+$dialog-button-fg-color: $dialog-fg-color;
 $dialog-button-hover-fg-color: darken($dialog-bg-color, 5);
 
 $dialog-button-margin: 4px;

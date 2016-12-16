@@ -11,8 +11,10 @@
 }
 
 .dialog {
-	box-sizing: padding-box;
 	background-color: $dialog-bg-color;
+	border: 1px solid $dialog-border-color;
+	box-sizing: padding-box;
+	color: $dialog-fg-color;
 	min-width: $dialog-min-width;
 	position: absolute;
 	padding: $dialog-padding;
