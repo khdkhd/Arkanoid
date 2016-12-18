@@ -51,7 +51,7 @@ function create_fader_controller(state) {
 	}
 
 	function update(value){
-		state.cursor_pos = value/state.inner_rect.height + state.inner_rect.y;
+		state.cursor = value*state.inner_rect.height + state.inner_rect.y;
 	}
 
 	document.addEventListener('mousedown', event => {
