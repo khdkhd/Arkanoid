@@ -6,9 +6,6 @@ function get_col(grid, col){
 
 function create_track(state){
 
-	let grid = [[{}]];
-	let pos = 0;
-
 	function playNotes(notes){
 		notes.forEach(note=>{
 			if(note.note){
@@ -19,12 +16,12 @@ function create_track(state){
 
 	function playNote({note, octave, time, duration}){
 		state.slave.noteOn(note, octave, time);
-		state.slave.noteOff(note, octave, time + duration * grid.length);
+		state.slave.noteOff(note, octave, time + duration * state.grid.length);
 	}
 
 	return {
 		set grid(matrix2d){
-			grid = matrix2d.map(row =>
+			state.grid = matrix2d.map(row =>
 				row.map(step => {
 					if(step.note){
 						return Note.createNote(step);
@@ -33,8 +30,8 @@ function create_track(state){
 			}));
 		},
 		schedule(time){
-			pos = ++pos % grid[0].length;
-			playNotes(get_col(grid, pos).map(step=>Object.assign({time:time},step)));
+			state.pos = ++state.pos % state.grid[0].length;
+			playNotes(get_col(state.grid, state.pos).map(step=>Object.assign({time:time},step)));
 		},
 		assign(slave){
 			state.slave = slave;
@@ -45,7 +42,9 @@ function create_track(state){
 
 export default slave => {
 	const state = {
-		slave: slave
+		slave: slave,
+		pos: 0,
+		grid: [[{}]]
 	};
 	return create_track(state);
 }
