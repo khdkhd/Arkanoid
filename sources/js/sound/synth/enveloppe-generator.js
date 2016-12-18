@@ -8,7 +8,7 @@ function create_enveloppe_generator(state){
 				this.emit('change', value);
 			},
 			get value(){
-
+				return state.attack;
 			}
 	});
 
@@ -18,7 +18,7 @@ function create_enveloppe_generator(state){
 			this.emit('change', value);
 		},
 		get value(){
-
+			return state.decay;
 		}
 	});
 
@@ -28,7 +28,7 @@ function create_enveloppe_generator(state){
 			this.emit('change', value);
 		},
 		get value(){
-
+			return state.sustain;
 		}
 	});
 
@@ -38,7 +38,7 @@ function create_enveloppe_generator(state){
 			this.emit('change', value);
 		},
 		get value(){
-
+			return state.release;
 		}
 	});
 	return {
@@ -53,6 +53,7 @@ function create_enveloppe_generator(state){
 		},
 		gateOff(time){
 			state.param.cancelScheduledValues(time);
+			state.param.setValueAtTime(state.param.value, time);
 			state.param.linearRampToValueAtTime(0, time + state.release);
 		},
 		get attack(){

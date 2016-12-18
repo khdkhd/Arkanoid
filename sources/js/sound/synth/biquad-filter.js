@@ -99,7 +99,7 @@ export default(audio_context)=> {
 		},
 		Q_range: {
 			min: 0,
-			max: 100
+			max: 25
 		}
 	};
 	return create_biquad_filter(state);

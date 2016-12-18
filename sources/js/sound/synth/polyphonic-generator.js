@@ -14,7 +14,6 @@ function create_polyphonic_generator(state) {
 	const channel_merger = state.audio_context.createChannelMerger(state.num_voices);
 	const polyphony_manager = create_polyphony_manager(state.num_voices);
 
-
 	const type = assign(new EventEmitter(), {
 		set value(value){
 			vcos.forEach(vco => vco.type.value = value);
@@ -44,35 +43,36 @@ function create_polyphonic_generator(state) {
 			return unscale(state.attack_range,enveloppes[0].attack.value);
 		}
 	});
+
 	const decay = assign(new EventEmitter(), {
 		set value(value){
-			enveloppes.forEach(enveloppe => enveloppe.decay.value = value);
+			enveloppes.forEach(enveloppe => enveloppe.decay.value = scale(state.decay_range,value));
 			this.emit('change', value);
 		},
 		get value(){
-			return enveloppes[0].decay.value;
+			return unscale(state.decay_range, enveloppes[0].decay.value);
 		}
 	});
+
 	const sustain = assign(new EventEmitter(), {
 		set value(value){
-			enveloppes.forEach(enveloppe => enveloppe.sustain.value = value);
+			enveloppes.forEach(enveloppe => enveloppe.sustain.value = scale(state.sustain_range, value));
 			this.emit('change', value);
 		},
 		get value(){
-			return enveloppes[0].sustain.value;
+			return unscale(state.sustain_range, enveloppes[0].sustain.value);
 		}
 	});
+
 	const release = assign(new EventEmitter(), {
 		set value(value){
-			enveloppes.forEach(enveloppe => enveloppe.release.value = value);
+			enveloppes.forEach(enveloppe => enveloppe.release.value = scale(state.release_range, value));
 			this.emit('change', value);
 		},
 		get value(){
-			return enveloppes[0].release.value;
+			return unscale(state.release_range,enveloppes[0].release.value);
 		}
 	});
-
-
 
 	return {
 		connect({input}) {
@@ -138,11 +138,11 @@ export default(audio_context, {num_voices})=> {
 		num_voices: num_voices || 4,
 		attack_range: {
 			min: 0,
-			max: 1
+			max: 0.1
 		},
 		decay_range: {
 			min: 0,
-			max: 1
+			max: 0.2
 		},
 		sustain_range: {
 			min: 0,
@@ -150,7 +150,7 @@ export default(audio_context, {num_voices})=> {
 		},
 		release_range: {
 			min: 0,
-			max: 1
+			max: 5
 		}
 	};
 	return create_polyphonic_generator(state);

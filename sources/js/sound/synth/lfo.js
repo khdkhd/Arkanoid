@@ -52,7 +52,7 @@ export default(audio_context)=> {
 		audio_context: audio_context,
 		frequency_range :{
 			min: 0,
-			max: 50
+			max: 20
 		},
 		gain_range: {
 			min: 500,
