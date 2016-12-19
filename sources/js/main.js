@@ -6,4 +6,4 @@ ui.screen.size = {
 	height: 256*2
 };
 
-Game().start();
+Game(1).start();

@@ -14,35 +14,22 @@ import {
 	VerticalTopLeftWall,
 	VerticalTopRightWall
 } from 'game/wall';
+import levels from 'game/levels';
 
 import Scene from 'graphics/scene';
 
 import ui from 'ui';
-import gameKeyboardController from 'game/keyboard-controller';
 
-const colors = [
-	'white',
-	'orange',
-	'cyan',
-	'green',
-	'red',
-	'blue',
-	'purple',
-	'yellow',
-	'gray',
-	'gold'
-];
+import gameKeyboardController from 'game/keyboard-controller';
 
 function create_ball(scene) {
 	return Ball(Vector.Null, scene);
 }
 
-function create_bricks(cols, rows, level, scene) {
+function create_bricks(level, scene) {
 	const bricks = [];
-	for (let row = 0; row < rows; row++) {
-		for (let col = 0; col < cols; col++) {
-			bricks.push(Brick({x: col*2, y: row}, colors[row], level, scene));
-		}
+	for (let brick_data of levels[level]) {
+		bricks.push(Brick(Vector(brick_data.position).add({x: -1, y: -1}), brick_data.color, level, scene));
 	}
 	return bricks;
 }
@@ -68,7 +55,7 @@ function create_walls(cols, rows, scene) {
 	return walls;
 }
 
-export default function createGame(level) {
+export default function createGame(level = 1) {
 	const keyboard = ui.keyboard;
 	const screen = ui.screen;
 
@@ -82,7 +69,7 @@ export default function createGame(level) {
 	const game_scene = Scene(screen, zone, scale_factor, '#123');
 
 	const state = {
-		bricks: create_bricks((columns - 2)/2, 7, level, game_scene),
+		bricks: create_bricks(level - 1, game_scene),
 		vaus: create_vaus(game_scene),
 		ball: create_ball(game_scene),
 		scene: game_scene,
