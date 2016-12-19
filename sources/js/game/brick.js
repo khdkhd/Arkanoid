@@ -116,6 +116,9 @@ function BrickController(state) {
 		},
 		update() {
 		},
+		get color() {
+			return state.color;
+		},
 		get destroyed() {
 			return state.destroyed;
 		},
@@ -153,6 +156,7 @@ export default function Brick({x, y}, color, level, scene) {
 	const state = completeAssign(
 		bricks_state[color](level),
 		{
+			color,
 			destroyed: false,
 			emitter: new EventEmitter(),
 			scene,

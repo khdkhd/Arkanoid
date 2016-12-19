@@ -10,9 +10,13 @@ const sourcemaps = require('gulp-sourcemaps');
 const output_dir =  path.join(env.outputDirectory, 'assets', 'css');
 const sources_dir = 'sources/sass';
 
+const sources = (env.isDevelopment
+	? path.join(sources_dir, '**/*.scss')
+	: path.join(sources_dir, 'style.scss'));
+
 gulp.task('sass-clean', () => del(output_dir));
 
-gulp.task('sass', () => gulp.src(path.join(sources_dir, '**.scss'))
+gulp.task('sass', () => gulp.src(sources)
 	.pipe(gulp_if(env.isDevelopment, sourcemaps.init()))
 	.pipe(sass({
 		includePaths: [sources_dir],
@@ -23,7 +27,7 @@ gulp.task('sass', () => gulp.src(path.join(sources_dir, '**.scss'))
 	.pipe(livereload())
 );
 
-gulp.task('sass-watch', ['sass'], () => gulp.watch(path.join(sources_dir, '**/*.scss'), ['sass']));
+gulp.task('sass-watch', ['sass'], () => gulp.watch(sources, ['sass']));
 
 module.exports = {
 	build: 'sass',
