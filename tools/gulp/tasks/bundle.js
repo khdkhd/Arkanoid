@@ -76,9 +76,21 @@ Object.entries(bundles).forEach(([bundle_name, entry_point]) => {
 	gulp.task(`${task_base_name}-watch`, [task_base_name], () => bundle(create_watchify_bundler(bundle)));
 });
 
-gulp.task('bundle', ['editor-bundle', 'arkanoid-bundle']);
-gulp.task('bundle-clean', ['editor-bundle-clean', 'arkanoid-bundle-clean']);
-gulp.task('bundle-watch', ['editor-bundle-watch', 'arkanoid-bundle-watch']);
+const tasks = Object.keys(bundles).reduce((value, bundle) => ({
+	// reducer
+	'bundle':       [].concat(value['bundle'], `${bundle}-bundle`),
+	'bundle-clean': [].concat(value['bundle-clean'], `${bundle}-bundle-clean`),
+	'bundle-watch': [].concat(value['bundle-watch'], `${bundle}-bundle-watch`)
+}), {
+	// initial value
+	'bundle':       [],
+	'bundle-clean': [],
+	'bundle-watch': []
+});
+
+Object.entries(tasks).forEach(([task, deps]) => {
+	gulp.task(task, deps)
+});
 
 module.exports = {
 	build: 'bundle',
