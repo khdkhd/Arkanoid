@@ -1,8 +1,7 @@
 function create_master_output(state){
-	const _input = state.audio_context.destination;
 	return {
 		get input(){
-			return _input;
+			return state.audio_context.destination;
 		}
 	}
 }

@@ -3,7 +3,6 @@ import { completeAssign as assign } from 'common/utils';
 
 function create_vco(state) {
 	const osc = state.audio_context.createOscillator();
-
 	const type = assign(new EventEmitter(), {
 		set value(value){
 			osc.type = value;

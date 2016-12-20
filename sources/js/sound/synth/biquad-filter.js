@@ -54,6 +54,7 @@ function create_biquad_filter(state){
 			enveloppe.connect({ input: filter.gain });
 		},
 		get input(){
+			console.log('getting filter input', filter);
 			return filter;
 		},
 		get param(){

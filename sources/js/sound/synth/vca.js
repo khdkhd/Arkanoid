@@ -12,7 +12,15 @@ function create_vca(state) {
 		},
 		get value(){
 			return vca.gain.value;
-		}
+		}	,setValueAtTime(value, time) {
+			vca.gain.setValueAtTime(value, time)
+		},
+		linearRampToValueAtTime(value, time) {
+			vca.gain.linearRampToValueAtTime(value, time);
+		},
+		cancelScheduledValues(time){
+			vca.gain.cancelScheduledValues(time);
+		},
 	});
 
 	return {
@@ -22,17 +30,8 @@ function create_vca(state) {
 		get input() {
 			return vca;
 		},
-		setValueAtTime(value, time) {
-			vca.gain.setValueAtTime(value, time)
-		},
-		linearRampToValueAtTime(value, time) {
-			vca.gain.linearRampToValueAtTime(value, time);
-		},
-		cancelScheduledValues(time){
-			vca.gain.cancelScheduledValues(time);
-		},
 		get gain(){
-			return vca.gain;
+			return gain;
 		}
 	};
 }

@@ -16,7 +16,9 @@ export default function createSynth(audio_context) {
 	return {
 		patch(patch) {
 			mods = patch.nodes.reduce((mods, node)=> {
-				mods[node.id] = synthFactory[node.factory](audio_context, node.options);
+				const options = Object.assign({}, node.options)
+				options.factory = synthFactory;
+				mods[node.id] = synthFactory[node.factory](audio_context, options);
 				const config = node.config;
 				Object.keys(config).forEach(param => {
 					mods[node.id][param].value = config[param].value;
@@ -31,9 +33,12 @@ export default function createSynth(audio_context) {
 				if(node.type === 'generator'){
 					signal_generators.push(mods[node.id]);
 				}
+				// console.log(mods);
 				return mods;
 			}, {});
 			for(let con of patch.connexions){
+				console.log(con[0],'->',con[1]);
+				console.log(mods[con[0]],'->',mods[con[1]]);
 				mods[con[0]].connect(mods[con[1]]);
 			}
 		},

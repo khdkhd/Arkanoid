@@ -1,6 +1,3 @@
-import VCO from 'sound/synth/vco';
-import VCA from 'sound/synth/vca';
-import EnveloppeGenerator from 'sound/synth/enveloppe-generator';
 import times from 'lodash.times';
 import EventEmitter from 'events';
 import { scale, unscale } from 'sound/common/utils';
@@ -8,9 +5,9 @@ import { completeAssign as assign } from 'common/utils';
 
 function create_polyphonic_generator(state) {
 
-	const vcos = times(state.num_voices, () => VCO(state.audio_context));
-	const vcas = times(state.num_voices, () => VCA(state.audio_context));
-	const enveloppes = times(state.num_voices, () => EnveloppeGenerator());
+	const vcos = times(state.num_voices, () => state.factory['vco'](state.audio_context));
+	const vcas = times(state.num_voices, () => state.factory['vca'](state.audio_context));
+	const enveloppes = times(state.num_voices, () => state.factory['enveloppe_generator']());
 	const channel_merger = state.audio_context.createChannelMerger(state.num_voices);
 	const polyphony_manager = create_polyphony_manager(state.num_voices);
 
@@ -102,7 +99,6 @@ function create_polyphonic_generator(state) {
 		},
 		get attack(){
 			return  attack;
-
 		},
 		get decay(){
 			return  decay;
@@ -132,9 +128,10 @@ function create_polyphony_manager(num_voices){
 	}
 }
 
-export default(audio_context, {num_voices})=> {
+export default(audio_context, {num_voices, factory})=> {
 	const state = {
 		audio_context: audio_context,
+		factory: factory,
 		num_voices: num_voices || 4,
 		attack_range: {
 			min: 0,
