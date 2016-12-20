@@ -15,7 +15,7 @@ import {EventEmitter} from 'events';
 const keyboard = ui.keyboard;
 
 export default function GameController(state) {
-	const {ball, bricks, vaus} = state;
+	const {ball, vaus} = state;
 	const zone = state.scene.boundingBox.relative;
 	const scale = state.scene.scale;
 	const emitter = new EventEmitter();
@@ -25,8 +25,9 @@ export default function GameController(state) {
 	function ball_neighborhood() {
 		const col = Math.round(ball.position.x);
 		const row = Math.round(ball.position.y);
-		return bricks
-			.filter(brick => Math.abs(col - brick.position.x) <= 2 && Math.abs(row - brick.position.y) <= 1);
+		return state.bricks
+			.filter(brick => Math.abs(col - brick.position.x) <= 2
+								&& Math.abs(row - brick.position.y) <= 1);
 	}
 
 	function reset_ball_position() {
@@ -42,7 +43,10 @@ export default function GameController(state) {
 			const v = bounce(ball_box, speed, brick_box, .001);
 			if (!is_nil(v)) {
 				brick.hit();
-				return v.add({x: random(-1, 1, true)/1000, y: random(-1, 1, true)/1000}).toUnit().mul(.2);
+				return v.add({
+					x: random(-1, 1, true)/1000,
+					y: random(-1, 1, true)/1000
+				}).toUnit().mul(.2);
 			}
 		}
 	}
@@ -111,6 +115,14 @@ export default function GameController(state) {
 		vaus.update();
 	}
 
+	// Game helpers
+
+	function bricks_remaining() {
+		return state.bricks.reduce(
+			(count, brick) => brick.color === 'gold' ? count : count + 1, 0
+		);
+	}
+
 	keyboard.on('direction-changed', direction => {
 		vaus.move(direction);
 	});
@@ -121,18 +133,24 @@ export default function GameController(state) {
 	});
 	keyboard.on('pause', () => emitter.emit('pause'));
 
-	bricks.forEach(brick => {
-		brick.on('hit', point => emitter.emit('update-score', point));
-		brick.once('destroyed', () => {
-			brick.removeAllListeners();
-			remove(bricks, brick);
-		});
-	});
-
 	return completeAssign(emitter, {
 		update() {
 			update_ball();
 			update_vaus();
+		},
+		reset() {
+			reset_ball_position();
+			state.bricks.forEach(brick => {
+				brick.on('hit', point => emitter.emit('update-score', point));
+				brick.once('destroyed', () => {
+					brick.removeAllListeners();
+					remove(state.bricks, brick);
+					const remain = bricks_remaining();
+					if (remain === 0) {
+						emitter.emit('end-of-level');
+					}
+				});
+			});
 		}
 	})
 }

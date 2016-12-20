@@ -6,4 +6,10 @@ ui.screen.size = {
 	height: 256*2
 };
 
-Game(1).start();
+const game = Game();
+
+game
+	.on('end', level => {
+		game.start(level + 1);
+	})
+	.start(1);

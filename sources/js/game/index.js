@@ -1,3 +1,5 @@
+import {completeAssign} from 'common/utils';
+
 import Rect from 'maths/rect';
 import Vector from 'maths/vector';
 
@@ -19,6 +21,8 @@ import levels from 'game/levels';
 import Scene from 'graphics/scene';
 
 import ui from 'ui';
+
+import {EventEmitter} from 'events';
 
 import gameKeyboardController from 'game/keyboard-controller';
 
@@ -55,36 +59,43 @@ function create_walls(cols, rows, scene) {
 	return walls;
 }
 
-export default function createGame(level = 1) {
+export default function Game() {
+	const emitter = new EventEmitter();
 	const keyboard = ui.keyboard;
 	const screen = ui.screen;
 
-	const scale_factor = Math.round((screen.width/14)/2);
-	const columns = screen.width/scale_factor;
-	const rows = screen.height/scale_factor;
+	const scale = Math.round((screen.width/14)/2);
+	const columns = screen.width/scale;
+	const rows = screen.height/scale;
 
-	const walls_scene = Scene(screen, screen.rect.scale(1/scale_factor), scale_factor, '#123');
+	const walls_scene = Scene(screen, screen.rect.scale(1/scale), scale, '#123');
 
 	const zone = Rect({x: 1, y: 1}, {width: columns - 2, height: rows - 2});
-	const game_scene = Scene(screen, zone, scale_factor, '#123');
+	const game_scene = Scene(screen, zone, scale, '#123');
 
 	const state = {
-		bricks: create_bricks(level - 1, game_scene),
+		bricks: [],
 		vaus: create_vaus(game_scene),
 		ball: create_ball(game_scene),
 		scene: game_scene,
 		paused: false,
+		end: false,
 		score: 0
 	};
 
 	const game_contoller = Controller(state);
 
 	function loop() {
-		if (!state.paused) {
-			game_contoller.update();
+		if (!state.end) {
+			if (!state.paused) {
+				game_contoller.update();
+			}
+			walls_scene.render();
+			game_scene.render();
+			requestAnimationFrame(loop);
+		} else {
+			emitter.emit('end', state.level);
 		}
-		game_scene.render();
-		requestAnimationFrame(loop);
 	}
 
 	game_contoller.on('pause', () => {
@@ -93,13 +104,20 @@ export default function createGame(level = 1) {
 	game_contoller.on('update-score', points => {
 		state.score += points;
 	});
+	game_contoller.on('end-of-level', () => {
+		state.end = true;
+	});
 
-	return {
-		start() {
-			create_walls(columns - 1, rows, walls_scene);
-			walls_scene.render();
+	create_walls(columns - 1, rows, walls_scene);
+
+	return completeAssign(emitter, {
+		start(level) {
+			state.end = false;
+			state.level = level;
+			state.bricks = create_bricks(level - 1, game_scene);
+			game_contoller.reset();
 			keyboard.use(gameKeyboardController);
 			requestAnimationFrame(loop);
 		}
-	};
+	});
 }
