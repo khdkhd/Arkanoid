@@ -114,6 +114,7 @@ export default function Game() {
 		start(level) {
 			state.end = false;
 			state.level = level;
+			state.bricks.forEach(brick => game_scene.remove(brick));
 			state.bricks = create_bricks(level - 1, game_scene);
 			game_contoller.reset();
 			keyboard.use(gameKeyboardController);
