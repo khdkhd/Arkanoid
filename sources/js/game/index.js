@@ -33,7 +33,7 @@ function create_ball(scene) {
 function create_bricks(level, scene) {
 	const bricks = [];
 	for (let brick_data of levels[level]) {
-		bricks.push(Brick(Vector(brick_data.position).add({x: -1, y: -1}), brick_data.color, level, scene));
+		bricks.push(Brick(brick_data.position, brick_data.color, level, scene));
 	}
 	return bricks;
 }
