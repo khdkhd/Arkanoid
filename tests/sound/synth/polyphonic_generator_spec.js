@@ -13,39 +13,39 @@ describe('create_polyphonic_generator', () => {
 		audio_context = create_audio_context();
 	});
 
-	it('should return an object', () => {
-		const pg = create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
-		expect(pg).to.be.an('object');
+	it('returns an object', () => {
+		const polyphony_generator = create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
+		expect(polyphony_generator).to.be.an('object');
 	});
 
-	it('should return an object with a type property', () => {
-		const pg = create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
-		expect(pg).to.have.property('type');
+	it('returns an object with a type property', () => {
+		const polyphony_generator = create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
+		expect(polyphony_generator).to.have.property('type');
 	});
 
-	it('should return an object with a gain property', () => {
-		const pg = create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
-		expect(pg).to.have.property('gain');
+	it('returns an object with a gain property', () => {
+		const polyphony_generator = create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
+		expect(polyphony_generator).to.have.property('gain');
 	});
 
-	it('should return an object with an attack property', () => {
-		const pg = create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
-		expect(pg).to.have.property('attack');
+	it('returns an object with an attack property', () => {
+		const polyphony_generator = create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
+		expect(polyphony_generator).to.have.property('attack');
 	});
 
-	it('should return an object with a decay property', () => {
-		const pg = create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
-		expect(pg).to.have.property('decay');
+	it('returns an object with a decay property', () => {
+		const polyphony_generator = create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
+		expect(polyphony_generator).to.have.property('decay');
 	});
 
-	it('should return an object with a sustain property', () => {
-		const pg = create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
-		expect(pg).to.have.property('sustain');
+	it('returns an object with a sustain property', () => {
+		const polyphony_generator = create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
+		expect(polyphony_generator).to.have.property('sustain');
 	});
 
-	it('should return an object with a release property', () => {
-		const pg = create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
-		expect(pg).to.have.property('release');
+	it('returns an object with a release property', () => {
+		const polyphony_generator = create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
+		expect(polyphony_generator).to.have.property('release');
 	});
 
 	it('calls vco once on the synth factory', () => {
@@ -72,6 +72,4 @@ describe('create_polyphonic_generator', () => {
 		create_polyphonic_generator(audio_context, {num_voices:1, factory: factory});
 		expect(audio_context.createChannelMerger.calledOnce).to.be.true;
 	});
-
-
 });
