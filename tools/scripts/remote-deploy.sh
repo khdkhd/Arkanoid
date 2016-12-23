@@ -28,3 +28,5 @@ rm package.tgz
 rm remote-deploy.sh
 
 popd
+
+docker restart arkanoid
