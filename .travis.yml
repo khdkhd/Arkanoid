@@ -10,3 +10,7 @@ deploy:
   script: tools/scripts/deploy.sh
   on:
     branch: master
+addons:
+  apt:
+    packages:
+      - sshpass
