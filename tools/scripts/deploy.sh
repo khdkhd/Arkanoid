@@ -17,7 +17,7 @@ pushd "$DEST_DIR"
 	git add .
 	git commit -F- <<-EOF
 		Deploy $DATE
-		commit: khdkhd/arkanoid.github.io.git
+		commit: khdkhd/Arkanoid@$SHA
 	EOF
 	git push --force --quiet "https://${GH_TOKEN}@github.com/${GH_REF}" master:master > /dev/null 2>&1
 popd
