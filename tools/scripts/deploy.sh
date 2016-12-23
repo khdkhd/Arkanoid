@@ -11,11 +11,7 @@ set -u
 # return code of the whole pipeline
 set -o pipefail
 
-GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-
-echo -n "Branch is '$GIT_BRANCH': "
-
-if [ "$GIT_BRANCH" = "master" ];
+if git branch --contains "$TRAVIS_TAG" | grep -q master;
 then
 	echo "Will deploy"
 
