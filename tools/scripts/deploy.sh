@@ -11,8 +11,12 @@ set -u
 # return code of the whole pipeline
 set -o pipefail
 
+echo -n "Branch is '$TRAVIS_BRANCH': "
+
 if [ "$TRAVIS_BRANCH" = "master" ];
 then
+	echo "Will deploy"
+
 	export SSHPASS="$DEPLOY_PASSWORD"
 	export SSH_OPTIONS="-o stricthostkeychecking=no"
 
@@ -26,4 +30,6 @@ then
 	$SCP package.tgz "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIR" > /dev/null 2>&1
 	$SCP tools/scripts/remote-deploy.sh "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIR" > /dev/null 2>&1
 	$SSH "$DEPLOY_USER@$DEPLOY_HOST" "$DEPLOY_DIR/remote-deploy.sh" "$TRAVIS_TAG" > /dev/null 2>&1
+else
+	echo "Will not deploy"
 fi
