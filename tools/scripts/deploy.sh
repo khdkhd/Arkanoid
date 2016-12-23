@@ -11,6 +11,8 @@ set -u
 # return code of the whole pipeline
 set -o pipefail
 
+git fetch -t
+
 echo "$TRAVIS_TAG"
 git branch --contains "$TRAVIS_TAG"
 
