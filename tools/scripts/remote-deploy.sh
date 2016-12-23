@@ -2,12 +2,12 @@
 
 pushd $(dirname $0)
 
-SHA="$1"
+TAG="$1"
 DATE=$(date +"%m.%d.%y-%H:%M:%S")
 
 # extract the package
-mkdir "$SHA"
-pushd "$SHA"
+mkdir "$TAG"
+pushd "$TAG"
 	tar xzf ../package.tgz
 popd
 
@@ -16,11 +16,11 @@ if [ -L public ];
 then
 	unlink public
 fi
-ln -s "$SHA" public
+ln -s "$TAG" public
 
 # update deployment log file
 cat >> deploy.log <<EOF
-$DATE $SHA
+$DATE $TAG
 EOF
 
 # clean
