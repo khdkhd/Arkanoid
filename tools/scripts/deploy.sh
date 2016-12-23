@@ -11,18 +11,19 @@ set -u
 # return code of the whole pipeline
 set -o pipefail
 
-export SSHPASS="$DEPLOY_PASSWORD"
-export SSH_OPTIONS="-o stricthostkeychecking=no"
+if [ "$TRAVIS_BRANCH" = "master" ];
+then
+	export SSHPASS="$DEPLOY_PASSWORD"
+	export SSH_OPTIONS="-o stricthostkeychecking=no"
 
-SCP="sshpass -e scp $SSH_OPTIONS"
-SSH="sshpass -e ssh $SSH_OPTIONS"
+	SCP="sshpass -e scp $SSH_OPTIONS"
+	SSH="sshpass -e ssh $SSH_OPTIONS"
 
-SHA=$(git rev-parse HEAD)
+	pushd "$DEST_DIR"
+		tar czvf ../package.tgz .
+	popd
 
-pushd "$DEST_DIR"
-	tar czvf ../package.tgz .
-popd
-
-$SCP package.tgz "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIR" > /dev/null 2>&1
-$SCP tools/scripts/remote-deploy.sh "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIR" > /dev/null 2>&1
-$SSH "$DEPLOY_USER@$DEPLOY_HOST" "$DEPLOY_DIR/remote-deploy.sh" "$SHA" > /dev/null 2>&1
+	$SCP package.tgz "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIR" > /dev/null 2>&1
+	$SCP tools/scripts/remote-deploy.sh "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIR" > /dev/null 2>&1
+	$SSH "$DEPLOY_USER@$DEPLOY_HOST" "$DEPLOY_DIR/remote-deploy.sh" "$TRAVIS_TAG" > /dev/null 2>&1
+fi
