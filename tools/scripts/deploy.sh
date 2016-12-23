@@ -11,9 +11,11 @@ set -u
 # return code of the whole pipeline
 set -o pipefail
 
-echo -n "Branch is '$TRAVIS_BRANCH': "
+GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-if [ "$TRAVIS_BRANCH" = "master" ];
+echo -n "Branch is '$GIT_BRANCH': "
+
+if [ "$GIT_BRANCH" = "master" ];
 then
 	echo "Will deploy"
 
