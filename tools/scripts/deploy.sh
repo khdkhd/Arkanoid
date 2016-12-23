@@ -23,6 +23,6 @@ pushd "$DEST_DIR"
 	tar czvf ../package.tgz .
 popd
 
-$SCP package.tgz "$DEPLOY_USER@DEPLOY_HOST:$DEPLOY_DIR" > /dev/null 2>&1
+$SCP package.tgz "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIR" > /dev/null 2>&1
 $SCP tools/scripts/remote-deploy.sh "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIR" > /dev/null 2>&1
 $SSH "$DEPLOY_USER@$DEPLOY_HOST" "$DEPLOY_DIR/remote-deploy.sh" "$SHA" > /dev/null 2>&1
