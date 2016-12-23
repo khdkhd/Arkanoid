@@ -11,6 +11,9 @@ set -u
 # return code of the whole pipeline
 set -o pipefail
 
+echo "$TRAVIS_TAG"
+git branch --contains "$TRAVIS_TAG"
+
 if git branch --contains "$TRAVIS_TAG" | grep -q master;
 then
 	echo "Will deploy"
