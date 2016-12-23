@@ -4,6 +4,7 @@ import editorView from 'editor/editor-view';
 import Brick from 'game/brick';
 
 import Rect from 'maths/rect';
+import Vector from 'maths/vector';
 
 import constant from 'lodash.constant';
 import identity from 'lodash.identity';
@@ -55,7 +56,7 @@ palette.export = () => {
 		const {position, color} = brick;
 		return {
 			color,
-			position: {x: position.x, y: position.y}
+			position: {x: position.x - 1, y: position.y - 1}
 		};
 	}));
 };
@@ -63,7 +64,7 @@ palette.import = data => {
 	const scene = editorView.scene;
 	remove(bricks, constant(true)).forEach(brick => scene.remove(brick));
 	for (let brick of data) {
-		bricks.push(Brick(brick.position, brick.color, 1, scene));
+		bricks.push(Brick(Vector(brick.position).add({x: 1, y: 1}), brick.color, 1, scene));
 	}
 	editorView.render();
 };
