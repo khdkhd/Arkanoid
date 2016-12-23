@@ -1,5 +1,5 @@
-import Keyboard from 'ui/keyboard';
 import Vector from 'maths/vector';
+import ui from 'ui';
 
 import constant from 'lodash.constant';
 
@@ -7,8 +7,8 @@ let left_pressed = false;
 let right_pressed = false;
 
 export default [
-	Keyboard.createKeyHandler({
-		code: Keyboard.LEFT_ARROW_KEY,
+	ui.keyboard.createKeyHandler({
+		code: ui.keyboard.KEY_LEFT,
 		event: 'direction-changed',
 		on_keydown: () => {
 			left_pressed = true;
@@ -23,8 +23,8 @@ export default [
 		},
 		repeat: false
 	}),
-	Keyboard.createKeyHandler({
-		code: Keyboard.RIGHT_ARROW_KEY,
+	ui.keyboard.createKeyHandler({
+		code: ui.keyboard.KEY_RIGHT,
 		event: 'direction-changed',
 		on_keydown: () => {
 			right_pressed = true;
@@ -39,10 +39,15 @@ export default [
 		},
 		repeat: false
 	}),
-	Keyboard.createKeyHandler({
-		code: Keyboard.SPACE_BAR_KEY,
+	ui.keyboard.createKeyHandler({
+		code: ui.keyboard.KEY_SPACE,
 		event: 'fire',
 		on_keydown: constant(true),
 		on_keyup: constant(false)
+	}),
+	ui.keyboard.createKeyHandler({
+		code: ui.keyboard.KEY_P,
+		event: 'pause',
+		on_keypressed: () => constant(null)
 	})
 ];

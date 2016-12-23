@@ -1,15 +1,20 @@
+@import "settings";
 @import "arkanoid-fonts";
 
 html {
+	font-family: $font-family;
 	font-size: 14pt;
 }
+body {
+	background-color: $background-color;
+}
 h1 {
+	color: $h1-color;
 	font-size: 4rem;
 	font-family: Arkanoid;
 	text-align: center;
 }
 #screen {
 	display: block;
-	border: 1px solid black;
 	margin: 0 auto;
 }

@@ -1,0 +1,33 @@
+$background-color: #0d1b28;
+
+$font-family: sans-serif;
+
+$h1-color: white;
+
+$overlay-bg-color: rgba(0, 0, 0, 0.666);
+$overlay-z-index: 1;
+
+$dialog-margin: 16px;
+$dialog-min-width: 320px;
+$dialog-padding: 16px;
+$dialog-z-index: $overlay-z-index + 1;
+
+$dialog-bg-color: #123;
+$dialog-border-color: lighten($dialog-bg-color, 15);
+$dialog-fg-color: lighten($dialog-bg-color, 20);
+
+$dialog-input-padding: 6px;
+$dialog-input-border-color: darken($dialog-bg-color, 5);
+$dialog-input-bg-color: lighten($dialog-bg-color, 15);
+$dialog-input-fg-color: darken($dialog-bg-color, 5);
+
+$dialog-button-bg-color: darken($dialog-bg-color, 5);
+$dialog-button-hover-bg-color: lighten($dialog-bg-color, 15);
+
+$dialog-button-fg-color: $dialog-fg-color;
+$dialog-button-hover-fg-color: darken($dialog-bg-color, 5);
+
+$dialog-button-margin: 4px;
+$dialog-button-min-width: 96px;
+$dialog-button-padding: 6px;
+$dialog-button-border-color: darken($dialog-bg-color, 5);

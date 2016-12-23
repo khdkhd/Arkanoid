@@ -1,6 +1,19 @@
-import createVector from 'maths/vector';
+import Vector from 'maths/vector';
+import is_number from 'lodash/isNumber';
 
-export default function createRect({x, y}, {width, height}) {
+export default function Rect({x, y}, {width, height}) {
+	const left_x = x;
+	const right_x = x + width;
+	const top_y = y;
+	const bottom_y = y + height;
+
+	const center = Vector({x: left_x + width/2, y: top_y + height/2});
+
+	const top_left     = Vector({x: left_x,  y: top_y});
+	const top_right    = Vector({x: right_x, y: top_y});
+	const bottom_left  = Vector({x: left_x,  y: bottom_y});
+	const bottom_right = Vector({x: right_x, y: bottom_y});
+
 	return {
 		get x() {
 			return x;
@@ -15,58 +28,40 @@ export default function createRect({x, y}, {width, height}) {
 			return height;
 		},
 		get size() {
-			return {
-				width,
-				height
-			};
+			return { width, height };
 		},
 		get leftX() {
-			return x;
+			return left_x;
 		},
 		get rightX() {
-			return x + width;
+			return right_x;
 		},
 		get topY() {
-			return y;
+			return top_y;
 		},
 		get bottomY() {
-			return y + height;
+			return bottom_y;
 		},
 		get topLeft() {
-			return createVector({
-				x: x,
-				y: y
-			});
+			return top_left;
 		},
 		get topRight() {
-			return createVector({
-				x: x + width,
-				y: y
-			});
+			return top_right;
 		},
 		get bottomLeft() {
-			return createVector({
-				x: x,
-				y: y + height
-			});
+			return bottom_left;
 		},
 		get bottomRight() {
-			return createVector({
-				x: x + width,
-				y: y + height
-			});
+			return bottom_right;
 		},
 		get center() {
-			return createVector({
-				x: x + width/2,
-				y: y + height/2
-			});
+			return center;
 		},
 		contains({x, y}) {
-			return x >= this.bottomLeft.x  && y <= this.bottomLeft.y
-				&& x >= this.topLeft.x     && y >= this.topLeft.y
-				&& x <= this.topRight.x    && y >= this.topRight.y
-				&& x <= this.bottomRight.x && y <= this.bottomRight.y;
+			return x >= bottom_left.x  && y <= bottom_left.y
+				&& x >= top_left.x     && y >= top_left.y
+				&& x <= top_right.x    && y >= top_right.y
+				&& x <= bottom_right.x && y <= bottom_right.y;
 		},
 		intersect(rect) {
 			return this.contains(rect.topRight)
@@ -75,10 +70,11 @@ export default function createRect({x, y}, {width, height}) {
 				|| this.contains(rect.topLeft);
 		},
 		translate({x, y}) {
-			return createRect(this.topLeft.add({x, y}), {width, height});
+			return Rect(top_left.add({x, y}), {width, height});
 		},
-		scale({x, y}){
-			return createRect(this.topLeft, {width: width*x, height: height*y});
+		scale(f) {
+			const {x, y} = is_number(f) ? {x: f, y: f} : f;
+			return Rect(top_left, {width: width*x, height: height*y});
 		}
 	};
 }

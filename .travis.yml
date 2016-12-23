@@ -4,3 +4,9 @@ node_js:
 
 before_install: npm install -g gulp-cli
 script: ./tools/scripts/travis.sh
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: tools/scripts/deploy.sh
+  on:
+    branch: master
