@@ -15,8 +15,6 @@ const watchify = require('watchify');
 const output_dir = path.join(env.outputDirectory, 'assets', 'js');
 const sources_dir = path.join('sources', 'js');
 
-const app_source = path.join(sources_dir, env.target);
-
 const browserify_base_options = {
 	debug: true,
 	paths: ['node_modules', sources_dir],
@@ -30,45 +28,69 @@ const browserify_base_options = {
 	]
 };
 
-function bundle(bundler) {
-	return bundler
-		.bundle()
-		.on('error', (err) => {
-			gutil.log(err.message);
-			err.stream.end();
-		})
-		.pipe(source('arkanoid.js'))
-		.pipe(buffer())
-		// .pipe(sourcemaps.init({loadMaps: true, debug: true}))
-		.pipe(sourcemaps.init({loadMaps: true}))
-		.pipe(gulp_if(!env.isDevelopment, uglify()))
-		.pipe(gulp_if(env.isDevelopment, sourcemaps.write()))
-		.pipe(gulp.dest(output_dir))
-		.pipe(livereload());
-}
+const bundles = Object.assign(
+	{arkanoid: path.join(sources_dir, env.target)},
+	env.isDevelopment ? {editor: path.join(sources_dir, 'editor', 'main.js')}: {}
+);
 
-function create_browserify_bundler(options) {
-	return browserify(
-		app_source,
-		Object.assign({}, browserify_base_options, options || {})
-	);
-}
+Object.entries(bundles).forEach(([bundle_name, entry_point]) => {
+	function bundle(bundler) {
+		return bundler
+			.bundle()
+			.on('error', (err) => {
+				gutil.log(err.message);
+				err.stream.end();
+			})
+			.pipe(source(`${bundle_name}.js`))
+			.pipe(buffer())
+			.pipe(sourcemaps.init({loadMaps: true}))
+			.pipe(gulp_if(!env.isDevelopment, uglify()))
+			.pipe(gulp_if(env.isDevelopment, sourcemaps.write()))
+			.pipe(gulp.dest(output_dir))
+			.pipe(livereload());
+	}
 
-function create_watchify_bundler(bundle) {
-	const bundler = watchify(create_browserify_bundler(watchify.args));
-	bundler
-		.on('update', (ids) => {
-			gutil.log('Update:');
-			ids.forEach((id) => gutil.log(` - ${id}`))
-			bundle(bundler);
-		})
-		.on('log', gutil.log)
-	return bundler;
-}
+	function create_browserify_bundler(options) {
+		return browserify(
+			entry_point,
+			Object.assign({}, browserify_base_options, options || {})
+		);
+	}
 
-gulp.task('bundle', () => bundle(create_browserify_bundler()));
-gulp.task('bundle-clean', () => del(output_dir));
-gulp.task('bundle-watch', ['bundle'], () => bundle(create_watchify_bundler(bundle)));
+	function create_watchify_bundler(bundle) {
+		const bundler = watchify(create_browserify_bundler(entry_point, watchify.args));
+		bundler
+			.on('update', (ids) => {
+				gutil.log('Update:');
+				ids.forEach((id) => gutil.log(` - ${id}`))
+				bundle(bundler);
+			})
+			.on('log', gutil.log)
+		return bundler;
+	}
+
+	const task_base_name = `${bundle_name}-bundle`
+
+	gulp.task(task_base_name, () => bundle(create_browserify_bundler()));
+	gulp.task(`${task_base_name}-clean`, () => del(output_dir));
+	gulp.task(`${task_base_name}-watch`, [task_base_name], () => bundle(create_watchify_bundler(bundle)));
+});
+
+const tasks = Object.keys(bundles).reduce((value, bundle) => ({
+	// reducer
+	'bundle':       [].concat(value['bundle'], `${bundle}-bundle`),
+	'bundle-clean': [].concat(value['bundle-clean'], `${bundle}-bundle-clean`),
+	'bundle-watch': [].concat(value['bundle-watch'], `${bundle}-bundle-watch`)
+}), {
+	// initial value
+	'bundle':       [],
+	'bundle-clean': [],
+	'bundle-watch': []
+});
+
+Object.entries(tasks).forEach(([task, deps]) => {
+	gulp.task(task, deps)
+});
 
 module.exports = {
 	build: 'bundle',
