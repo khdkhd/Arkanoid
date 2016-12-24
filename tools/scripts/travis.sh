@@ -14,6 +14,7 @@ set -o pipefail
 if [ "$TRAVIS_BRANCH" = "master" ] || [ "$TRAVIS_BRANCH" = "develop" ];
 	then
 	./node_modules/.bin/eslint sources
-	npm run build
 	npm run test
 fi
+
+npm run build
