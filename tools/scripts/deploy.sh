@@ -15,6 +15,8 @@ git fetch -t
 
 echo "$TRAVIS_TAG"
 git branch --contains "$TRAVIS_TAG"
+
+echo "$TRAVIS_COMMIT"
 git branch --contains "$TRAVIS_COMMIT"
 
 if git branch --contains "$TRAVIS_COMMIT" | grep -q master;
