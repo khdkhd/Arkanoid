@@ -3,6 +3,7 @@
 pushd $(dirname $0)
 
 RELEASE="$1"
+SHA="$2"
 DATE=$(date +"%m.%d.%y-%H:%M:%S")
 
 PACKAGE="$PWD/package.tgz"
@@ -22,7 +23,7 @@ ln -s "$PWD/$RELEASE" public
 
 # update deployment log file
 cat >> deploy.log <<EOF
-$DATE $RELEASE
+$DATE $RELEASE $SHA
 EOF
 
 # clean
