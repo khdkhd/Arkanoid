@@ -9,7 +9,7 @@ deploy:
   provider: script
   script: tools/scripts/deploy.sh
   on:
-    tags: true
+    branch: release/*
 addons:
   apt:
     packages:
