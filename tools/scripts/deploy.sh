@@ -11,31 +11,18 @@ set -u
 # return code of the whole pipeline
 set -o pipefail
 
-git fetch -t
+echo "Will deploy"
 
-echo "$TRAVIS_TAG"
-git branch --contains "$TRAVIS_TAG"
+export SSHPASS="$DEPLOY_PASSWORD"
+export SSH_OPTIONS="-o stricthostkeychecking=no"
 
-echo "$TRAVIS_COMMIT"
-git branch --contains "$TRAVIS_COMMIT"
+SCP="sshpass -e scp $SSH_OPTIONS"
+SSH="sshpass -e ssh $SSH_OPTIONS"
 
-if git branch --contains "$TRAVIS_COMMIT" | grep -q master;
-then
-	echo "Will deploy"
+pushd "$DEST_DIR"
+	tar czvf ../package.tgz .
+popd
 
-	export SSHPASS="$DEPLOY_PASSWORD"
-	export SSH_OPTIONS="-o stricthostkeychecking=no"
-
-	SCP="sshpass -e scp $SSH_OPTIONS"
-	SSH="sshpass -e ssh $SSH_OPTIONS"
-
-	pushd "$DEST_DIR"
-		tar czvf ../package.tgz .
-	popd
-
-	$SCP package.tgz "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIR" > /dev/null 2>&1
-	$SCP tools/scripts/remote-deploy.sh "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIR" > /dev/null 2>&1
-	$SSH "$DEPLOY_USER@$DEPLOY_HOST" "$DEPLOY_DIR/remote-deploy.sh" "$TRAVIS_TAG" > /dev/null 2>&1
-else
-	echo "Will not deploy"
-fi
+$SCP package.tgz "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIR" > /dev/null 2>&1
+$SCP tools/scripts/remote-deploy.sh "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_DIR" > /dev/null 2>&1
+$SSH "$DEPLOY_USER@$DEPLOY_HOST" "$DEPLOY_DIR/remote-deploy.sh" "$TRAVIS_TAG" > /dev/null 2>&1
