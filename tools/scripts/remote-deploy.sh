@@ -5,10 +5,12 @@ pushd $(dirname $0)
 RELEASE="$1"
 DATE=$(date +"%m.%d.%y-%H:%M:%S")
 
+PACKAGE="$PWD/package.tgz"
+
 # extract the package
 mkdir -p "$RELEASE"
 pushd "$RELEASE"
-	tar xzf ../package.tgz
+	tar xzf "$PACKAGE"
 popd
 
 # link to latest
