@@ -19,6 +19,9 @@ export SSH_OPTIONS="-o stricthostkeychecking=no"
 SCP="sshpass -e scp $SSH_OPTIONS"
 SSH="sshpass -e ssh $SSH_OPTIONS"
 
+ls -al
+pwd
+
 pushd "$DEST_DIR"
 	tar czvf ../package.tgz .
 popd
