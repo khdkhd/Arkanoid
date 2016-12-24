@@ -9,8 +9,7 @@ deploy:
   provider: script
   script: tools/scripts/deploy.sh
   on:
-    tags: true
-    condition: $(git branch --contains $TRAVIS_TAG | grep -l '^[\* ] master$')
+    branch: release/*
 addons:
   apt:
     packages:
