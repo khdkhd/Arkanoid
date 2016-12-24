@@ -2,6 +2,7 @@ import times from 'lodash.times';
 import EventEmitter from 'events';
 import { scale, unscale } from 'sound/common/utils';
 import { completeAssign as assign } from 'common/utils';
+import create_polyphony_manager from 'sound/synth/polyphony-manager';
 
 function create_polyphonic_generator(state) {
 
@@ -111,21 +112,6 @@ function create_polyphonic_generator(state) {
 			return release;
 		}
 	};
-}
-
-function create_polyphony_manager(num_voices){
-	const freqs = new Array(num_voices);
-	let index = 0;
-	return {
-		assign(freq) {
-			index = ++index % freqs.length;
-			freqs[index] = freq;
-			return index;
-		},
-		unassign(freq) {
-			return freqs.indexOf(freq);
-		}
-	}
 }
 
 export default(audio_context, {num_voices, factory})=> {

@@ -37,8 +37,6 @@ export default function createSynth(audio_context) {
 				return mods;
 			}, {});
 			for(let con of patch.connexions){
-				console.log(con[0],'->',con[1]);
-				console.log(mods[con[0]],'->',mods[con[1]]);
 				mods[con[0]].connect(mods[con[1]]);
 			}
 		},
