@@ -63,6 +63,7 @@
     "lodash.oversome": "^4.7.0",
     "lodash.random": "^3.2.0",
     "lodash.remove": "^4.7.0",
+    "lodash.template": "^4.4.0",
     "lodash.throttle": "^4.1.1",
     "lodash.times": "^4.3.2",
     "lodash.uniq": "^4.5.0",
