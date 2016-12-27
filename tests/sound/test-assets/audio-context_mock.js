@@ -1,21 +1,57 @@
 import sinon from 'sinon';
 
-const create_gain = () => {
+const audio_param = {
+	setValueAtTime(){
+
+	},
+	cancelScheduledValues(){
+
+	},
+	linearRampToValueAtTime(){
+
+	},
+	set value(value){
+
+	},
+	get value(){
+
+	}
+}
+
+function create_gain() {
 	return {
-		gain: {
-			set value(value){
+		gain: Object.create(audio_param),
+		connect(){
 
-			},
-			get value(){
-
-			}
 		}
 	}
-};
+}
+
+function create_oscillator() {
+	return {
+		get frequency() {
+			return Object.create(audio_param);
+		},
+		connect(){
+
+		},
+		start(){
+
+		}
+	}
+}
+
+function create_channel_merger(){
+	return {
+		connect(){
+
+		}
+	}
+}
 
 const audio_context_methods = {
 	createOscillator(){
-
+		return create_oscillator();
 	},
 	createGain(){
 		return create_gain()
@@ -24,16 +60,17 @@ const audio_context_methods = {
 
 	},
 	createChannelMerger() {
+		return create_channel_merger();
 	}
 };
 
-for(let method in audio_context_methods){
+for(let method of Object.keys(audio_context_methods)){
 	sinon.spy(audio_context_methods, method);
 }
 
-audio_context_methods.reset = () => {
-	for(let method in audio_context_methods){
-		sinon.spy.reset.call(audio_context_methods[method]);
+audio_context_methods.reset = function() {
+	for(let [, method] of Object.entries(audio_context_methods)){
+		sinon.spy.reset.call(method);
 	}
 };
 

@@ -4,10 +4,10 @@ import create_audio_context from '../test-assets/audio-context_mock';
 
 describe('create_biquad_filter', () => {
 
-	let audio_context;
+	const audio_context = create_audio_context();
 
 	beforeEach(function() {
-		audio_context = create_audio_context();
+		audio_context.reset();
 	});
 
 	it('returns an object', () => {
