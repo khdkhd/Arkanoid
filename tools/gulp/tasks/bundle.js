@@ -1,7 +1,6 @@
 const browserify = require('browserify');
 const buffer = require('vinyl-buffer');
 const del = require('del');
-const env = require('gulp/env');
 const gulp = require('gulp');
 const gulp_if = require('gulp-if');
 const gutil = require('gulp-util');
@@ -11,6 +10,8 @@ const source = require('vinyl-source-stream');
 const sourcemaps = require('gulp-sourcemaps');
 const uglify = require('gulp-uglify');
 const watchify = require('watchify');
+
+const env = require('tools/gulp/env');
 
 const output_dir = path.join(env.outputDirectory, 'assets', 'js');
 const sources_dir = path.join('sources', 'js');

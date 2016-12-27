@@ -1,8 +1,9 @@
 const del = require('del');
-const env = require('gulp/env');
 const gulp = require('gulp');
 const livereload = require('gulp-livereload');
 const path = require('path');
+
+const env = require('tools/gulp/env');
 
 const sources_dir = path.join('sources', 'html');
 

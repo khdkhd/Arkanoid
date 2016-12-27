@@ -7,6 +7,18 @@ function pad(str, len, ch) {
 	return times(Math.max(0, len - str.length), constant(ch)).join('') + str;
 }
 
+function make_directory(dirpath) {
+	return new Promise((resolve, reject) => {
+		fs.mkdir(dirpath, 0o755, err => {
+			if (err) {
+				reject(err);
+			} else {
+				resolve(dirpath);
+			}
+		})
+	});
+}
+
 function load_file(input_filename) {
 	return new Promise((resolve, reject) => {
 		fs.readFile(input_filename, (err, data) => {
@@ -54,7 +66,8 @@ function dump_JSON(output_filename, obj) {
 	return dump_file(output_filename, JSON.stringify(obj, null, '  '));
 }
 
-list_directory('../../sources/js/game/levels')
+make_directory('levels')
+	.then(() => list_directory('../../sources/js/game/levels'))
 	.then(files => Promise.all(files.map(load_JSON)))
 	.then(levels => levels.map(level => level.map(({color, position}) => ({
 		color,

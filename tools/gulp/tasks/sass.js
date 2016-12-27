@@ -1,11 +1,12 @@
 const del = require('del');
-const env = require('gulp/env');
 const gulp = require('gulp');
 const gulp_if = require('gulp-if');
 const livereload = require('gulp-livereload');
 const path = require('path');
 const sass = require('gulp-sass');
 const sourcemaps = require('gulp-sourcemaps');
+
+const env = require('tools/gulp/env');
 
 const output_dir =  path.join(env.outputDirectory, 'assets', 'css');
 const sources_dir = 'sources/sass';
