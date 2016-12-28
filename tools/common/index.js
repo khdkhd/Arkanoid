@@ -98,7 +98,7 @@ function Package() {
 			pkg.version = v;
 		},
 		get releaseBranch() {
-			return `release/v${pkg.version}`;
+			return `releases/v${pkg.version}`;
 		},
 		get releaseTag() {
 			return `v${pkg.version}`;
