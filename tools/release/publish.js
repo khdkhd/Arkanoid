@@ -5,8 +5,9 @@ const git = Git(process.cwd());
 
 function check_branch({pkg, branch}) {
 	log('- check branch ... ');
-	if (pkg.branch !== branch) {
-		fail(new Error(`${branch} != ${pkg.branch}`));
+	const release_branch = pkg.releaseBranch;
+	if (release_branch !== branch) {
+		fail(new Error(`${branch} != ${release_branch}`));
 	}
 	done();
 	return {pkg, branch};
@@ -32,6 +33,7 @@ function check_status({pkg, branch}) {
 			if (status.length !== 0) {
 				throw new Error('Some changes are not committed yet');
 			}
+			done();
 			return {pkg, branch};
 		})
 		.catch(fail);

@@ -52,8 +52,8 @@ function create_branch(pkg, {release}) {
 	};
 
 	const branch = () => {
-		log(`- create branch ${pkg.branch} ... `);
-		return git.branch(pkg.branch).then(done);
+		log(`- create branch ${pkg.releaseBranch} ... `);
+		return git.branch(pkg.releaseBranch).then(done);
 	};
 
 	return Promise.resolve()

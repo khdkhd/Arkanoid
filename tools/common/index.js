@@ -97,8 +97,11 @@ function Package() {
 		set version(v) {
 			pkg.version = v;
 		},
-		get branch() {
-			return `release/${pkg.version}`;
+		get releaseBranch() {
+			return `release/v${pkg.version}`;
+		},
+		get releaseTag() {
+			return `v${pkg.version}`;
 		},
 		get changelog() {
 			return `changelogs/${pkg.version}.md`;
