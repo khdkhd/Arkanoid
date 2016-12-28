@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 const fs = require('fs');
 const chalk = require('chalk');
 const inquirer = require('inquirer');
@@ -23,6 +25,17 @@ const changelog_tmpl = template('## Release <%= releaseTag %>'
 	+ '\n' + '- ...'
 	+ '\n'
 );
+
+function check_branch() {
+	return git.branch().then(branch => {
+		if (branch !== 'develop') {
+			throw new Error(
+				'The current branch is not develop. '
+				+ 'Checkout develop branch before anything.'
+			);
+		}
+	});
+}
 
 function bump_version(pkg, {release}) {
 	log('- bump package version ... ');
@@ -103,6 +116,7 @@ function prompt() {
 	}]).then(draft => ({draft, pkg})));
 }
 
-prompt()
+check_branch()
+	.then(prompt)
 	.then(draft_release)
 	.catch(die);
