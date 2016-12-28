@@ -1,9 +1,21 @@
 #! /usr/bin/env node
 
-const {die, done, fail, Git, log, Package, stat} = require('tools/common');
+const chalk = require('chalk');
+
+const inquirer = require('inquirer');
+
 const is_nil = require('lodash.isnil');
+const template = require('lodash.template');
+
+const {die, done, fail, Git, log, Package, stat} = require('tools/common');
 
 const git = Git(process.cwd());
+
+const confirm_tmpl = template('Your repository will be modified:'
+	+ '\n' + '  - \'<%= releaseBranch %>\' will be merge into master',
+	+ '\n' + '  - master will be tagged with \'<%= releaseTag %>\'',
+	+ '\n' + '  - master will be pushed which will trigger a deployment.'
+);
 
 function check_branch({pkg, branch}) {
 	log('- check branch ... ');
@@ -41,10 +53,13 @@ function check_status({pkg, branch}) {
 		.catch(fail);
 }
 
-function merge_into_master({pkg, branch}) {
-	log(`- merge ${branch} into master ... `);
-	return git.checkout('master')
+function publish({pkg, branch}) {
+	log('- publish ... ');
+	return Promise.resolve()
+		.then(() => git.checkout('master'))
 		.then(() => git.merge(branch))
+		.then(() => git.tag(`v${pkg.version}`))
+		// .then(() => git.push())
 		.then(() => {
 			done();
 			return {pkg, branch};
@@ -52,14 +67,23 @@ function merge_into_master({pkg, branch}) {
 		.catch(fail);
 }
 
-function tag({pkg, branch}) {
-	log('- tag master ... ');
-	return git.tag(`v${pkg.version}`)
-		.then(() => {
-			done();
+function prompt({pkg, branch}) {
+	return inquirer.prompt([{
+		name: 'confirmed',
+		type: 'input',
+		message: () => {
+			const ui = new inquirer.ui.BottomBar();
+			ui.log.write(chalk.yellow(confirm_tmpl(pkg)));
+			return 'Are you sure you want to continue ? (type "I agree" to confirm)';
+		},
+		filter: input => input === 'I agree'
+	}])
+	.then(answers => {
+		if (answers.confirmed) {
 			return {pkg, branch};
-		})
-		.catch(fail);
+		}
+		throw new Error('Release publication aborted!');
+	});
 }
 
 Promise.all([Package(), git.branch()])
@@ -67,6 +91,6 @@ Promise.all([Package(), git.branch()])
 	.then(check_branch)
 	.then(check_changelog)
 	.then(check_status)
-	.then(merge_into_master)
-	.then(tag)
+	.then(prompt)
+	.then(publish)
 	.catch(die);
