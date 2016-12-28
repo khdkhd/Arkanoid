@@ -59,7 +59,6 @@ function publish({pkg, branch}) {
 		.then(() => git.checkout('master'))
 		.then(() => git.merge(branch))
 		.then(() => git.tag(`v${pkg.version}`))
-		.then(() => git.push())     // push commits
 		.then(() => git.push(true)) // push tags
 		.then(() => {
 			done();
