@@ -11,7 +11,7 @@ set -u
 # return code of the whole pipeline
 set -o pipefail
 
-echo "Will deploy"
+source "$PWD/tools/scripts/env"
 
 export SSHPASS="$DEPLOY_PASSWORD"
 export SSH_OPTIONS="-o stricthostkeychecking=no"
