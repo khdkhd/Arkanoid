@@ -2,7 +2,6 @@ import times from 'lodash.times';
 import EventEmitter from 'events';
 import { scale, unscale } from 'sound/common/utils';
 import { completeAssign as assign } from 'common/utils';
-import create_polyphony_manager from 'sound/synth/polyphony-manager';
 
 function create_polyphonic_generator(state) {
 
@@ -10,7 +9,7 @@ function create_polyphonic_generator(state) {
 	const vcas = times(state.num_voices, () => state.factory['vca'](state.audio_context));
 	const enveloppes = times(state.num_voices, () => state.factory['enveloppe_generator']());
 	const channel_merger = state.audio_context.createChannelMerger(state.num_voices);
-	const polyphony_manager = create_polyphony_manager(state.num_voices);
+	const polyphony_manager = state.factory.polyphony_manager({num_voices: state.num_voices});
 
 	const type = assign(new EventEmitter(), {
 		set value(value){

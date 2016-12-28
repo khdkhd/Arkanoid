@@ -2,18 +2,22 @@ import { expect } from 'chai';
 import create_polyphonic_generator from 'sound/synth/polyphonic-generator';
 import create_audio_context from '../test-assets/audio-context_mock';
 import create_synth_factory from '../test-assets/synth-factory_mock';
+import create_polyphony_manager from 'sound/synth/polyphony-manager';
+import sinon from 'sinon';
 
+let factory, audio_context;
+
+
+beforeEach(() => {
+	factory = create_synth_factory();
+	audio_context = create_audio_context();
+});
+afterEach(() => {
+	factory.reset();
+	audio_context.reset();
+});
 
 describe('create_polyphonic_generator', () => {
-
-	const factory = create_synth_factory();
-	const audio_context = create_audio_context();
-
-
-	beforeEach(function() {
-		factory.reset();
-		audio_context.reset();
-	});
 
 	it('returns an object', () => {
 		const polyphonic_generator = create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
@@ -50,27 +54,27 @@ describe('create_polyphonic_generator', () => {
 		expect(polyphonic_generator).to.have.property('release');
 	});
 
-	it('calls vco once on the synth factory', () => {
+	it('calls vco once on the synth factory if number of voices is 1', () => {
 		create_polyphonic_generator(audio_context, {num_voices:1, factory: factory});
 		expect(factory.vco.calledOnce).to.be.true;
 	});
 
-	it('calls vco twice on the synth factory', () => {
+	it('calls vco twice on the synth factory if number of voices is 2', () => {
 		create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
 		expect(factory.vco.calledTwice).to.be.true;
 	});
 
-	it('calls vca once on the synth factory', () => {
+	it('calls vca once on the synth factory if number of voices is 1', () => {
 		create_polyphonic_generator(audio_context, {num_voices:1, factory: factory});
 		expect(factory.vca.calledOnce).to.be.true;
 	});
 
-	it('calls vca twice on the synth factory', () => {
+	it('calls vca twice on the synth factory if number of voices is 2', () => {
 		create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
 		expect(factory.vca.calledTwice).to.be.true;
 	});
 
-	it('calls createChannelMerger once on the Audio Context', () => {
+	it('calls createChannelMerger once on the Audio Context if number of voices is 1', () => {
 		create_polyphonic_generator(audio_context, {num_voices:1, factory: factory});
 		expect(audio_context.createChannelMerger.calledOnce).to.be.true;
 	});
@@ -79,11 +83,40 @@ describe('create_polyphonic_generator', () => {
 		create_polyphonic_generator(audio_context, {num_voices:1, factory: factory});
 		expect(factory.polyphony_manager.calledOnce).to.be.true;
 	});
+});
 
-	it('call assign on the polyphony manager', () => {
+describe('polyphonic_generator.voiceOn()', ()=> {
+	it('calls assign once on the polyphony manager', () => {
+		const polyphony_manager = create_polyphony_manager({num_voices:1});
+		const _factory = create_synth_factory();
+		sinon.spy(polyphony_manager, 'assign');
+		const factory = Object.assign(_factory,
+			{
+				polyphony_manager(){
+					return polyphony_manager;
+				}
+			});
 		const polyphonic_generator = create_polyphonic_generator(audio_context, {num_voices:1, factory: factory});
 		polyphonic_generator.connect({input:{connect(){}}});
 		polyphonic_generator.voiceOn(.440, 0);
-		expect(factory.getPolyphonyManager().assign.calledOnce).to.be.true;
+		expect(polyphony_manager.assign.calledOnce).to.be.true;
+	});
+});
+
+describe('polyphonic_generator.voiceOff()', ()=> {
+	it('calls unassign once on the polyphony manager', () => {
+		const polyphony_manager = create_polyphony_manager({num_voices:1});
+		const _factory = create_synth_factory();
+		sinon.spy(polyphony_manager, 'unassign');
+		const factory = Object.assign(_factory,
+			{
+				polyphony_manager(){
+					return polyphony_manager;
+				}
+			});
+		const polyphonic_generator = create_polyphonic_generator(audio_context, {num_voices:1, factory: factory});
+		polyphonic_generator.connect({input:{connect(){}}});
+		polyphonic_generator.voiceOff(.440);
+		expect(polyphony_manager.unassign.calledOnce).to.be.true;
 	});
 });

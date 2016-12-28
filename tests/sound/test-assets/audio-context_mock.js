@@ -68,12 +68,10 @@ for(let method of Object.keys(audio_context_methods)){
 	sinon.spy(audio_context_methods, method);
 }
 
-audio_context_methods.reset = function() {
-	for(let [, method] of Object.entries(audio_context_methods)){
+audio_context_methods.reset = function(){
+	for(let method of Object.values(audio_context_methods)){
 		sinon.spy.reset.call(method);
 	}
 };
 
-export default () => {
-	return Object.create(audio_context_methods);
-};
+export default () => Object.create(audio_context_methods);

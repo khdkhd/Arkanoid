@@ -1,31 +1,33 @@
 import polyphonic_generator from 'sound/synth/polyphonic-generator';
 import enveloppe_generator from 'sound/synth/enveloppe-generator';
+import polyphony_manager from 'sound/synth/polyphony-manager';
 import biquad_filter from 'sound/synth/biquad-filter';
 import master_output from 'sound/synth/master-output';
 import lfo from 'sound/synth/lfo';
 import vco from 'sound/synth/vco';
 import vca from 'sound/synth/vca';
 
-const WAVEFORM_SINE = 'sine';
 const WAVEFORM_TRIANGLE = 'triangle';
 const WAVEFORM_SAWTOOTH = 'sawtooth';
+const WAVEFORM_SINE = 'sine';
 
 const WAVEFORM_SQUARE = 'square';
 
-const FILTER_LOWPASS = 'lowpass';
-const FILTER_HIGHPASS = 'highpass';
-const FILTER_BANDPASS = 'bandpass';
-const FILTER_LOWSHELF = 'lowshelf';
 const FILTER_HIGHSHELF = 'highshelf';
+const FILTER_BANDPASS = 'bandpass';
+const FILTER_HIGHPASS = 'highpass';
+const FILTER_LOWSHELF = 'lowshelf';
+const FILTER_LOWPASS = 'lowpass';
 const FILTER_PEAKING = 'peaking';
-const FILTER_NOTCH = 'notch';
 const FILTER_ALLPASS = 'allpass';
+const FILTER_NOTCH = 'notch';
 
 export default  {
 	biquad_filter: biquad_filter,
 	enveloppe_generator: enveloppe_generator,
 	lfo: lfo,
 	polyphonic_generator: polyphonic_generator,
+	polyphony_manager: polyphony_manager,
 	master: master_output,
 	vco: vco,
 	vca: vca,
