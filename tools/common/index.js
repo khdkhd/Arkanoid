@@ -104,7 +104,7 @@ function Package() {
 			return `v${pkg.version}`;
 		},
 		get changelog() {
-			return `changelogs/v${pkg.version}.md`;
+			return path.join('sources', 'changelogs', `v${pkg.version}.md`);
 		},
 		bump: dispatch(
 			release => {
