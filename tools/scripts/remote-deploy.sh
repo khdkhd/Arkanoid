@@ -2,7 +2,7 @@
 
 pushd $(dirname $0)
 
-RELEASE="$1"
+RELEASE="releases/$1"
 SHA="$2"
 DATE=$(date +"%m.%d.%y-%H:%M:%S")
 
