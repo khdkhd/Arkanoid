@@ -5,6 +5,8 @@
   "scripts": {
     "build": "$PWD/tools/scripts/build.sh",
     "dev": "$PWD/tools/scripts/dev.sh",
+    "draft-release": "$PWD/tools/scripts/draft-release.sh",
+    "release": "$PWD/tools/scripts/release.sh",
     "test": "$PWD/tools/scripts/test.sh"
   },
   "repository": {
