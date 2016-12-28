@@ -7,7 +7,7 @@ const inquirer = require('inquirer');
 const is_nil = require('lodash.isnil');
 const template = require('lodash.template');
 
-const {die, done, fail, Git, log, Package, stat} = require('tools/common');
+const {die, differ, done, fail, Git, log, Package, stat} = require('tools/common');
 
 const git = Git(process.cwd());
 
@@ -60,6 +60,7 @@ function publish({pkg, branch}) {
 		.then(() => git.merge(branch))
 		.then(() => git.tag(`v${pkg.version}`))
 		.then(() => git.push(true)) // push tags
+		.then(() => git.push())     // push commits
 		.then(() => {
 			done();
 			return {pkg, branch};
