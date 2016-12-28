@@ -104,7 +104,7 @@ function Package() {
 			return `v${pkg.version}`;
 		},
 		get changelog() {
-			return `changelogs/${pkg.version}.md`;
+			return `changelogs/v${pkg.version}.md`;
 		},
 		bump: dispatch(
 			release => {

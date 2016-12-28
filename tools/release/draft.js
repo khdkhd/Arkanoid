@@ -8,11 +8,11 @@ const git = Git(process.cwd());
 
 const confirm_tmpl = template('Your repository will be modified:'
 	+ '\n' + '  - version will be bumped to: <%= release %>'
-	+ '\n' + '  - changelog changelogs/<%= release %> will be drafted'
+	+ '\n' + '  - changelog changelogs/v<%= release %> will be drafted'
 	+ '\n' + '  - branch release/v<%= release %> will be created'
 );
 
-const changelog_tmpl = template('## Release <%= release %>'
+const changelog_tmpl = template('## Release <%= releaseTag %>'
 	+ '\n'
 	+ '\n' + `date: ${(new Date()).toDateString()}`
 	+ '\n'
@@ -32,9 +32,9 @@ function bump_version(pkg, {release}) {
 		.catch(fail);
 }
 
-function create_changelog(pkg, {release}) {
+function create_changelog(pkg) {
 	log('- creating changelog ... ');
-	return makePromise(fs.writeFile, pkg.changelog, changelog_tmpl({release}))
+	return makePromise(fs.writeFile, pkg.changelog, changelog_tmpl(pkg))
 		.then(done)
 		.catch(fail);
 }
