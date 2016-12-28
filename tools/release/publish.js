@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 const {die, done, fail, Git, log, Package, stat} = require('tools/common');
 const is_nil = require('lodash.isnil');
 
