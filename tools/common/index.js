@@ -15,88 +15,17 @@ function pad(str, len, ch) {
 }
 exports.pad = pad;
 
-function stat(pathname) {
-	return new Promise((resolve, reject) => {
-		fs.stat(pathname, (err, stats) => {
-			if (err) {
-				if (err.code === 'ENOENT') {
-					resolve({path: pathname});
-				} else {
-					reject(err);
-				}
-			} else {
-				resolve({path: pathname, stats});
+function dispatch(...fns) {
+	return (...args) => {
+		for (let fn of fns) {
+			const v = fn(...args);
+			if (!is_nil(v)) {
+				return v;
 			}
-		});
-	});
+		}
+	};
 }
-exports.stat = stat;
-
-function make_directory(dirpath) {
-	return new Promise((resolve, reject) => {
-		fs.mkdir(dirpath, 0o755, err => {
-			if (err) {
-				reject(err);
-			} else {
-				resolve(dirpath);
-			}
-		})
-	});
-}
-exports.makeDirectory = make_directory;
-
-function load_file(input_filename) {
-	return new Promise((resolve, reject) => {
-		fs.readFile(input_filename, (err, data) => {
-			if (err) {
-				reject(err);
-			} else {
-				resolve(data);
-			}
-		});
-	});
-}
-exports.loadFile = load_file;
-
-function dump_file(output_filename, data) {
-	return new Promise((resolve, reject) => {
-		fs.writeFile(output_filename, data, err => {
-			if (err) {
-				reject(err);
-			} else {
-				resolve();
-			}
-		});
-	});
-}
-exports.dumpFile = dump_file;
-
-function list_directory(dirname) {
-	return new Promise((resolve, reject) => {
-		fs.readdir(dirname, (err, files) => {
-			if (err) {
-				reject(err);
-			} else {
-				resolve(files
-					.map(file => path.join(dirname, file))
-					.filter(file => path.extname(file) === '.json')
-				);
-			}
-		});
-	});
-}
-exports.listDirectory = list_directory;
-
-function load_JSON(input_filename) {
-	return load_file(input_filename).then(data => JSON.parse(data.toString()));
-}
-exports.loadJSON = load_JSON;
-
-
-function dump_JSON(output_filename, obj) {
-	return dump_file(output_filename, JSON.stringify(obj, null, '  '));
-}
-exports.dumpJSON = dump_JSON;
+exports.dispatch = dispatch;
 
 function make_promise(fn, ...args) {
 	return new Promise((resolve, reject) => {
@@ -111,26 +40,87 @@ function make_promise(fn, ...args) {
 }
 exports.makePromise = make_promise;
 
-function app() {
+function stat(pathname) {
+	return make_promise(fs.stat, pathname)
+		.then(stats => ({path: pathname, stats}))
+		.catch(err => {
+			if (err.code === 'ENOENT') {
+				return {path: pathname};
+			}
+			throw err;
+		});
+}
+exports.stat = stat;
+
+function make_directory(dirpath) {
+	return make_promise(fs.mkdir, dirpath, 0o755)
+		.then(() => dirpath);
+}
+exports.makeDirectory = make_directory;
+
+function load_file(input_filename) {
+	return make_promise(fs.readFile, input_filename);
+}
+exports.loadFile = load_file;
+
+function dump_file(output_filename, data) {
+	return make_promise(fs.writeFile, output_filename, data);
+}
+exports.dumpFile = dump_file;
+
+function list_directory(dirname) {
+	return make_promise(fs.readdir, dirname)
+		.then(files => {
+			return files
+				.map(file => path.join(dirname, file))
+				.filter(file => path.extname(file) === '.json');
+		});
+}
+exports.listDirectory = list_directory;
+
+function load_JSON(input_filename) {
+	return load_file(input_filename).then(data => JSON.parse(data.toString()));
+}
+exports.loadJSON = load_JSON;
+
+
+function dump_JSON(output_filename, obj) {
+	return dump_file(output_filename, JSON.stringify(obj, null, '  '));
+}
+exports.dumpJSON = dump_JSON;
+
+function Package() {
 	return load_JSON('package.json').then(pkg => ({
 		get version() {
 			return pkg.version;
 		},
 		set version(v) {
-			if (!semver.valid(v)) {
-				throw new TypeError(`Invalid version number '${v}'!`);
-			}
 			pkg.version = v;
 		},
-		bump(release) {
-			return semver.inc(pkg.version, release);
+		get branch() {
+			return `release/${pkg.version}`;
 		},
+		get changelog() {
+			return `changelogs/${pkg.version}.md`;
+		},
+		bump: dispatch(
+			release => {
+				const version = semver.valid(release);
+				if (!is_nil(version) && semver.gt(version, pkg.version)) {
+					return version;
+				}
+			},
+			release => semver.inc(pkg.version, release),
+			release => {
+				throw new Error(`Invalid version ${release}`);
+			}
+		),
 		dump() {
 			return dump_JSON('package.json', pkg);
 		}
 	}));
 }
-exports.app = app;
+exports.Package = Package;
 
 exports.git = {
 	stage(...files) {
@@ -155,20 +145,13 @@ function die(err) {
 }
 exports.die = die;
 
-function done(next) {
+function done() {
 	log(chalk.green('✔︎\n'));
-	if (!is_nil(next)) {
-		next();
-	}
 }
 exports.done = done;
 
-function fail(err, next) {
+function fail(err) {
 	log(chalk.red('✘\n'));
-	if (!is_nil(next)) {
-		next(err);
-	} else {
-		throw err;
-	}
+	throw err;
 }
 exports.fail = fail;
