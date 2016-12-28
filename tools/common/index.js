@@ -1,8 +1,13 @@
 const {execFile} = require('child_process');
 const fs = require('fs');
 const path = require('path');
+
+const chalk = require('chalk');
+
+const is_nil = require('lodash.isnil');
 const constant = require('lodash.constant');
 const times = require('lodash.times');
+
 const semver = require('semver');
 
 function pad(str, len, ch) {
@@ -138,3 +143,32 @@ exports.git = {
 		return make_promise(execFile, 'git', ['commit', '-m', message]);
 	}
 }
+
+function log(msg) {
+	process.stderr.write(msg);
+}
+exports.log = log;
+
+function die(err) {
+	process.stderr.write(err.message);
+	process.exit(1);
+}
+exports.die = die;
+
+function done(next) {
+	log(chalk.green('✔︎\n'));
+	if (!is_nil(next)) {
+		next();
+	}
+}
+exports.done = done;
+
+function fail(err, next) {
+	log(chalk.red('✘\n'));
+	if (!is_nil(next)) {
+		next(err);
+	} else {
+		throw err;
+	}
+}
+exports.fail = fail;
