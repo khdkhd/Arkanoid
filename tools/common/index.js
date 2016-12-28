@@ -149,7 +149,7 @@ function Git(repository_path) {
 			return git_cmd('merge', branch);
 		},
 		push() {
-			return git_cmd('push', '--tags');
+			return git_cmd('push', '--follow-tags');
 		},
 		stage(...files) {
 			return git_cmd('add', ...files);
