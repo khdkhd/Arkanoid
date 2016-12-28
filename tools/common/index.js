@@ -148,8 +148,12 @@ function Git(repository_path) {
 		merge(branch) {
 			return git_cmd('merge', branch);
 		},
-		push() {
-			return git_cmd('push', '--follow-tags');
+		push(tags = false) {
+			if (tags) {
+				return git_cmd('push', '--tags');
+			} else {
+				return git_cmd('push');
+			}
 		},
 		stage(...files) {
 			return git_cmd('add', ...files);
