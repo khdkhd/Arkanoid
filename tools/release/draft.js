@@ -9,7 +9,7 @@ const git = Git(process.cwd());
 const confirm_tmpl = template('Your repository will be modified:'
 	+ '\n' + '  - version will be bumped to: <%= release %>'
 	+ '\n' + '  - changelog changelogs/<%= release %> will be drafted'
-	+ '\n' + '  - branch release/<%= release %> will be created'
+	+ '\n' + '  - branch release/v<%= release %> will be created'
 );
 
 const changelog_tmpl = template('## Release <%= release %>'
