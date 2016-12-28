@@ -12,9 +12,9 @@ const {die, done, fail, Git, log, Package, stat} = require('tools/common');
 const git = Git(process.cwd());
 
 const confirm_tmpl = template('Your repository will be modified:'
-	+ '\n' + '  - \'<%= releaseBranch %>\' will be merge into master,'
-	+ '\n' + '  - master will be tagged with \'<%= releaseTag %>\','
-	+ '\n' + '  - master will be pushed which will trigger a deployment.'
+	+ '\n' + '  - \'<%= releaseBranch %>\' will be merge into \'master\','
+	+ '\n' + '  - \'master\' will be tagged with \'<%= releaseTag %>\','
+	+ '\n' + '  - \'master\' will be pushed which will trigger a deployment.'
 );
 
 function check_branch({pkg, branch}) {
