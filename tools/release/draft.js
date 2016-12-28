@@ -2,7 +2,9 @@ const fs = require('fs');
 const chalk = require('chalk');
 const inquirer = require('inquirer');
 const template = require('lodash.template');
-const {die, done, fail, git, log, makePromise, Package} = require('tools/common');
+const {die, done, fail, Git, log, makePromise, Package} = require('tools/common');
+
+const git = Git(process.cwd());
 
 const confirm_tmpl = template('Your repository will be modified:'
 	+ '\n' + '  - version will be bumped to: <%= release %>'

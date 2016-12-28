@@ -122,17 +122,41 @@ function Package() {
 }
 exports.Package = Package;
 
-exports.git = {
-	stage(...files) {
-		return make_promise(execFile, 'git', ['add', ...files]);
-	},
-	branch(branch) {
-		return make_promise(execFile, 'git', ['checkout', '-b', branch]);
-	},
-	commit(message) {
-		return make_promise(execFile, 'git', ['commit', '-m', message]);
-	}
+function Git(repository_path) {
+	const git_cmd = (cmd, ...args) => make_promise(execFile, 'git', [cmd, ...args], {
+		cwd: path.resolve(repository_path)
+	});
+	return {
+		branch(branch) {
+			if (is_nil(branch)) {
+				// display current branch
+				return git_cmd('rev-parse', '--abbrev-ref', 'HEAD').then(b => b.toString().trim());
+			} else {
+				// create a new branch
+				return git_cmd('checkout', '-b', branch);
+			}
+		},
+		checkout(branch) {
+			return git_cmd('checkout', branch);
+		},
+		commit(message) {
+			return git_cmd('commit', '-m', message);
+		},
+		merge(branch) {
+			return git_cmd('merge', branch);
+		},
+		stage(...files) {
+			return git_cmd('add', ...files);
+		},
+		status() {
+			return git_cmd('status', '-s');
+		},
+		tag(tag, message) {
+			return git_cmd('tag', '-a', tag, '-m', message);
+		}
+	};
 }
+exports.Git = Git;
 
 function log(msg) {
 	process.stderr.write(msg);
@@ -140,7 +164,7 @@ function log(msg) {
 exports.log = log;
 
 function die(err) {
-	process.stderr.write(err.message);
+	process.stderr.write(chalk.red(err.message) + '\n');
 	process.exit(1);
 }
 exports.die = die;
