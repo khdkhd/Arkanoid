@@ -14,10 +14,10 @@ const confirm_tmpl = template('Your repository will be modified:'
 	+ '\n' + '  - branch release/v<%= release %> will be created'
 );
 
-const changelog_tmpl = template('## Release <%= releaseTag %>'
-	+ '\n'
+const changelog_tmpl = template('---'
+	+ '\n' + 'title: Release <%= releaseTag %>'
 	+ '\n' + `date: ${(new Date()).toDateString()}`
-	+ '\n'
+	+ '\n' + '---'
 	+ '\n' + '### Changes'
 	+ '\n' + '- ...'
 	+ '\n'

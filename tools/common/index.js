@@ -4,6 +4,9 @@ const path = require('path');
 
 const chalk = require('chalk');
 
+const eachSeries = require('async/eachSeries');
+const mapSeries = require('async/mapSeries');
+
 const is_nil = require('lodash.isnil');
 const constant = require('lodash.constant');
 const times = require('lodash.times');
@@ -26,6 +29,39 @@ function dispatch(...fns) {
 	};
 }
 exports.dispatch = dispatch;
+
+function make_callback(resolve, reject) {
+	return (err, ...rest) => {
+		if (err) {
+			reject(err);
+		} else {
+			resolve(...rest);
+		}
+	}
+}
+
+function nodify(fn) {
+	return (...args) => {
+		const cb = args.pop();
+		fn(...args).then((...rest) => cb(null, ...rest)).catch(cb);
+	};
+
+}
+
+function each_series(collection, iteratee) {
+	return new Promise((resolve, reject) => {
+		eachSeries(collection, nodify(iteratee), make_callback(resolve, reject));
+	});
+}
+exports.eachSeries = each_series;
+
+function map_series(collection, iteratee) {
+	return new Promise((resolve, reject) => {
+		mapSeries(collection, nodify(iteratee), make_callback(resolve, reject));
+	});
+}
+exports.mapSeries = map_series;
+
 
 function make_promise(fn, ...args) {
 	return new Promise((resolve, reject) => {
@@ -104,7 +140,7 @@ function Package() {
 			return `v${pkg.version}`;
 		},
 		get changelog() {
-			return `changelogs/v${pkg.version}.md`;
+			return path.join('sources', 'changelogs', `v${pkg.version}.md`);
 		},
 		bump: dispatch(
 			release => {
