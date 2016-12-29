@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Arkanoid</title>
+		<link rel="stylesheet" href="/assets/css/style.css" charset="utf-8">
+		<link rel="stylesheet" href="/assets/css/changelog.css" charset="utf-8">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	</head>
+	<body>
+	{{{contents}}}
+	<div id="changelog">
+		{{#each changelogs}}
+		<div class="release" data-date="{{this.metadata.date}}">
+			<header>
+				<h2>{{{this.metadata.title}}}</h2>
+				<i class="fa fa-calendar"></i>&nbsp;<small>{{{this.metadata.date}}}</small>
+			</header>
+			{{> (lookup . 'partial')}}
+		</div>
+		{{/each}}
+	</div>
+	</body>
+</html>
