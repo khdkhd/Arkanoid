@@ -11,9 +11,15 @@ const env = require('tools/gulp/env');
 const output_dir =  path.join(env.outputDirectory, 'assets', 'css');
 const sources_dir = 'sources/sass';
 
+// TODO fix this task this is dirty !
+
 const sources = (env.isDevelopment
 	? path.join(sources_dir, '**/*.scss')
-	: path.join(sources_dir, 'style.scss'));
+	: [
+		path.join(sources_dir, 'style.scss'),
+		path.join(sources_dir, 'changelog.scss'),
+	]
+);
 
 gulp.task('sass-clean', () => del(output_dir));
 
