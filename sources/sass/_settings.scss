@@ -1,8 +1,11 @@
-$background-color: #0d1b28;
+$body-bg-color: #0d1b28;
+$body-fg-color: lighten($body-bg-color, 75);
+
+$h1-color: $body-fg-color;
+$h2-color: lighten($body-bg-color, 25);
+$h3-color: #bb2727;
 
 $font-family: sans-serif;
-
-$h1-color: white;
 
 $overlay-bg-color: rgba(0, 0, 0, 0.666);
 $overlay-z-index: 1;

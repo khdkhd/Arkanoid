@@ -6,13 +6,23 @@ html {
 	font-size: 14pt;
 }
 body {
-	background-color: $background-color;
+	background-color: $body-bg-color;
+	color: $body-fg-color;
+	margin: 0;
 }
 h1 {
 	color: $h1-color;
 	font-size: 4rem;
 	font-family: Arkanoid;
 	text-align: center;
+}
+h2 {
+	color: $h2-color;
+	font-size: 2rem;
+}
+h3 {
+	color: $h3-color;
+	font-size: 1.25rem;
 }
 #screen {
 	display: block;

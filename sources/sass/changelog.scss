@@ -1,0 +1,11 @@
+@import "settings";
+
+#changelog {
+	background-color: lighten($body-bg-color, 5);
+	margin: 0 auto;
+	width: 600px;
+	overflow: auto;
+	.release {
+		margin: 4rem 1rem;
+	}
+}
