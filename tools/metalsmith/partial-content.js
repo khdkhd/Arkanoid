@@ -4,6 +4,7 @@ const front_matter = require('front-matter');
 const marked = require('marked');
 
 const is_nil = require('lodash.isnil');
+const identity = require('lodash.identity');
 
 const fs = require('fs-extra');
 const path = require('path');
@@ -23,7 +24,7 @@ function partial_name(directory, filepath) {
 	return `${path.basename(directory)}/${path.basename(filepath, '.md')}`;
 }
 
-function handle_partials(directory) {
+function handle_partials(directory, sort) {
 	const handle_partial = filepath => {
 		return loadFile(filepath)
 			.then(data => front_matter(data.toString()))
@@ -52,7 +53,7 @@ function handle_partials(directory) {
 				if (!is_nil(err)) {
 					reject(err);
 				} else {
-					mapSeries(files, handle_partial)
+					mapSeries(sort(files), handle_partial)
 						.then(resolve)
 						.catch(reject);
 				}
@@ -60,12 +61,12 @@ function handle_partials(directory) {
 	});
 }
 
-module.exports = ({directory, attr = 'partials'}) => {
+module.exports = ({directory, attr = 'partials', sort = identity}) => {
 	if (is_nil(directory)) {
 		throw new TypeError('directory must be specified');
 	}
 	return (files, metalsmith, done) => {
-		handle_partials(directory)
+		handle_partials(directory, sort)
 			.then(partials => {
 				for (let file of Object.values(files)) {
 					file[attr] = partials;

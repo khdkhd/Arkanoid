@@ -10,8 +10,9 @@ const layouts = require('metalsmith-layouts');
 const markdown = require('metalsmith-markdown');
 const partialContent = require('tools/metalsmith/partial-content');
 
-const env = require('tools/gulp/env');
+const semver = require('semver');
 
+const env = require('tools/gulp/env');
 
 const sources_dir = path.join('sources', 'html');
 
@@ -76,7 +77,14 @@ tasks.push(Task('changelog')
 					markdown(),
 					partialContent({
 						directory: changelog_content_dir,
-						attr: 'changelogs'
+						attr: 'changelogs',
+						sort: files => files.sort((a, b) => {
+							const va = path.basename(a, '.md');
+							const vb = path.basename(b, '.md');
+							if (semver.gt(va, vb)) return -1;
+							if (semver.lt(va, vb)) return  1;
+							return 0
+						})
 					}),
 					layouts({
 						directory: changelog_layout_dir,
