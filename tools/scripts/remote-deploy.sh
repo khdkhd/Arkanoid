@@ -2,13 +2,16 @@
 
 pushd $(dirname $0)
 
-TAG="$1"
+RELEASE="$1"
+SHA="$2"
 DATE=$(date +"%m.%d.%y-%H:%M:%S")
 
+PACKAGE="$PWD/package.tgz"
+
 # extract the package
-mkdir "$TAG"
-pushd "$TAG"
-	tar xzf ../package.tgz
+mkdir -p "$RELEASE"
+pushd "$RELEASE"
+	tar xzf "$PACKAGE"
 popd
 
 # link to latest
@@ -16,11 +19,11 @@ if [ -L public ];
 then
 	unlink public
 fi
-ln -s "$TAG" public
+ln -s "$PWD/$RELEASE" public
 
 # update deployment log file
 cat >> deploy.log <<EOF
-$DATE $TAG
+$DATE $RELEASE $SHA
 EOF
 
 # clean
