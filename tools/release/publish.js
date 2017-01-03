@@ -7,7 +7,7 @@ const inquirer = require('inquirer');
 const is_nil = require('lodash.isnil');
 const template = require('lodash.template');
 
-const {die, differ, done, fail, Git, log, Package, stat} = require('tools/common');
+const {die, done, fail, Git, log, Package, stat} = require('tools/common');
 
 const git = Git(process.cwd());
 
