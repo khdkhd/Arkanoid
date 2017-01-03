@@ -10,6 +10,7 @@ import {EventEmitter} from 'events';
 import is_nil from 'lodash.isnil';
 
 const BOTTOM_OUTER_RECT = Rect(Vector.Null, {width: 2, height: 1});
+const TOP_OUTER_RECT = Rect(Vector.Null, {width: 1.8, height: .8});
 const INNER_RECT = Rect(Vector.Null.add({x: .2, y: .2}), {width: 1.6, height: .6});
 
 const bricks_state = {
@@ -136,6 +137,9 @@ function BrickView(state) {
 
 			screen.brush = 'black';
 			screen.fillRect(BOTTOM_OUTER_RECT);
+
+			screen.brush = state.colors.top || state.colors.inner;
+			screen.fillRect(TOP_OUTER_RECT);
 
 			screen.brush = state.colors.top || state.colors.inner;
 			screen.brush = state.colors.inner;
