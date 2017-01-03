@@ -31,7 +31,7 @@ function BallView(state) {
 			screen.brush = 'white';
 			screen.pen = {
 				strokeStyle: 'hsl(210, 50%, 50%)',
-				lineWidth: 1/state.scene.scale
+				lineWidth: 1/16 // TODO getting scale as a parameter ?
 			};
 			screen.beginPath();
 			screen.arc(state.verlet.position, state.radius, 0, 2*Math.PI, false);

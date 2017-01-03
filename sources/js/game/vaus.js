@@ -4,6 +4,7 @@ import Vector from 'maths/vector';
 import Rect from 'maths/rect';
 import VerletModel from 'physics/verlet-model';
 import {EventEmitter} from 'events';
+import SceneObject from 'graphics/scene-object';
 
 const blue_box = new Path2D(`
 	M ${0/16} ${ 6/16}
@@ -96,27 +97,31 @@ function VausBoundingBox(state) {
 
 function VausView(state) {
 
-	return {
+	return SceneObject({
 		emitter: state.emitter,
 		onRender(screen) {
 			const pad_size = state.size.padSize;
-
+			const brushes = {
+				blue: blue_brush(screen),
+				red:  red_brush (screen),
+				gray: gray_brush(screen)
+			};
 			screen.save();
 
 			screen.translate(state.verlet.position);
 
-			screen.pen = 1/state.scene.scale;
+			screen.pen = 1/16; // TODO get scale as a parameter ?
 
-			screen.brush = blue_brush(screen);
+			screen.brush = brushes.blue;
 			screen.fillPath(blue_box);
 
-			screen.brush = red_brush (screen);
+			screen.brush = brushes.red;
 			screen.fillPath(red_box);
 
 			screen.brush = '#222';
 			screen.fillPath(margin);
 
-			screen.brush = gray_brush(screen);
+			screen.brush = brushes.gray;
 			screen.fillPath(gray_box);
 
 			screen.fillRect(Rect({x: 1, y: 0}, {width: pad_size, height: 14/16}));
@@ -138,13 +143,13 @@ function VausView(state) {
 
 			screen.restore();
 		}
-	};
+	});
 }
 
 function VausController(state) {
 	const verlet = state.verlet;
-	const thrust = () => 1/state.scene.scale;
-	const max_speed = () => 8/state.scene.scale;
+	const thrust = () => 1/16; // TODO get scale as a parameter ?
+	const max_speed = () => 8/16;
 
 	let acceleration = Vector.Null;
 	let moving = false;
@@ -176,7 +181,7 @@ function VausController(state) {
 	};
 }
 
-export default function Vaus({x, y}, scene) {
+export default function Vaus({x, y}) {
 	let padSize = 1;
 	const verlet = VerletModel(Vector({x, y}));
 	const size = {
@@ -189,8 +194,7 @@ export default function Vaus({x, y}, scene) {
 	const state = completeAssign(boundingBox, {
 		emitter: new EventEmitter(),
 		verlet,
-		size,
-		scene
+		size
 	});
 	return completeAssign(
 		{},
