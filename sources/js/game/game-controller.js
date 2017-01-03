@@ -145,6 +145,7 @@ export default function GameController(state) {
 				brick.once('destroyed', () => {
 					brick.removeAllListeners('destroyed');
 					brick.removeAllListeners('hit');
+					brick.toggleRender(false);
 					remove(state.bricks, brick);
 					const remain = bricks_remaining();
 					if (remain === 0) {
