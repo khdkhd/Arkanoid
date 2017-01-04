@@ -3,6 +3,7 @@ import BoundingBox from 'graphics/bounding-box';
 import Vector from 'maths/vector';
 import Rect from 'maths/rect';
 import VerletModel from 'physics/verlet-model';
+import {EventEmitter} from 'events';
 
 const blue_box = new Path2D(`
 	M ${0/16} ${ 6/16}
@@ -94,14 +95,10 @@ function VausBoundingBox(state) {
 }
 
 function VausView(state) {
-	const screen = state.scene.screen;
-	const brushes = {
-		blue: blue_brush(screen),
-		red:  red_brush (screen),
-		gray: gray_brush(screen)
-	};
+
 	return {
-		render() {
+		emitter: state.emitter,
+		onRender(screen) {
 			const pad_size = state.size.padSize;
 
 			screen.save();
@@ -110,16 +107,16 @@ function VausView(state) {
 
 			screen.pen = 1/state.scene.scale;
 
-			screen.brush = brushes.blue;
+			screen.brush = blue_brush(screen);
 			screen.fillPath(blue_box);
 
-			screen.brush = brushes.red;
+			screen.brush = red_brush (screen);
 			screen.fillPath(red_box);
 
 			screen.brush = '#222';
 			screen.fillPath(margin);
 
-			screen.brush = brushes.gray;
+			screen.brush = gray_brush(screen);
 			screen.fillPath(gray_box);
 
 			screen.fillRect(Rect({x: 1, y: 0}, {width: pad_size, height: 14/16}));
@@ -190,17 +187,16 @@ export default function Vaus({x, y}, scene) {
 	};
 	const boundingBox = VausBoundingBox({size, verlet});
 	const state = completeAssign(boundingBox, {
+		emitter: new EventEmitter(),
 		verlet,
 		size,
 		scene
 	});
-	const vaus = completeAssign(
+	return completeAssign(
 		{},
 		boundingBox,
 		verlet,
 		VausController(state),
 		VausView(state)
 	);
-	scene.add(vaus);
-	return vaus;
 }

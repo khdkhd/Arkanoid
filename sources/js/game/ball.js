@@ -2,6 +2,9 @@ import {completeAssign} from 'common/utils';
 import BoundingBox from 'graphics/bounding-box';
 import Vector from 'maths/vector';
 import VerletModel from 'physics/verlet-model';
+import SceneObject from 'graphics/scene-object';
+import {EventEmitter} from 'events';
+
 
 const radius = .3;
 
@@ -21,9 +24,10 @@ function BallController({verlet}) {
 }
 
 function BallView(state) {
-	const {screen} = state.scene;
-	return {
-		render() {
+
+	return SceneObject({
+		emitter: state.emitter,
+		onRender(screen) {
 			screen.brush = 'white';
 			screen.pen = {
 				strokeStyle: 'hsl(210, 50%, 50%)',
@@ -35,7 +39,7 @@ function BallView(state) {
 			screen.fillPath();
 			screen.drawPath();
 		}
-	};
+	});
 }
 
 function BallBoundingBox(state) {
@@ -46,25 +50,23 @@ function BallBoundingBox(state) {
 	), true);
 }
 
-function Ball({x, y}, scene) {
+function Ball({x, y}) {
 	const verlet = VerletModel(Vector({x, y}));
 	const size = {width: 2*radius, height: 2*radius};
 	const boundingBox = BallBoundingBox({verlet, size});
 	const state = completeAssign(boundingBox, {
+		emitter: new EventEmitter(),
 		radius,
 		size,
-		scene,
 		verlet,
 	});
-	const ball = completeAssign(
-		{},
+	return completeAssign(
+		state.emitter,
 		verlet,
 		boundingBox,
 		BallController(state),
 		BallView(state)
 	);
-	scene.add(ball);
-	return ball;
 }
 
 Ball.Radius = radius;
