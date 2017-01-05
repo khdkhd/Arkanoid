@@ -53,6 +53,18 @@ describe('create_polyphonic_generator', () => {
 		const polyphonic_generator = create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
 		expect(polyphonic_generator).to.have.property('release');
 	});
+	it('returns an object with a connect method', () => {
+		const polyphonic_generator = create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
+		expect(polyphonic_generator.connect).to.be.function;
+	});
+	it('returns an object with a voiceOn method', () => {
+		const polyphonic_generator = create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
+		expect(polyphonic_generator.voiceOn).to.be.function;
+	});
+	it('returns an object with a voiceOff method', () => {
+		const polyphonic_generator = create_polyphonic_generator(audio_context, {num_voices:2, factory: factory});
+		expect(polyphonic_generator.voiceOff).to.be.function;
+	});
 
 	it('calls vco once on the synth factory if number of voices is 1', () => {
 		create_polyphonic_generator(audio_context, {num_voices:1, factory: factory});
@@ -86,6 +98,7 @@ describe('create_polyphonic_generator', () => {
 });
 
 describe('polyphonic_generator.voiceOn()', ()=> {
+
 	it('calls assign once on the polyphony manager', () => {
 		const polyphony_manager = create_polyphony_manager({num_voices:1});
 		const _factory = create_synth_factory();
@@ -100,6 +113,22 @@ describe('polyphonic_generator.voiceOn()', ()=> {
 		polyphonic_generator.connect({input:{connect(){}}});
 		polyphonic_generator.voiceOn(.440, 0);
 		expect(polyphony_manager.assign.calledOnce).to.be.true;
+	});
+
+	it('forwards frequency argument to polyphony_manager.assign(freq)', () => {
+		const polyphony_manager = create_polyphony_manager({num_voices:1});
+		const _factory = create_synth_factory();
+		sinon.spy(polyphony_manager, 'assign');
+		const factory = Object.assign(_factory,
+			{
+				polyphony_manager(){
+					return polyphony_manager;
+				}
+			});
+		const polyphonic_generator = create_polyphonic_generator(audio_context, {num_voices:1, factory: factory});
+		polyphonic_generator.connect({input:{connect(){}}});
+		polyphonic_generator.voiceOn(.440, 0);
+		expect(polyphony_manager.assign.calledWith(.440)).to.be.true;
 	});
 });
 
