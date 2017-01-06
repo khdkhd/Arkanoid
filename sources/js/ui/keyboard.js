@@ -81,24 +81,24 @@ function keypress_handler(key_handlers, emitter) {
 
 export function Keyboard() {
 	const emitter = new EventEmitter();
-
-	let keydown_event_handler;
-	let keydup_event_handler;
-	let keypress_event_handler;
-
+	const state = {
+		keydownEventHandler: null,
+		keydupEventHandler: null,
+		keypressEventHandler: null
+	};
 	const instance = Object.assign(emitter, {
 		use(handlers) {
-			document.removeEventListener('keydown', keydown_event_handler);
-			document.removeEventListener('keyup', keydup_event_handler);
-			document.removeEventListener('keypress', keypress_event_handler);
+			document.removeEventListener('keydown', state.keydownEventHandler);
+			document.removeEventListener('keyup', state.keydupEventHandler);
+			document.removeEventListener('keypress', state.keypressEventHandler);
 
-			keydown_event_handler = keydown_handler(handlers, emitter);
-			keydup_event_handler = keyup_handler(handlers, emitter);
-			keypress_event_handler = keypress_handler(handlers, emitter);
+			state.keydownEventHandler = keydown_handler(handlers, emitter);
+			state.keydupEventHandler = keyup_handler(handlers, emitter);
+			state.keypressEventHandler = keypress_handler(handlers, emitter);
 
-			document.addEventListener('keydown', keydown_event_handler);
-			document.addEventListener('keyup', keydup_event_handler);
-			document.addEventListener('keypress', keypress_event_handler);
+			document.addEventListener('keydown', state.keydownEventHandler);
+			document.addEventListener('keyup', state.keydupEventHandler);
+			document.addEventListener('keypress', state.keypressEventHandler);
 		}
 	});
 
