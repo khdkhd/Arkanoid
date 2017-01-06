@@ -1,6 +1,7 @@
 import keyboard from 'ui/keyboard';
 import {expect} from 'chai';
 import sinon from 'sinon';
+import jsdom from 'jsdom';
 
 describe('keyboard.createKeyHandler(code, ev, on_keydown, on_keyup, repeat)', () => {
 	const code = 0;
@@ -129,6 +130,38 @@ describe('keyboardHandler', () => {
 	});
 });
 
+describe('Keyboard.use([{}])', () => {
+	const code = 0;
+	const event = 'event';
+	const on_keydown = sinon.spy();
+	const on_keyup = sinon.stub();
 
-// describe('Keyboard({code, event, on_keydown, on_keyup, repeat = true})', () => {
-// });
+	beforeEach(() => {
+		const document = jsdom.jsdom();
+		global.document = document;
+		global.KeyboardEvent = document.defaultView.KeyboardEvent;
+		on_keydown.reset();
+		on_keyup.reset();
+	});
+
+	it('calls on_keydown when the key is pressed', () => {
+		const kh = keyboard.createKeyHandler({code, event, on_keydown, on_keyup});
+		keyboard.use([kh]);
+		document.dispatchEvent(new KeyboardEvent('keydown', {keyCode: code}));
+		expect(on_keydown).to.have.been.calledOnce;
+	});
+
+	it('does not call on_keydown when an other key is pressed', () => {
+		const kh = keyboard.createKeyHandler({code, event, on_keydown, on_keyup});
+		keyboard.use([kh]);
+		document.dispatchEvent(new KeyboardEvent('keydown', {keyCode: code + 1}));
+		expect(on_keydown).to.not.have.been.called;
+	});
+
+	it('calls on_keydup when the key is released', () => {
+		const kh = keyboard.createKeyHandler({code, event, on_keydown, on_keyup});
+		keyboard.use([kh]);
+		document.dispatchEvent(new KeyboardEvent('keyup', {keyCode: code}));
+		expect(on_keyup).to.have.been.calledOnce;
+	});
+});
