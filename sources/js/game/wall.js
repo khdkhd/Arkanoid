@@ -1,4 +1,6 @@
 import Vector from 'maths/vector';
+import {EventEmitter} from 'events';
+import SceneObject from 'graphics/scene-object';
 
 function WallBrush(start, stop, screen) {
 	return {fillStyle: screen.createLinearGradient(start, stop, [
@@ -14,25 +16,20 @@ function WallBrush(start, stop, screen) {
 }
 
 function Wall(state) {
-	const {screen} = state.scene;
-	const brush = WallBrush(state.gradientStart, state.gradientStop, screen);
-	const wall = {
-		get position() {
-			return state.position;
-		},
-		render() {
+	return SceneObject({
+		emitter: new EventEmitter(),
+		onRender(screen) {
+			const brush = WallBrush(state.gradientStart, state.gradientStop, screen);
 			screen.save();
 			screen.translate(state.position);
 			screen.brush = brush;
 			screen.fillPath(state.path);
 			screen.restore();
 		}
-	};
-	state.scene.add(wall);
-	return wall;
+	});
 }
 
-function VerticalWall({x, y}, gradientStart, gradientStop, scene) {
+function VerticalWall({x, y}, gradientStart, gradientStop) {
 	return Wall({
 		gradientStart,
 		gradientStop,
@@ -43,20 +40,19 @@ function VerticalWall({x, y}, gradientStart, gradientStop, scene) {
 			L ${ 1/16} 1
 			L ${ 1/16} 0
 		`),
-		position: Vector({x, y}),
-		scene
+		position: Vector({x, y})
 	});
 }
 
-export function VerticalLeftWall({x, y}, scene) {
-	return VerticalWall({x, y}, {x: 0, y: 0}, {x: 1, y: 0}, scene);
+export function VerticalLeftWall({x, y}) {
+	return VerticalWall({x, y}, {x: 0, y: 0}, {x: 1, y: 0});
 }
 
-export function VerticalRightWall({x, y}, scene) {
-	return VerticalWall({x, y}, {x: 1, y: 0}, {x: 0, y: 0}, scene);
+export function VerticalRightWall({x, y}) {
+	return VerticalWall({x, y}, {x: 1, y: 0}, {x: 0, y: 0});
 }
 
-export function VerticalTopLeftWall({x, y}, scene) {
+export function VerticalTopLeftWall({x, y}) {
 	return Wall({
 		gradientStart: {x: 0, y: 0},
 		gradientStop: {x: 1, y: 0},
@@ -68,11 +64,10 @@ export function VerticalTopLeftWall({x, y}, scene) {
 			L ${ 1/16} ${ 1/16}
 		`),
 		position: Vector({x, y}),
-		scene
 	});
 }
 
-export function VerticalTopRightWall({x, y}, scene) {
+export function VerticalTopRightWall({x, y}) {
 	return Wall({
 		gradientStart: {x: 1, y: 0},
 		gradientStop: {x: 0, y: 0},
@@ -83,12 +78,11 @@ export function VerticalTopRightWall({x, y}, scene) {
 			L ${ 1/16} ${15/16}
 			L ${15/16} ${ 1/16}
 		`),
-		position: Vector({x, y}),
-		scene
+		position: Vector({x, y})
 	});
 }
 
-export function HorizontalWall({x, y}, scene) {
+export function HorizontalWall({x, y}) {
 	return Wall({
 		gradientStart: {x: 0, y: 0},
 		gradientStop: {x: 0, y: 1},
@@ -99,12 +93,11 @@ export function HorizontalWall({x, y}, scene) {
 			L 0 ${15/16}
 			L 0 ${ 1/16}
 		`),
-		position: Vector({x, y}),
-		scene,
+		position: Vector({x, y})
 	});
 }
 
-export function HorizontalLeftWall({x, y}, scene) {
+export function HorizontalLeftWall({x, y}) {
 	return Wall({
 		gradientStart: {x: 0, y: 0},
 		gradientStop: {x: 0, y: 1},
@@ -115,12 +108,11 @@ export function HorizontalLeftWall({x, y}, scene) {
 			L ${15/16} ${15/16}
 			L ${1/16} ${ 1/16}
 		`),
-		position: Vector({x, y}),
-		scene
+		position: Vector({x, y})
 	});
 }
 
-export function HorizontalRightWall({x, y}, scene) {
+export function HorizontalRightWall({x, y}) {
 	return Wall({
 		gradientStart: {x: 0, y: 0},
 		gradientStop: {x: 0, y: 1},
@@ -131,7 +123,6 @@ export function HorizontalRightWall({x, y}, scene) {
 			L 0 ${15/16}
 			L 0 ${ 1/16}
 		`),
-		position: Vector({x, y}),
-		scene
+		position: Vector({x, y})
 	});
 }

@@ -3,13 +3,13 @@ import BoundingBox from 'graphics/bounding-box';
 import Rect from 'maths/rect';
 import Vector from 'maths/vector';
 import VerletModel from 'physics/verlet-model';
+import SceneObject from 'graphics/scene-object';
 
 import {EventEmitter} from 'events';
 
 import is_nil from 'lodash.isnil';
 
 const BOTTOM_OUTER_RECT = Rect(Vector.Null, {width: 2, height: 1});
-const TOP_OUTER_RECT = Rect(Vector.Null, {width: 1.8, height: .8});
 const INNER_RECT = Rect(Vector.Null.add({x: .2, y: .2}), {width: 1.6, height: .6});
 
 const bricks_state = {
@@ -129,48 +129,38 @@ function BrickController(state) {
 }
 
 function BrickView(state) {
-	const {screen} = state.scene;
-	return {
-		render() {
-			if (!state.destroyed) {
-				screen.save();
+	return SceneObject({
+		emitter: state.emitter,
+		onRender(screen) {
+			screen.translate(state.verlet.position);
 
-				screen.translate(state.verlet.position);
+			screen.brush = 'black';
+			screen.fillRect(BOTTOM_OUTER_RECT);
 
-				screen.brush = 'black';
-				screen.fillRect(BOTTOM_OUTER_RECT);
-
-				screen.brush = state.colors.top || state.colors.inner;
-				screen.fillRect(TOP_OUTER_RECT);
-
-				screen.brush = state.colors.inner;
-				screen.fillRect(INNER_RECT);
-
-				screen.restore();
-			}
+			screen.brush = state.colors.top || state.colors.inner;
+			screen.brush = state.colors.inner;
+			screen.fillRect(INNER_RECT);
 		}
-	};
+	});
 }
 
-export default function Brick({x, y}, color, level, scene) {
+export default function Brick({x, y}, color, level) {
 	const state = completeAssign(
 		bricks_state[color](level),
 		{
 			color,
 			destroyed: false,
 			emitter: new EventEmitter(),
-			scene,
 			size: {width: 2, height: 1},
 			verlet: VerletModel(Vector({x, y})),
 		}
 	);
-	const brick = completeAssign(
+
+	return completeAssign(
 		state.emitter,
 		state.verlet,
 		BrickBoundingBox(state),
 		BrickController(state),
 		BrickView(state)
 	);
-	scene.add(brick);
-	return brick;
 }

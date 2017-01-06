@@ -1,6 +1,6 @@
 import BoundingBox from 'graphics/bounding-box';
 import {completeAssign} from 'common/utils';
-
+import remove from 'lodash.remove';
 
 function SceneController(state) {
 	return {
@@ -10,15 +10,10 @@ function SceneController(state) {
 		get scale() {
 			return state.scale;
 		},
-		add(child, zIndex=0) {
-			if(state.children.has(zIndex)){
-				state.children.get(zIndex).add(child);
-			}
-			else {
-				state.children.set(zIndex, new Set([child]));
-				state.children = new Map([...state.children.entries()].sort((a,b) => a[0] - b[0]));
-			}
-			return this;
+		add(child) {
+			remove(state.children, child);
+			state.children.push(child);
+			state.children.sort((a, b) => a.zIndex - b.zIndex);
 		},
 		remove(child) {
 			state.children.delete(child);
@@ -28,18 +23,13 @@ function SceneController(state) {
 }
 
 function SceneRenderer(state) {
-	const screen = state.screen;
+
 	const {boundingBox} = BoundingBox(state);
 
-	function render_layer(layer){
-		for(let sceneObject of layer.values()){
-			sceneObject.render();
-		}
-	}
 
 	return {
 		boundingBox,
-		render() {
+		render(screen) {
 			const rect = boundingBox.relative;
 			screen.save();
 
@@ -50,8 +40,8 @@ function SceneRenderer(state) {
 			screen.brush = state.backgroundColor;
 			screen.fillRect(rect);
 
-			for (let layer of state.children.values()) {
-				render_layer(layer);
+			for (let child of state.children) {
+				child.render(screen);
 			}
 
 			screen.restore();
@@ -62,7 +52,7 @@ function SceneRenderer(state) {
 export default function Scene(screen, rect, scale, backgroundColor = 'rgba(0, 0, 0, 0)') {
 	const state = {
 		backgroundColor,
-		children: new Map([[0, new Set()]]),
+		children:[],
 		position: rect.topLeft,
 		size: rect.size,
 		screen,
