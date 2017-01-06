@@ -41,3 +41,6 @@ public
 
 # Source test dir
 sources/js/test
+
+# macOS files
+.DS_Store
