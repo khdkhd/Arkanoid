@@ -143,7 +143,8 @@ export default function GameController(state) {
 			state.bricks.forEach(brick => {
 				brick.on('hit', point => emitter.emit('update-score', point));
 				brick.once('destroyed', () => {
-					brick.removeAllListeners();
+					brick.removeAllListeners('destroyed');
+					brick.removeAllListeners('hit');
 					remove(state.bricks, brick);
 					const remain = bricks_remaining();
 					if (remain === 0) {

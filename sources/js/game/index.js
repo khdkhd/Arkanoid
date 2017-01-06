@@ -7,6 +7,7 @@ import Controller from 'game/game-controller';
 import Brick from 'game/brick';
 import Ball from 'game/ball';
 import Vaus from 'game/vaus';
+
 import {
 	HorizontalWall,
 	HorizontalLeftWall,
@@ -27,35 +28,44 @@ import {EventEmitter} from 'events';
 import gameKeyboardController from 'game/keyboard-controller';
 
 function create_ball(scene) {
-	return Ball(Vector.Null, scene);
+	const ball = Ball(Vector.Null);
+	scene.add(ball);
+	return ball;
 }
 
 function create_bricks(level, scene) {
 	const bricks = [];
 	for (let brick_data of levels[level]) {
-		bricks.push(Brick(brick_data.position, brick_data.color, level, scene));
+		const brick = Brick(brick_data.position, brick_data.color, level);
+		bricks.push(brick);
+		scene.add(brick);
 	}
 	return bricks;
 }
 
 function create_vaus(scene) {
 	const position = {x: 1, y: scene.boundingBox.relative.height - 2};
-	return Vaus(position, scene);
+	const vaus = Vaus(position);
+	scene.add(vaus);
+	return vaus;
 }
 
 function create_walls(cols, rows, scene) {
 	const walls = [];
 	for (let y = 1; y < rows; ++y) {
-		walls.push(VerticalLeftWall({x: 0, y}, scene));
-		walls.push(VerticalRightWall({x: cols, y}, scene));
+		walls.push(VerticalLeftWall({x: 0, y}));
+		walls.push(VerticalRightWall({x: cols, y}));
 	}
-	walls.push(VerticalTopLeftWall({x: 0, y: 0}, scene));
-	walls.push(VerticalTopRightWall({x: cols, y: 0}, scene));
+	walls.push(VerticalTopLeftWall({x: 0, y: 0}));
+	walls.push(VerticalTopRightWall({x: cols, y: 0}));
 	for (let x = 1; x < cols; ++x) {
-		walls.push(HorizontalWall({x, y: 0}, scene));
+		walls.push(HorizontalWall({x, y: 0}));
 	}
-	walls.push(HorizontalLeftWall({x: 0, y: 0}, scene));
-	walls.push(HorizontalRightWall({x: cols, y: 0}, scene));
+	walls.push(HorizontalLeftWall({x: 0, y: 0}));
+	walls.push(HorizontalRightWall({x: cols, y: 0}));
+	for(let wall of walls){
+		scene.add(wall);
+	}
 	return walls;
 }
 
@@ -90,8 +100,8 @@ export default function Game() {
 			if (!state.paused) {
 				game_contoller.update();
 			}
-			walls_scene.render();
-			game_scene.render();
+			walls_scene.render(screen);
+			game_scene.render(screen);
 			requestAnimationFrame(loop);
 		} else {
 			emitter.emit('end', state.level);
