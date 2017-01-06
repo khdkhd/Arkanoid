@@ -58,6 +58,7 @@
     "gulp-webserver": "^0.9.1",
     "handlebars": "^4.0.6",
     "inquirer": "^2.0.0",
+    "jsdom": "^9.9.1",
     "lodash.clamp": "^4.0.3",
     "lodash.cond": "^4.5.2",
     "lodash.constant": "^3.0.0",
