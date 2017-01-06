@@ -4,6 +4,7 @@ import EventEmitter from 'events';
 import _clamp from 'lodash.clamp';
 import { completeAssign as assign } from 'common/utils';
 import { scale, unscale } from 'sound/common/utils';
+import bind_events from 'sound/controls/event-binder';
 
 function create_fader_view(state){
 	function get_cursor_height(){
@@ -60,6 +61,7 @@ function create_fader_controller(state) {
 	function clamp(pos, state){
 		return _clamp(pos, state.inner_rect.topLeft.y, state.inner_rect.bottomRight.y);
 	}
+
 	function fade(event) {
 		state.cursor = clamp(state.cursor + event.movementY, state);
 		state.emitter.emit('change', unscale({max: state.inner_rect.topLeft.y, min: state.inner_rect.bottomRight.y}, state.cursor));
@@ -69,23 +71,23 @@ function create_fader_controller(state) {
 		state.cursor = scale({max: state.inner_rect.topLeft.y, min: state.inner_rect.bottomRight.y}, value);
 	}
 
-	document.addEventListener('mousedown', event => {
-		const x = event.clientX - event.target.offsetLeft;
-		const y = event.clientY - event.target.offsetTop;
-		if (state.bbox.contains({x , y})) {
-			state.isActive = true;
-		}
-	});
-
-	document.addEventListener('mouseup', () => {
-		if (state.isActive) {
-			state.isActive = false;
-		}
-	});
-
-	document.addEventListener('mousemove', event => {
-		if (state.isActive) {
-			fade(event);
+	bind_events({
+		mousedown: event => {
+			const x = event.clientX - event.target.offsetLeft;
+			const y = event.clientY - event.target.offsetTop;
+			if (state.bbox.contains({x , y})) {
+				state.isActive = true;
+			}
+		},
+		mousemove: event => {
+			if (state.isActive) {
+				fade(event);
+			}
+		},
+		mouseup: () => {
+			if (state.isActive) {
+				state.isActive = false;
+			}
 		}
 	});
 
@@ -160,7 +162,5 @@ export default ({pos, width, height})=> {
 		},
 		emitter: new EventEmitter()
 	};
-	console.log(state.outer_rect);
-	console.log(state.inner_rect);
 	return assign(state.emitter, create_fader_view(state), create_fader_controller(state));
 }

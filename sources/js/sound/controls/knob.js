@@ -3,6 +3,7 @@ import Rect from 'maths/rect';
 import EventEmitter from 'events';
 import _clamp from 'lodash.clamp';
 import { completeAssign as assign } from 'common/utils';
+import bind_events from 'sound/controls/event-binder';
 
 const offset = 0;
 const curve_start = -Math.PI/2 + offset;
@@ -58,23 +59,23 @@ function create_knob_controller(state) {
 		state.angle = curve_length*value - Math.PI/2;
 	}
 
-	document.addEventListener('mousedown', event => {
-		const x = event.clientX - event.target.offsetLeft;
-		const y = event.clientY - event.target.offsetTop;
-		if (state.bbox.contains({x: x,y: y})) {
-			state.isActive = true;
-		}
-	});
-
-	document.addEventListener('mouseup', () => {
-		if (state.isActive) {
-			state.isActive = false;
-		}
-	});
-
-	document.addEventListener('mousemove', event => {
-		if (state.isActive) {
-			tweak(event);
+	bind_events({
+		mousemove: event => {
+			if (state.isActive) {
+				tweak(event);
+			}
+		},
+		mouseup: () => {
+			if (state.isActive) {
+				state.isActive = false;
+			}
+		},
+		mousedown: event => {
+			const x = event.clientX - event.target.offsetLeft;
+			const y = event.clientY - event.target.offsetTop;
+			if (state.bbox.contains({x: x,y: y})) {
+				state.isActive = true;
+			}
 		}
 	});
 
