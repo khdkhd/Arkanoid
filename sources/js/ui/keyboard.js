@@ -4,6 +4,21 @@ import EventEmitter from 'events';
 
 import {completeAssign} from 'common/utils';
 
+function create_keyboard_event_handler(name, handlers, emitter) {
+	const handle = cond(handlers
+		.filter(handler => !is_nil(handler[name]))
+		.map(handler => [key => key === handler.code, handler[name]])
+	);
+	return ev => {
+		const event_data = handle(ev.keyCode);
+		if (!is_nil(event_data)) {
+			emitter.emit(event_data.event, event_data.data);
+			ev.preventDefault();
+			ev.stopPropagation();
+		}
+	}
+}
+
 function create_key_handler({
 	code,
 	event,
@@ -29,58 +44,9 @@ function create_key_handler({
 				return invoke(on_keyup, arg);
 			}
 		}
-		: {keypressed(arg) {return invoke(on_keypressed, arg);}}
+		: {keypress(arg) {return invoke(on_keypressed, arg);}}
 	);
 	return Object.assign({code}, callbacks);
-}
-
-export const KeyHandler = create_key_handler;
-
-function keydown_handler(key_handlers, emitter) {
-	const handle = cond(
-		key_handlers
-			.filter(handler => !(is_nil(handler.keydown) || is_nil(handler.keyup)))
-			.map(handler => [key => key === handler.code, handler.keydown])
-		);
-	return ev => {
-		const event_data = handle(ev.keyCode);
-		if (!is_nil(event_data)) {
-			emitter.emit(event_data.event, event_data.data);
-			ev.preventDefault();
-			ev.stopPropagation();
-		}
-	};
-}
-
-function keyup_handler(key_handlers, emitter) {
-	const filtered = key_handlers
-		.filter(handler => !(is_nil(handler.keydown) || is_nil(handler.keyup)))
-		.map(handler => [key => key === handler.code, handler.keyup])
-	const handle = cond(filtered);
-	return ev => {
-		const event_data = handle(ev.keyCode);
-		if (!is_nil(event_data)) {
-			emitter.emit(event_data.event, event_data.data);
-			ev.preventDefault();
-			ev.stopPropagation();
-		}
-	}
-}
-
-function keypress_handler(key_handlers, emitter) {
-	const handle = cond(
-		key_handlers
-			.filter(handler => !is_nil(handler.keypressed))
-			.map(handler => [key => key === handler.code, handler.keypressed])
-	);
-	return ev => {
-		const event_data = handle(ev.keyCode);
-		if (!is_nil(event_data)) {
-			emitter.emit(event_data.event, event_data.data);
-			ev.preventDefault();
-			ev.stopPropagation();
-		}
-	}
 }
 
 const keys = {
@@ -130,26 +96,23 @@ const keys = {
 
 const emitter = new EventEmitter();
 const state = {
-	keydownEventHandler: null,
-	keydupEventHandler: null,
-	keypressEventHandler: null
+	keydown: null,
+	keyup: null,
+	keypress: null
 };
 
-export const keyboard = completeAssign(emitter, keys, {
-	use(handlers) {
-		document.removeEventListener('keydown', state.keydownEventHandler);
-		document.removeEventListener('keyup', state.keydupEventHandler);
-		document.removeEventListener('keypress', state.keypressEventHandler);
+export const KeyHandler = create_key_handler;
 
-		state.keydownEventHandler = keydown_handler(handlers, emitter);
-		state.keydupEventHandler = keyup_handler(handlers, emitter);
-		state.keypressEventHandler = keypress_handler(handlers, emitter);
-
-		document.addEventListener('keydown', state.keydownEventHandler);
-		document.addEventListener('keyup', state.keydupEventHandler);
-		document.addEventListener('keypress', state.keypressEventHandler);
-	},
-	createKeyHandler: KeyHandler
+export default completeAssign(emitter, keys, {
+	use(key_handlers) {
+		for (let [event, handler] of Object.entries(state)) {
+			if (!is_nil(handler)) {
+				document.removeEventListener(event, handler);
+			}
+			if (!is_nil(key_handlers)) {
+				state[event] = create_keyboard_event_handler(event, key_handlers, emitter);
+				document.addEventListener(event, state[event]);
+			}
+		}
+	}
 });
-
-export default keyboard;
