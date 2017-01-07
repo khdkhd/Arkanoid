@@ -3,7 +3,7 @@ import Rect from 'maths/rect';
 import EventEmitter from 'events';
 import _clamp from 'lodash.clamp';
 import { completeAssign as assign } from 'common/utils';
-import bind_events from 'sound/controls/event-binder';
+import ui from 'sound/controls/ui';
 
 const offset = 0;
 const curve_start = -Math.PI/2 + offset;
@@ -59,7 +59,7 @@ function create_knob_controller(state) {
 		state.angle = curve_length*value - Math.PI/2;
 	}
 
-	bind_events({
+	ui.bind_events({
 		mousemove: event => {
 			if (state.isActive) {
 				tweak(event);

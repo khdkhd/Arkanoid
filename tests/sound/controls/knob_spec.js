@@ -1,12 +1,13 @@
 import { expect } from 'chai';
-import create_fader from 'sound/controls/fader';
+import create_knob from 'sound/controls/knob';
 import document from '../test-assets/dom';
 import sinon from 'sinon';
+import times from 'lodash.times';
 
 const sandbox = sinon.sandbox.create();
 const context = {};
 
-describe('create_fader()', ()=> {
+describe('create_knob()', ()=> {
 
 	beforeEach(()=>{
 		global.document = document;
@@ -20,32 +21,32 @@ describe('create_fader()', ()=> {
 
 
 	it('returns an object', ()=>{
-		const fader = create_fader({pos:{x:0,y:0},height:100, width:10});
-		expect(fader).to.be.an.object;
+		const knob = create_knob({pos:{x:0,y:0},radius: 25});
+		expect(knob).to.be.an.object;
 	});
 
 	it('returns an object with a param property', ()=>{
-		const fader = create_fader({pos:{x:0,y:0},radius:10});
-		expect(fader).to.have.property('param');
+		const knob = create_knob({pos:{x:0,y:0},radius: 25});
+		expect(knob).to.have.property('param');
 	});
 
 	it('returns an object with a param property', ()=>{
-		const fader = create_fader({pos:{x:0,y:0},height:100, width:10});
-		expect(fader).to.have.property('param');
+		const knob = create_knob({pos:{x:0,y:0},radius: 25});
+		expect(knob).to.have.property('param');
 	});
 	it('suscribes to its parameter change event', () => {
-		const fader = create_fader({pos:{x:0,y:0},height:100, width:10});
-		fader.param = {
+		const knob = create_knob({pos:{x:0,y:0},radius: 25});
+		knob.param = {
 			set value(value) {},
 			get value() {},
 			on: sinon.spy()
 		};
-		expect(fader.param.on.called).to.be.true;
-		expect(fader.param.on.calledWith('change')).to.be.true;
+		expect(knob.param.on.called).to.be.true;
+		expect(knob.param.on.calledWith('change')).to.be.true;
 	});
 });
 
-describe('fader mousemove handling', ()=> {
+describe('knob mousemove handling', ()=> {
 
 	beforeEach(()=>{
 		global.document = document;
@@ -58,11 +59,11 @@ describe('fader mousemove handling', ()=> {
 	});
 
 	it('suscribes to change events on its parameter', () => {
-		const fader = create_fader({pos:{x:0,y:0},height:100, width:10});
+		const knob = create_knob({pos:{x:0,y:0},radius: 25});
 		const param_state = {
 			value: 0
 		};
-		fader.param = {
+		knob.param = {
 			set value(value){
 				param_state.value = value;
 			},
@@ -71,15 +72,15 @@ describe('fader mousemove handling', ()=> {
 			},
 			on: sandbox.spy()
 		};
-		expect(fader.param.on.calledWith('change')).to.be.true;
+		expect(knob.param.on.calledWith('change')).to.be.true;
 	});
 
 	it('affects parameter value', () => {
-		const fader = create_fader({pos:{x:0,y:0},height:100, width:10});
+		const knob = create_knob({pos:{x:0,y:0},radius: 25});
 		const param_state = {
 			value: 0
 		};
-		fader.param = {
+		knob.param = {
 			set value(value){
 				param_state.value = value;
 			},
@@ -93,19 +94,22 @@ describe('fader mousemove handling', ()=> {
 			clientX: 101,
 			clientY: 101
 		});
-		const mouse_move_event = new MouseEvent('mousemove',{movementY: 1});
-		mouse_move_event.movementY = -100;
 		context.canvas.dispatchEvent(mouse_down_event);
-		context.canvas.dispatchEvent(mouse_move_event);
-		expect(fader.param.value).to.equal(1);
+		times(100, () => {
+			const mouse_move_event = new MouseEvent('mousemove',{movementY: 1});
+			mouse_move_event.movementY = -1;
+			context.canvas.dispatchEvent(mouse_move_event);
+		});
+
+		expect(knob.param.value).to.equal(1);
 	});
 
 	it('does not affects parameter value', () => {
-		const fader = create_fader({pos:{x:0,y:0},height:100, width:10});
+		const knob = create_knob({pos:{x:0,y:0},radius: 25});
 		const param_state = {
 			value: 0
 		};
-		fader.param = {
+		knob.param = {
 			set value(value){
 				param_state.value = value;
 			},
@@ -120,9 +124,9 @@ describe('fader mousemove handling', ()=> {
 			clientY: 99
 		});
 		const mouse_move_event = new MouseEvent('mousemove',{movementY: 1});
-		mouse_move_event.movementY = -100;
+		mouse_move_event.movementY = 1000;
 		context.canvas.dispatchEvent(mouse_down_event);
 		context.canvas.dispatchEvent(mouse_move_event);
-		expect(fader.param.value).to.equal(0);
+		expect(knob.param.value).to.equal(0);
 	});
 });

@@ -4,7 +4,7 @@ import EventEmitter from 'events';
 import _clamp from 'lodash.clamp';
 import { completeAssign as assign } from 'common/utils';
 import { scale, unscale } from 'sound/common/utils';
-import bind_events from 'sound/controls/event-binder';
+import ui from 'sound/controls/ui';
 
 function create_fader_view(state){
 	function get_cursor_height(){
@@ -71,7 +71,7 @@ function create_fader_controller(state) {
 		state.cursor = scale({max: state.inner_rect.topLeft.y, min: state.inner_rect.bottomRight.y}, value);
 	}
 
-	bind_events({
+	ui.bind_events({
 		mousedown: event => {
 			const x = event.clientX - event.target.offsetLeft;
 			const y = event.clientY - event.target.offsetTop;
