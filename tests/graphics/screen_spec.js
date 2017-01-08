@@ -42,58 +42,47 @@ function createCanvasContextMock() {
 	});
 }
 
-describe('Screen(canvas_context)', () => {
+describe('graphics.Screen(canvas_context)', () => {
 	it('creates and return a new Screen object', () => {
 		const screen = Screen(createCanvasContextMock());
 		expect(screen).to.be.an('object');
 	});
 });
 
-describe('Screen', () => {
-	describe('width', () => {
+describe('graphics.Screen(canvas_context)', () => {
+	describe('#width', () => {
 		it('returns the width of the screen', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
 			expect(screen.width).to.equal(context.canvas.width);
 		});
-	});
-
-	describe('width = value', () => {
-		it('set the width of the screen', () => {
+		it('sets the width of the screen when affected a value', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
 			screen.width = 42;
 			expect(context.canvas.width).to.equal(42);
 		});
 	});
-
-	describe('height', () => {
+	describe('#height', () => {
 		it('returns the height of the screen', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
 			expect(screen.height).to.equal(context.canvas.height);
 		});
-	});
-
-	describe('height = value', () => {
-		it('set the height of the screen', () => {
+		it('sets the height of the screen when affected a value', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
 			screen.height = 42;
 			expect(context.canvas.height).to.equal(42);
 		});
 	});
-
-	describe('size', () => {
-		it('returns the size of the screen', () => {
+	describe('#size', () => {
+		it('returns a {width, height} object representing the size of the screen', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
 			expect(screen.size).to.deep.equal(context.canvas);
 		});
-	});
-
-	describe('size = {width, height}', () => {
-		it('sets the size of the screen', () => {
+		it('sets the size of the screen when affected a {width, height} object', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
 			screen.size = {
@@ -104,8 +93,7 @@ describe('Screen', () => {
 			expect(context.canvas.height).to.equal(42);
 		});
 	});
-
-	describe('rect', () => {
+	describe('#rect', () => {
 		it('returns the rect of the screen', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
@@ -116,8 +104,7 @@ describe('Screen', () => {
 			expect(r.height).to.equal(context.canvas.height);
 		});
 	});
-
-	describe('pen', () => {
+	describe('#pen', () => {
 		it('returns the screen current pen', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
@@ -125,24 +112,21 @@ describe('Screen', () => {
 			expect(pen.lineWidth).to.be.a('number');
 			expect(pen.strokeStyle).to.exist;
 		});
-	});
-
-	describe('pen = value', () => {
-		it('only sets the line width when a Number is affected', () => {
+		it('sets the line width when a Number is affected', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
 			screen.pen = 42;
 			expect(context.lineWidth).to.equal(42);
 			expect(context.strokeStyle).to.equal('black');
 		});
-		it('only sets the stroke style when a String is affected', () => {
+		it('sets the stroke style when a String is affected', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
 			screen.pen = 'red';
 			expect(context.lineWidth).to.equal(1);
 			expect(context.strokeStyle).to.equal('red');
 		});
-		it('sets the line width and stroke style of the context', () => {
+		it('sets the line width and stroke style when a {lineWidth, strokeStyle} object is affected', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
 			screen.pen = {
@@ -153,26 +137,21 @@ describe('Screen', () => {
 			expect(context.strokeStyle).to.equal('red');
 		});
 	});
-
-	describe('brush', () => {
+	describe('#brush', () => {
 		it('returns the current brush of the screen', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
 			const brush = screen.brush;
 			expect(brush.fillStyle).to.equal('white');
 		});
-	});
-
-	describe('brush = value', () => {
-		it('sets the fill style of the context', () => {
+		it('sets the fill style of the context when a String is affected', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
 			screen.brush = 'red';
 			expect(context.fillStyle).to.equal('red');
 		});
 	});
-
-	describe('clear()', () => {
+	describe('#clear()', () => {
 		it('calls fillRect once on the context', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
@@ -188,8 +167,7 @@ describe('Screen', () => {
 			expect(context.fillRect.calledWith(0, 0, width, height)).to.be.true;
 		})
 	});
-
-	describe('drawLine(p1, p2)', () => {
+	describe('#drawLine(p1, p2)', () => {
 		const p1 = {x: 0,   y: 0};
 		const p2 = {x: 100, y: 100};
 
@@ -242,8 +220,7 @@ describe('Screen', () => {
 			expect(context.lineTo.calledBefore(context.stroke)).to.be.true;
 		});
 	});
-
-	describe('drawRect(r)', () => {
+	describe('#drawRect(r)', () => {
 		const r = Rect({x: 0, y: 0}, {width: 1, height: 1});
 
 		it('calls beginPath once on context', () => {
@@ -308,8 +285,7 @@ describe('Screen', () => {
 			expect(context.closePath.calledBefore(context.stroke)).to.be.true;
 		});
 	});
-
-	describe('fillRect(r)', () => {
+	describe('#fillRect(r)', () => {
 		const r = Rect({x: 0, y: 0}, {width: 1, height: 1});
 
 		it('calls beginPath once on context', () => {
@@ -374,8 +350,7 @@ describe('Screen', () => {
 			expect(context.closePath.calledBefore(context.fill)).to.be.true;
 		});
 	});
-
-	describe('beginPath', () => {
+	describe('#beginPath', () => {
 		it('calls beginPath on context', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
@@ -383,8 +358,7 @@ describe('Screen', () => {
 			expect(context.beginPath.calledOnce).to.be.true;
 		});
 	});
-
-	describe('closePath', () => {
+	describe('#closePath', () => {
 		it('calls closePath on context', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
@@ -392,8 +366,7 @@ describe('Screen', () => {
 			expect(context.closePath.calledOnce).to.be.true;
 		});
 	});
-
-	describe('moveTo(p)', () => {
+	describe('#moveTo(p)', () => {
 		it('calls moveTo on context', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
@@ -407,8 +380,7 @@ describe('Screen', () => {
 			expect(context.moveTo.calledWith(0, 0)).to.be.true;
 		});
 	});
-
-	describe('lineTo(p)', () => {
+	describe('#lineTo(p)', () => {
 		it('calls lineTo on context', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
@@ -422,8 +394,7 @@ describe('Screen', () => {
 			expect(context.lineTo.calledWith(0, 0)).to.be.true;
 		});
 	});
-
-	describe('arc(p, radius, start_angle, end_angle, anticlockwise)', () => {
+	describe('#arc(p, radius, start_angle, end_angle, anticlockwise)', () => {
 		it('calls arc on context', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
@@ -439,8 +410,7 @@ describe('Screen', () => {
 			expect(context.arc.calledWith(0, 1, 2, 3, 4, true)).to.be.true;
 		});
 	});
-
-	describe('drawPath(path)', () => {
+	describe('#drawPath(path)', () => {
 		it('calls stroke on the context', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
@@ -461,8 +431,7 @@ describe('Screen', () => {
 			expect(context.stroke.calledWith(path)).to.be.true;
 		});
 	});
-
-	describe('fillPath(path)', () => {
+	describe('#fillPath(path)', () => {
 		it('calls fill on the context', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
@@ -483,8 +452,7 @@ describe('Screen', () => {
 			expect(context.fill.calledWith(path)).to.be.true;
 		});
 	});
-
-	describe('save()', () => {
+	describe('#save()', () => {
 		it('calls save once on the context', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
@@ -493,8 +461,7 @@ describe('Screen', () => {
 			expect(context.save.thisValues[0]).to.equal(context);
 		});
 	});
-
-	describe('restore()', () => {
+	describe('#restore()', () => {
 		it('calls restore once on the context', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
@@ -503,8 +470,7 @@ describe('Screen', () => {
 			expect(context.restore.thisValues[0]).to.equal(context);
 		});
 	});
-
-	describe('scale(f)', () => {
+	describe('#scale(f)', () => {
 		it('calls scale once on context', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
@@ -518,8 +484,7 @@ describe('Screen', () => {
 			expect(context.scale.calledWith(1, 1)).to.be.true;
 		});
 	});
-
-	describe('scale({x, y})', () => {
+	describe('#scale({x, y})', () => {
 		it('calls scale once on context', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
@@ -533,8 +498,7 @@ describe('Screen', () => {
 			expect(context.scale.calledWith(1, 2)).to.be.true;
 		});
 	});
-
-	describe('translate({x, y})', () => {
+	describe('#translate({x, y})', () => {
 		it('calls translate once on context', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
@@ -548,8 +512,7 @@ describe('Screen', () => {
 			expect(context.translate.calledWith(1, 2)).to.be.true;
 		});
 	});
-
-	describe('rotate(angle)', () => {
+	describe('#rotate(angle)', () => {
 		it('calls rotate once on context', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
@@ -563,8 +526,7 @@ describe('Screen', () => {
 			expect(context.rotate.calledWith(1)).to.be.true;
 		});
 	});
-
-	describe('createLinearGradient(p1, p2, stops)', () => {
+	describe('#createLinearGradient(p1, p2, stops)', () => {
 		it('calls createLinearGradient once on context', () => {
 			const context = createCanvasContextMock();
 			const screen = Screen(context);
@@ -572,5 +534,4 @@ describe('Screen', () => {
 			expect(context.createLinearGradient.calledOnce).to.be.true;
 		});
 	});
-
 });
