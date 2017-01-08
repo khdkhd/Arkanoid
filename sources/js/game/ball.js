@@ -5,7 +5,6 @@ import VerletModel from 'physics/verlet-model';
 import SceneObject from 'graphics/scene-object';
 import {EventEmitter} from 'events';
 
-
 const radius = .3;
 
 function BallController({verlet}) {
@@ -24,7 +23,6 @@ function BallController({verlet}) {
 }
 
 function BallView(state) {
-
 	return SceneObject({
 		emitter: state.emitter,
 		onRender(screen) {
