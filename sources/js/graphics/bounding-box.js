@@ -1,15 +1,15 @@
 import Rect from 'maths/rect';
 import Vector from 'maths/vector';
 
-export default function BoundingBox({position, size, alignCenterToOrigin = false}) {
-	const origin = alignCenterToOrigin
-		? pos => pos.add({x: -size.width/2, y: -size.height/2})
+export default function BoundingBox(state) {
+	const origin = state.alignCenterToOrigin
+		? pos => pos.add({x: -state.size.width/2, y: -state.size.height/2})
 		: pos => pos;
-	const relative_bbox = Rect(origin(Vector.Null), size);
+	const relative_bbox = Rect(origin(Vector.Null), state.size);
 	return {
 		boundingBox: {
 			get absolute() {
-				return Rect(origin(position), size);
+				return Rect(origin(state.position), state.size);
 			},
 			get relative() {
 				return relative_bbox;
