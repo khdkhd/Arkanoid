@@ -20,19 +20,34 @@ describe('bind_events()', ()=> {
 		sandbox.restore();
 	});
 
-	it('attaches calls addEventListener on the canvas element', () => {
+	it('calls addEventListener on the canvas element', () => {
 		ui.bind_events({
 			mousedown: () => {}
 		});
 		expect(context.canvas.addEventListener.calledOnce).to.be.true;
 	});
 
-	it('attaches a mousedown event listener on the canvas element', () => {
+	it('subscribes to mousedown events on the canvas element', () => {
 		ui.bind_events({
 			mousedown: () => {}
 		});
 		expect(context.canvas.addEventListener.calledWith('mousedown')).to.be.true;
 	});
+
+	it('subscribes to mouseup events on the canvas element', () => {
+		ui.bind_events({
+			mouseup: () => {}
+		});
+		expect(context.canvas.addEventListener.calledWith('mouseup')).to.be.true;
+	});
+
+	it('subscribes to mousemove events on the canvas element', () => {
+		ui.bind_events({
+			mousemove: () => {}
+		});
+		expect(context.canvas.addEventListener.calledWith('mousemove')).to.be.true;
+	});
+
 
 	it('resets mousedown event listener on the canvas element', () => {
 		const event_binder = ui.bind_events();

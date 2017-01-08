@@ -45,12 +45,11 @@ describe('create_fader()', ()=> {
 	});
 });
 
-describe('fader mousemove handling', ()=> {
+describe('set parameter', () => {
 
 	beforeEach(()=>{
 		global.document = document;
 		context.canvas = document.getElementById('screen');
-		global.MouseEvent = document.defaultView.MouseEvent;
 	});
 
 	afterEach(()=> {
@@ -73,6 +72,20 @@ describe('fader mousemove handling', ()=> {
 		};
 		expect(fader.param.on.calledWith('change')).to.be.true;
 	});
+});
+
+describe('fader mousemove handling', ()=> {
+
+	beforeEach(()=>{
+		global.document = document;
+		context.canvas = document.getElementById('screen');
+		global.MouseEvent = document.defaultView.MouseEvent;
+	});
+
+	afterEach(()=> {
+		sandbox.restore();
+	});
+
 
 	it('affects parameter value', () => {
 		const fader = create_fader({pos:{x:0,y:0},height:100, width:10});

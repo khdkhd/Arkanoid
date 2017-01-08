@@ -46,12 +46,11 @@ describe('create_knob()', ()=> {
 	});
 });
 
-describe('knob mousemove handling', ()=> {
+describe('set parameter', () => {
 
 	beforeEach(()=>{
 		global.document = document;
 		context.canvas = document.getElementById('screen');
-		global.MouseEvent = document.defaultView.MouseEvent;
 	});
 
 	afterEach(()=> {
@@ -73,6 +72,19 @@ describe('knob mousemove handling', ()=> {
 			on: sandbox.spy()
 		};
 		expect(knob.param.on.calledWith('change')).to.be.true;
+	});
+});
+
+describe('knob mousemove handling', ()=> {
+
+	beforeEach(()=>{
+		global.document = document;
+		context.canvas = document.getElementById('screen');
+		global.MouseEvent = document.defaultView.MouseEvent;
+	});
+
+	afterEach(()=> {
+		sandbox.restore();
 	});
 
 	it('affects parameter value', () => {
