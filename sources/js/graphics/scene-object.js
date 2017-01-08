@@ -1,8 +1,6 @@
 import is_nil from 'lodash.isnil';
 
-
 export default ({emitter, onRender}) => {
-
 	if(is_nil(emitter)){
 		throw new TypeError('Scene objects must contain an emitter');
 	}
@@ -21,7 +19,6 @@ export default ({emitter, onRender}) => {
 		get zIndex(){
 			return state.zIndex;
 		},
-
 		toggleRender(enabled){
 			if(is_nil(enabled)){
 				state.renderEnabled = !state.renderEnabled;
