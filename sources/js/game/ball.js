@@ -43,9 +43,10 @@ function BallView(state) {
 function BallBoundingBox(state) {
 	return BoundingBox(completeAssign(
 		{},
+		{alignCenterToOrigin: true},
 		{size: state.size},
 		state.verlet
-	), true);
+	));
 }
 
 function Ball({x, y}) {
