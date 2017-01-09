@@ -28,5 +28,9 @@ describe('create_vco', () => {
 		expect(vco).to.have.property('type');
 	});
 
+	it('returns an object with a connect method', () => {
+		const vco = create_vco(context.audio_context);
+		expect(vco.connect).to.be.function;
+	});
 
 });

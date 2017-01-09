@@ -52,12 +52,90 @@ describe('create_enveloppe_generator', () => {
 });
 
 describe('enveloppe_generator.voiceOn()', () => {
+
+
+	beforeEach(() =>{
+		context.audio_context = create_audio_context(context.sandbox);
+	});
+
+	afterEach(() => {
+		context.sandbox.restore();
+	});
+
 	it('calls cancelScheduledValues once on its  attached parameter with time as a parameter', () => {
 		const enveloppe = create_enveloppe_generator();
 		const gain = context.audio_context.createGain();
+		const time = 1;
+		enveloppe.connect({param: gain.gain});
+		enveloppe.gateOn(time);
+		expect(gain.gain.cancelScheduledValues.calledOnce).to.be.true;
+		expect(gain.gain.cancelScheduledValues.calledWith(time)).to.be.true;
+	});
+	it('calls setValueAtTime(0, time) once on its  attached parameter', () => {
+		const enveloppe = create_enveloppe_generator();
+		const gain = context.audio_context.createGain();
+		const time = 1;
+		enveloppe.connect({param: gain.gain});
+		enveloppe.gateOn(time);
+		expect(gain.gain.setValueAtTime.calledOnce).to.be.true;
+		expect(gain.gain.setValueAtTime.calledWith(0,time)).to.be.true;
+	});
+	it('calls linearRampToValueAtTime(1, time + enveloppe.attack) on its  attached parameter', () => {
+		const enveloppe = create_enveloppe_generator();
+		const gain = context.audio_context.createGain();
+		const time = 1;
 		enveloppe.connect({param: gain.gain});
 		enveloppe.gateOn(1);
+		expect(gain.gain.linearRampToValueAtTime.called).to.be.true;
+		expect(gain.gain.linearRampToValueAtTime.calledWith(1,time + enveloppe.attack.value)).to.be.true;
+	});
+	it('calls linearRampToValueAtTime(enveloppe.sustain, time + enveloppe.attack + enveloppe.decay) on its  attached parameter', () => {
+		const enveloppe = create_enveloppe_generator();
+		const gain = context.audio_context.createGain();
+		const time = 1;
+		enveloppe.connect({param: gain.gain});
+		enveloppe.gateOn(1);
+		expect(gain.gain.linearRampToValueAtTime.called).to.be.true;
+		expect(gain.gain.linearRampToValueAtTime.calledWith(enveloppe.sustain.value,time + enveloppe.attack.value + enveloppe.decay.value)).to.be.true;
+	});
+});
+
+describe('enveloppe_generator.voiceOff()', () => {
+
+
+	beforeEach(() =>{
+		context.audio_context = create_audio_context(context.sandbox);
+	});
+
+	afterEach(() => {
+		context.sandbox.restore();
+	});
+
+	it('calls cancelScheduledValues(time) once on its  attached parameter', () => {
+		const enveloppe = create_enveloppe_generator();
+		const gain = context.audio_context.createGain();
+		const time = 1;
+		enveloppe.connect({param: gain.gain});
+		enveloppe.gateOff(time);
 		expect(gain.gain.cancelScheduledValues.calledOnce).to.be.true;
-		expect(gain.gain.cancelScheduledValues.calledWith(1)).to.be.true;
+		expect(gain.gain.cancelScheduledValues.calledWith(time)).to.be.true;
+	});
+	it('calls setValueAtTime(param.value, time) once on its  attached parameter', () => {
+		const enveloppe = create_enveloppe_generator();
+		const gain = context.audio_context.createGain();
+		const time = 1;
+		enveloppe.connect({param: gain.gain});
+		enveloppe.gateOff(time);
+		expect(gain.gain.setValueAtTime.calledOnce).to.be.true;
+		expect(gain.gain.setValueAtTime.calledWith(gain.gain.value,time)).to.be.true;
+	});
+	it('calls linearRampToValueAtTime(0, time + enveloppe.release) on its  attached parameter', () => {
+		const enveloppe = create_enveloppe_generator();
+		const gain = context.audio_context.createGain();
+		const time = 1;
+		enveloppe.connect({param: gain.gain});
+		enveloppe.gateOff(1);
+		expect(gain.gain.linearRampToValueAtTime.calledOnce).to.be.true;
+		expect(gain.gain.linearRampToValueAtTime.calledWith(0, time + enveloppe.release.value)).to.be.true;
 	});
 });

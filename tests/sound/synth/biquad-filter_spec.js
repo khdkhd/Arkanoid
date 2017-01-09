@@ -27,14 +27,35 @@ describe('create_biquad_filter', () => {
 		expect(context.audio_context.createBiquadFilter.calledOnce).to.be.true;
 	});
 
+	it('returns an object with a frequency property', () => {
+		const biquad_filter = create_biquad_filter(context.audio_context);
+		expect(biquad_filter).to.have.property('frequency');
+	});
+
+	it('returns an object with a frequency property which implements a connect method', () => {
+		const biquad_filter = create_biquad_filter(context.audio_context);
+		expect(biquad_filter.frequency.connect).to.be.function;
+	});
+
 	it('returns an object with a gain property', () => {
 		const biquad_filter = create_biquad_filter(context.audio_context);
 		expect(biquad_filter).to.have.property('gain');
 	});
 
+	it('returns an object with a gain property which implements a connect method', () => {
+		const biquad_filter = create_biquad_filter(context.audio_context);
+		expect(biquad_filter.gain.connect).to.be.function;
+	});
+
+
 	it('returns an object with a Q property', () => {
 		const biquad_filter = create_biquad_filter(context.audio_context);
 		expect(biquad_filter).to.have.property('Q');
+	});
+
+	it('returns an object with a Q property which implements a connect method', () => {
+		const biquad_filter = create_biquad_filter(context.audio_context);
+		expect(biquad_filter.Q.connect).to.be.function;
 	});
 
 	it('returns an object with a type property', () => {

@@ -12,7 +12,8 @@ function create_vca(state) {
 		},
 		get value(){
 			return vca.gain.value;
-		}	,setValueAtTime(value, time) {
+		},
+		setValueAtTime(value, time) {
 			vca.gain.setValueAtTime(value, time)
 		},
 		linearRampToValueAtTime(value, time) {

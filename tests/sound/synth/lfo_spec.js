@@ -37,6 +37,11 @@ describe('create_lfo', () => {
 		expect(lfo).to.have.property('gain');
 	});
 
+	it('returns an object with a connect method', () => {
+		const lfo = create_lfo(context.audio_context);
+		expect(lfo.connect).to.be.function;
+	});
+
 	it('calls createOscillator once on the AudioContext', () => {
 		create_lfo(context.audio_context);
 		expect(context.audio_context.createOscillator.calledOnce).to.be.true;
@@ -59,7 +64,7 @@ describe('lfo.connect()', () => {
 		expect(osc.connect.calledOnce).to.be.true;
 	});
 
-	it('calls start once on its internal oscillator node', () => {
+	it('calls start once on its oscillator node', () => {
 		const lfo = create_lfo(context.audio_context);
 		const osc = context.audio_context.oscillators.pop();
 		const filter = context.audio_context.createBiquadFilter();
@@ -67,7 +72,7 @@ describe('lfo.connect()', () => {
 		expect(osc.start.calledOnce).to.be.true;
 	});
 
-	it('calls connect once on its internal gain node', () => {
+	it('calls connect once on its gain node', () => {
 		const lfo = create_lfo(context.audio_context);
 		const gain = context.audio_context.gains.pop();
 		const filter = context.audio_context.createBiquadFilter();

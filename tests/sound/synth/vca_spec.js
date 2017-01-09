@@ -27,9 +27,20 @@ describe('create_vca', () => {
 		expect(vca).to.have.property('input');
 	});
 
-	it('returns an object with a frequency property', () => {
+	it('returns an object with a gain property', () => {
 		const vca = create_vca(context.audio_context);
 		expect(vca).to.have.property('gain');
 	});
+
+	it('returns an object with an input property', () => {
+		const vca = create_vca(context.audio_context);
+		expect(vca).to.have.property('input');
+	});
+
+	it('returns an object with a connect method', () => {
+		const vca = create_vca(context.audio_context);
+		expect(vca.connect).to.be.function;
+	});
+
 
 });
