@@ -14,9 +14,13 @@ function SceneController(state) {
 			remove(state.children, child);
 			state.children.push(child);
 			state.children.sort((a, b) => a.zIndex - b.zIndex);
+			if (child.scene !== this) {
+				child.scene = this;
+			}
 		},
 		remove(child) {
 			remove(state.children, child);
+			child.scene = null;
 			return this;
 		}
 	};
@@ -26,7 +30,8 @@ function SceneRenderer(state) {
 	const {boundingBox} = BoundingBox(state);
 	return {
 		boundingBox,
-		render(screen) {
+		render() {
+			const screen = state.screen;
 			const rect = boundingBox.relative;
 			screen.save();
 
@@ -38,7 +43,7 @@ function SceneRenderer(state) {
 			screen.fillRect(rect);
 
 			for (let child of state.children) {
-				child.render(screen);
+				child.render();
 			}
 
 			screen.restore();

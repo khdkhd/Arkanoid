@@ -3,8 +3,9 @@ import BoundingBox from 'graphics/bounding-box';
 import Vector from 'maths/vector';
 import Rect from 'maths/rect';
 import VerletModel from 'physics/verlet-model';
-import {EventEmitter} from 'events';
 import SceneObject from 'graphics/scene-object';
+
+import is_nil from 'lodash.isnil';
 
 const blue_box = new Path2D(`
 	M ${0/16} ${ 6/16}
@@ -96,10 +97,12 @@ function VausBoundingBox(state) {
 }
 
 function VausView(state) {
-
 	return SceneObject({
-		emitter: state.emitter,
-		onRender(screen) {
+		onSceneChanged(scene) {
+			state.scene = scene;
+		},
+		onRender(scene) {
+			const {screen} = scene;
 			const pad_size = state.size.padSize;
 			const brushes = {
 				blue: blue_brush(screen),
@@ -110,7 +113,7 @@ function VausView(state) {
 
 			screen.translate(state.verlet.position);
 
-			screen.pen = 1/16; // TODO get scale as a parameter ?
+			screen.pen = 1/scene.scale;
 
 			screen.brush = brushes.blue;
 			screen.fillPath(blue_box);
@@ -148,35 +151,43 @@ function VausView(state) {
 
 function VausController(state) {
 	const verlet = state.verlet;
-	const thrust = () => 1/16; // TODO get scale as a parameter ?
-	const max_speed = () => 8/16;
 
 	let acceleration = Vector.Null;
 	let moving = false;
 
 	return {
 		move(direction) {
-			moving = !direction.isNull();
-			if (moving) {
-				acceleration = direction.mul(thrust());
-			} else if (verlet.velocity.scalar(acceleration) > 0) {
-				acceleration = acceleration.opposite;
+			const scene = state.scene;
+			if (!is_nil(scene)) {
+				const thrust = 1/scene.scale;
+				moving = !direction.isNull();
+				if (moving) {
+					acceleration = direction.mul(thrust);
+				} else if (verlet.velocity.scalar(acceleration) > 0) {
+					acceleration = acceleration.opposite;
+				}
 			}
 		},
 		update() {
-			const velocity = verlet.velocity.add(acceleration);
-			const scalar = velocity.scalar(acceleration);
-			const speed = Math.abs(velocity.x); // equivalent to velocity.norm
+			const scene = state.scene;
+			if (!is_nil(scene)) {
+				const velocity = verlet.velocity.add(acceleration);
+				const scalar = velocity.scalar(acceleration);
+				const speed = Math.abs(velocity.x); // equivalent to velocity.norm
 
-			if (!moving && speed <= thrust()) {
-				verlet.velocity = Vector.Null;
-			} else if (moving && scalar >= 0 && Math.abs(speed - max_speed()) <= thrust()) {
-				verlet.velocity = Vector({x: Math.sign(acceleration.x)*max_speed(), y: 0});
-			} else {
-				verlet.velocity = velocity;
+				const thrust = 1/scene.scale;
+				const max_speed = 8/scene.scale;
+
+				if (!moving && speed <= thrust) {
+					verlet.velocity = Vector.Null;
+				} else if (moving && scalar >= 0 && Math.abs(speed - max_speed) <= thrust) {
+					verlet.velocity = Vector({x: Math.sign(acceleration.x)*max_speed, y: 0});
+				} else {
+					verlet.velocity = velocity;
+				}
+
+				verlet.position = verlet.position.add(verlet.velocity);
 			}
-
-			verlet.position = verlet.position.add(verlet.velocity);
 		}
 	};
 }
@@ -192,7 +203,6 @@ export default function Vaus({x, y}) {
 	};
 	const boundingBox = VausBoundingBox({size, verlet});
 	const state = completeAssign(boundingBox, {
-		emitter: new EventEmitter(),
 		verlet,
 		size
 	});
