@@ -30,10 +30,9 @@ export default function createSynth(audio_context) {
 						});
 					}
 				});
-				if(node.type === 'generator'){
+				if(node.voice){
 					signal_generators.push(mods[node.id]);
 				}
-				// console.log(mods);
 				return mods;
 			}, {});
 			for(let con of patch.connexions){

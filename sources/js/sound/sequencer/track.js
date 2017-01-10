@@ -1,4 +1,5 @@
 import Note from 'sound/sequencer/note';
+import is_nil from 'lodash.isnil';
 
 function get_col(grid, col){
 	return grid.map(row => row[col]);
@@ -15,8 +16,11 @@ function create_track(state){
 	}
 
 	function playNote({note, octave, time, duration}){
+		if(is_nil(state.slave)){
+			return;
+		}
 		state.slave.noteOn(note, octave, time);
-		state.slave.noteOff(note, octave, time + duration * state.grid.length);
+		state.slave.noteOff(note, octave, time + duration * 60 / state.tempo);
 	}
 
 	return {
@@ -40,11 +44,11 @@ function create_track(state){
 
 }
 
-export default slave => {
-	const state = {
-		slave: slave,
+export default state => {
+	const _state = Object.assign({}, state, {
+		slave: null,
 		pos: 0,
 		grid: [[{}]]
-	};
-	return create_track(state);
+	});
+	return create_track(_state);
 }

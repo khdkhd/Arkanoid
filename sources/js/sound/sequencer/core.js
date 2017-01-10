@@ -1,4 +1,4 @@
-import Track from 'sound/sequencer/track';
+import create_track from 'sound/sequencer/track';
 
 function create_sequencer(state) {
 
@@ -13,7 +13,9 @@ function create_sequencer(state) {
 		play(){
 			const current_time = state.audio_context.currentTime - state.start_time;
 			if(current_time >= state.time){
-				state.tracks.forEach(track => track.schedule(current_time));
+				for(let track of Object.values(state.tracks)){
+					track.schedule(current_time);
+				}
 				state.time += tick();
 			}
 		},
@@ -21,6 +23,10 @@ function create_sequencer(state) {
 			state.tempo = value;
 		},
 		assign(track_id, slave){
+			console.log('assign', track_id, 'to', slave);
+			if(!state.tracks.hasOwnProperty(track_id)){
+				state.tracks[track_id] = create_track(state);
+			}
 			state.tracks[track_id].assign(slave);
 		},
 		get tracks(){
@@ -32,7 +38,7 @@ function create_sequencer(state) {
 export default (audio_context) => {
 	const state = {
 		audio_context: audio_context,
-		tracks: [Track()],
+		tracks: {},
 		precision: 4,
 		tempo: 120,
 		time: 0,

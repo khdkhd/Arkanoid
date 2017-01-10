@@ -1,8 +1,8 @@
 const DURATIONS = {
-	DURATION_WHOLE	: 1,
-	DURATION_HALF 	: 1/2,
-	DURATION_QUARTER: 1/4,
-	DURATION_EIGHTH : 1/8
+	WHOLE	: 1,
+	HALF 	: 1/2,
+	QUARTER: 1/4,
+	EIGHTH : 1/8
 };
 
 function create_note({note, octave, duration}){
