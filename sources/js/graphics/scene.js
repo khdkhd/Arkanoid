@@ -16,17 +16,14 @@ function SceneController(state) {
 			state.children.sort((a, b) => a.zIndex - b.zIndex);
 		},
 		remove(child) {
-			state.children.delete(child);
+			remove(state.children, child);
 			return this;
 		}
 	};
 }
 
 function SceneRenderer(state) {
-
 	const {boundingBox} = BoundingBox(state);
-
-
 	return {
 		boundingBox,
 		render(screen) {

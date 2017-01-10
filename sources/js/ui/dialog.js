@@ -53,7 +53,7 @@ function dialog_init_content(parent, content) {
 	const content_wrapper = document.createElement('div');
 	content_wrapper.className = 'content-wrapper';
 	if (is_string(content)) {
-		parent.innerHTML = content;
+		content_wrapper.innerHTML = content;
 	} else {
 		content_wrapper.appendChild(content);
 	}
