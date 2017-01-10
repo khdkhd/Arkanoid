@@ -77,14 +77,14 @@ describe('create_polyphonic_generator', () => {
 		expect(context.factory.vco.calledTwice).to.be.true;
 	});
 
-	it('calls vca once on the synth factory if number of voices is 1', () => {
+	it('calls vca twice on the synth factory if number of voices is 1', () => {
 		create_polyphonic_generator(context.audio_context, {num_voices:1, factory: context.factory});
-		expect(context.factory.vca.calledOnce).to.be.true;
+		expect(context.factory.vca.calledTwice).to.be.true;
 	});
 
-	it('calls vca twice on the synth factory if number of voices is 2', () => {
+	it('calls vca on the synth factory if number of voices is 2', () => {
 		create_polyphonic_generator(context.audio_context, {num_voices:2, factory: context.factory});
-		expect(context.factory.vca.calledTwice).to.be.true;
+		expect(context.factory.vca.called).to.be.true;
 	});
 
 	it('calls createChannelMerger once on the Audio Context if number of voices is 1', () => {

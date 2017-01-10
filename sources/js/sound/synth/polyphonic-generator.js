@@ -9,6 +9,7 @@ function create_polyphonic_generator(state) {
 	const vcas = times(state.num_voices, () => state.factory['vca'](state.audio_context));
 	const enveloppes = times(state.num_voices, () => state.factory['enveloppe_generator']());
 	const channel_merger = state.audio_context.createChannelMerger(state.num_voices);
+	const main_vca = state.factory['vca'](state.audio_context);
 	const polyphony_manager = state.factory.polyphony_manager({num_voices: state.num_voices});
 
 	const type = assign(new EventEmitter(), {
@@ -23,11 +24,11 @@ function create_polyphonic_generator(state) {
 
 	const gain = assign(new EventEmitter(), {
 		set value(value){
-			vcas.forEach(vca => vca.gain.value = value);
+			main_vca.gain.value = value;
 			this.emit('change', value);
 		},
 		get value(){
-			return vcas[0].gain.value;
+			return main_vca.gain.value;
 		}
 	});
 
@@ -78,7 +79,8 @@ function create_polyphonic_generator(state) {
 				vcas[i].connect({input: channel_merger});
 				enveloppes[i].connect({param:vcas[i].gain});
 			});
-			channel_merger.connect(input);
+			channel_merger.connect(main_vca.input);
+			main_vca.connect({input});
 		},
 		voiceOn(freq, time) {
 			const voice = polyphony_manager.assign(freq);
