@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import create_fader from 'sound/controls/fader';
-import document from '../test-assets/dom';
+import document from 'tests/sound/test-assets/dom';
 import sinon from 'sinon';
 
 const sandbox = sinon.sandbox.create();

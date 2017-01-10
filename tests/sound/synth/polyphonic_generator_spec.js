@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import create_polyphonic_generator from 'sound/synth/polyphonic-generator';
-import create_audio_context from '../test-assets/audio-context_mock';
-import create_synth_factory from '../test-assets/synth-factory_mock';
+import create_audio_context from 'tests/sound/test-assets/audio-context_mock';
+import create_synth_factory from 'tests/sound/test-assets/synth-factory_mock';
 import create_polyphony_manager from 'sound/synth/polyphony-manager';
 import sinon from 'sinon';
 
