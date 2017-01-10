@@ -85,7 +85,7 @@ const bricks_state = {
 			top: 'hsl(61, 100%, 82%)'
 		}
 	}),
-	'gray': (level) => ({
+	'gray': level => ({
 		hits: 2 + Math.round(level/8),
 		points: 50*level,
 		colors: {
@@ -131,8 +131,9 @@ function BrickController(state) {
 
 function BrickView(state) {
 	return SceneObject({
-		emitter: state.emitter,
-		onRender(screen) {
+		onRender(scene) {
+			const {screen} = scene;
+
 			screen.translate(state.verlet.position);
 
 			screen.brush = 'black';

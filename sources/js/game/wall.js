@@ -1,5 +1,4 @@
 import Vector from 'maths/vector';
-import {EventEmitter} from 'events';
 import SceneObject from 'graphics/scene-object';
 
 function WallBrush(start, stop, screen) {
@@ -17,8 +16,8 @@ function WallBrush(start, stop, screen) {
 
 function Wall(state) {
 	return SceneObject({
-		emitter: new EventEmitter(),
-		onRender(screen) {
+		onRender(scene) {
+			const {screen} = scene;
 			const brush = WallBrush(state.gradientStart, state.gradientStop, screen);
 			screen.save();
 			screen.translate(state.position);
