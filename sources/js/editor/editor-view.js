@@ -48,8 +48,11 @@ const rows = screen.height/scale;
 
 const scene = Scene(screen, screen.rect.scale(1/scale), scale, editor_bg_color);
 
-Grid(columns,   rows,   1, editor_grid1_color, scene);
-Grid(columns/2, rows/2, 2, editor_grid2_color, scene);
+scene.add(
+	Grid(columns,   rows,   1, editor_grid1_color),
+	Grid(columns/2, rows/2, 2, editor_grid2_color)
+);
+
 ((rows, cols) => {
 	for (let y = 1; y < rows; ++y) {
 		VerticalLeftWall({x: 0, y}, scene);
@@ -65,7 +68,7 @@ Grid(columns/2, rows/2, 2, editor_grid2_color, scene);
 })(rows, columns - 1);
 
 function render() {
-	scene.render();
+	scene.render(screen);
 }
 
 function event_coordinate(ev) {

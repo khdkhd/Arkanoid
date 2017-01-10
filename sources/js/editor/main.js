@@ -39,7 +39,9 @@ editorView.on('click', position => {
 	const color = palette.color;
 
 	if (palette.mode === 'add' && !overlap(position)) {
-		bricks.push(Brick(position, color, 1, scene));
+		const brick = Brick(position, color, 1);
+		bricks.push(brick);
+		scene.add(brick)
 	} else {
 		const match = over_some(
 			match_position(position),
