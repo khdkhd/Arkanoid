@@ -1,24 +1,15 @@
 import synthFactory from 'sound/synth/factory';
 import controlFactory from 'sound/controls/factory';
 import is_nil from 'lodash.isnil';
+import {get_frequency_of_note } from 'sound/common/utils';
 
-function get_frequency_of_note(note, octave) {
-	const notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
-	let key_index = notes.indexOf(note);
-	key_index = key_index + ((octave - 1) * 12) + 1;
-	return 440 * Math.pow(2, (key_index - 49) / 12);
-}
-
-export default function createSynth(audio_context) {
-	const signal_generators = [];
-	let mods = [];
-	const views = [];
+function create_synth(state) {
 	return {
 		patch(patch) {
-			mods = patch.nodes.reduce((mods, node)=> {
+			state.mods = patch.nodes.reduce((mods, node)=> {
 				const options = Object.assign({}, node.options)
 				options.factory = synthFactory;
-				mods[node.id] = synthFactory[node.factory](audio_context, options);
+				mods[node.id] = synthFactory[node.factory](state.audio_context, options);
 				const config = node.config;
 				Object.keys(config).forEach(param => {
 					mods[node.id][param].value = config[param].value;
@@ -26,33 +17,51 @@ export default function createSynth(audio_context) {
 						config[param].views.forEach(view_def =>{
 							const view = controlFactory[view_def.factory](view_def.options);
 							view.param = mods[node.id][param];
-							views.push(view);
+							state.views.push(view);
 						});
 					}
 				});
 				if(node.voice){
-					signal_generators.push(mods[node.id]);
+					state.voices.push(mods[node.id]);
+				}
+				if(node.output){
+					state.output = mods[node.id];
 				}
 				return mods;
 			}, {});
 			for(let con of patch.connexions){
-				mods[con[0]].connect(mods[con[1]]);
+				state.mods[con[0]].connect(state.mods[con[1]]);
 			}
 		},
 		noteOn(note, octave, time) {
-			signal_generators.forEach(function(generator){
+			state.voices.forEach(function(generator){
 				generator.voiceOn(get_frequency_of_note(note, octave), time);
 			});
 		},
 		noteOff(note, octave, time){
-			signal_generators.forEach(function(generator){
+			state.voices.forEach(function(generator){
 				generator.voiceOff(get_frequency_of_note(note, octave), time);
 			});
+		},
+		connect({input}){
+			state.output.connect(input);
 		},
 		render(screen){
 			screen.brush = '#123';
 			screen.clear();
-			views.forEach(view => view.render(screen));
+			state.views.forEach(view => view.render(screen));
 		}
 	};
+}
+
+export default audio_context  => {
+	const state ={
+		audio_context: audio_context,
+		output: null,
+		voices: [],
+		mods: [],
+		views: [],
+		renderEnabled: renderEnabled
+	}
+	return create_synth(state);
 }
