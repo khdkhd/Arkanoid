@@ -23,7 +23,6 @@ function create_sequencer(state) {
 			state.tempo = value;
 		},
 		assign(track_id, slave){
-			console.log('assign', track_id, 'to', slave);
 			if(!state.tracks.hasOwnProperty(track_id)){
 				state.tracks[track_id] = create_track(state);
 			}
