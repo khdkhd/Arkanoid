@@ -1,6 +1,6 @@
 {
   "name": "arkanoid",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Arkanoid in javascript",
   "scripts": {
     "build": "$PWD/tools/scripts/build.sh",
