@@ -1,21 +1,37 @@
 import is_nil from 'lodash.isnil';
+import noop from 'lodash.noop';
 
-export default ({emitter, onRender, zIndex = 0}) => {
-	if(is_nil(emitter)){
-		throw new TypeError('Scene objects must contain an emitter');
-	}
-
+export default ({onRender, onSceneChanged = noop, zIndex = 0}) => {
 	const state = Object.assign({
 		renderEnabled: true
-	}, {emitter, onRender, zIndex});
+	}, {scene: null, onRender, zIndex});
 
 	return {
-		set zIndex(value){
-			state.zIndex = value;
-			state.emitter.emit('zindex-changed', state.zIndex);
+		set zIndex(value) {
+			if (state.zIndex !== value) {
+				state.zIndex = value;
+				if (!is_nil(state.scene)) {
+					// make the scene to sort its children
+					state.scene.add(this);
+				}
+			}
 		},
-		get zIndex(){
+		get zIndex() {
 			return state.zIndex;
+		},
+		set scene(scene) {
+			if (!is_nil(state.scene)) {
+				state.scene.remove(this);
+				state.scene = null;
+			}
+			if (!is_nil(scene) && scene !== state.scene) {
+				state.scene = scene;
+				scene.add(this);
+				onSceneChanged(scene);
+			}
+		},
+		get scene() {
+			return state.scene;
 		},
 		toggleRender(enabled){
 			if(is_nil(enabled)){
@@ -24,10 +40,11 @@ export default ({emitter, onRender, zIndex = 0}) => {
 				state.renderEnabled = enabled;
 			}
 		},
-		render(screen){
-			if(state.renderEnabled){
+		render() {
+			if (state.renderEnabled) {
+				const screen = state.scene.screen;
 				screen.save();
-				onRender(screen);
+				onRender(state.scene);
 				screen.restore();
 			}
 		}
