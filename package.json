@@ -63,6 +63,8 @@
     "lodash.clamp": "^4.0.3",
     "lodash.cond": "^4.5.2",
     "lodash.constant": "^3.0.0",
+    "lodash.every": "^4.6.0",
+    "lodash.first": "^3.0.0",
     "lodash.identity": "^3.0.0",
     "lodash.isfunction": "^3.0.8",
     "lodash.isnil": "^4.0.0",

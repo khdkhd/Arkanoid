@@ -1,4 +1,4 @@
-export { default as Seq } from 'sound/seq';
-export { default as Synth } from 'sound/synth';
-export { default as Note } from 'sound/note';
-export { default as Parts } from 'sound/parts';
+export { default as createSequencer } from 'sound/sequencer/core';
+export { default as createSynth } from 'sound/synth/core';
+export { default as createMixer } from 'sound/audio/mixer';
+export { default as createKeyboard } from 'sound/keyboard/keyboard';

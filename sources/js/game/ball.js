@@ -3,6 +3,7 @@ import BoundingBox from 'graphics/bounding-box';
 import Vector from 'maths/vector';
 import VerletModel from 'physics/verlet-model';
 import SceneObject from 'graphics/scene-object';
+import {EventEmitter} from 'events';
 
 const radius = .3;
 
@@ -53,11 +54,13 @@ function Ball({x, y}) {
 	const size = {width: 2*radius, height: 2*radius};
 	const boundingBox = BallBoundingBox({verlet, size});
 	const state = completeAssign(boundingBox, {
+		emitter: new EventEmitter(),
 		radius,
 		size,
 		verlet,
 	});
 	return completeAssign(
+		state.emitter,
 		verlet,
 		boundingBox,
 		BallController(state),
