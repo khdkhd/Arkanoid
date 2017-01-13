@@ -71,6 +71,7 @@
     "lodash.isnumber": "^3.0.3",
     "lodash.isstring": "^4.0.1",
     "lodash.kebabcase": "^4.1.1",
+    "lodash.matches": "^4.6.0",
     "lodash.negate": "^3.0.2",
     "lodash.noop": "^3.0.1",
     "lodash.oversome": "^4.7.0",
