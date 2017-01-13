@@ -16,6 +16,8 @@ import cond from 'lodash.cond';
 
 import {EventEmitter} from 'events';
 
+const AudioContext = AudioContext || webkitAudioContext;
+
 const keyboard = ui.keyboard;
 const audio_context = new AudioContext();
 const collisionBuzzer = create_collision_buzzer(audio_context);
