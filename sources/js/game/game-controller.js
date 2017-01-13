@@ -16,18 +16,26 @@ import cond from 'lodash.cond';
 
 import {EventEmitter} from 'events';
 
-function create_audio_context(){
-	if(!is_nil(AudioContext)){
-		return new AudioContext()
-	}
-	else if(!is_nil(webkitAudioContext)) {
-		return new webkitAudioContext(); // eslint-disable-line new-cap
-	}
-	throw new Error('Audio context not found');
-}
+const audioContext = (() => {
+	let context = null;
+	return cond([
+		[() => !is_nil(context), () => context],
+		[() => typeof AudioContext !== 'undefined', () => {
+			context = new AudioContext();
+			return context;
+		}],
+		[() => typeof webkitAudioContext != 'undefined', () => {
+			context = new webkitAudioContext(); // eslint-disable-line new-cap
+			return context;
+		}],
+		[constant(true), () => {
+			throw new Error('Audio context not found')
+		}]
+	]);
+})();
 
 const keyboard = ui.keyboard;
-const audio_context = create_audio_context();
+const audio_context = audioContext();
 const collisionBuzzer = create_collision_buzzer(audio_context);
 
 export default function GameController(state) {
