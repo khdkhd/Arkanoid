@@ -24,7 +24,6 @@ function create_buzz_generator(state) {
 			main_vca.connect({input});
 		},
 		noteOn(freq, time) {
-			console.log(freq, time);
 			vco.noteOn(freq, time);
 			vca.gain.setValueAtTime(1, time);
 		},
