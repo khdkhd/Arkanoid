@@ -1,17 +1,18 @@
-import is_nil from 'lodash.isnil';
-
 function create_keyboard(state){
 	return {
 		assign(slave){
 			state.slave = slave;
 		},
-		playNote({note, octave, duration}){
-			if(is_nil(state.slave)){
-				return;
-			}
-			const time = state.audio_context.currentTime;
+		playNote(time, {note, octave, duration}){
 			state.slave.noteOn(note, octave, time);
 			state.slave.noteOff(note, octave, time + duration);
+		},
+		arpegiate(time, interval, ...notes) {
+			for(let note of notes){
+				state.slave.noteOn(note.note, note.octave, time);
+				state.slave.noteOff(note.note, note.octave, time + note.duration);
+				time+= interval;
+			}
 		}
 	};
 }

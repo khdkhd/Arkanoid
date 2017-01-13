@@ -16,9 +16,9 @@ import cond from 'lodash.cond';
 
 import {EventEmitter} from 'events';
 
+import sound_controller from 'sound/arkanoid/sound-controller';
+
 const keyboard = ui.keyboard;
-const audio_context = new AudioContext();
-const collisionBuzzer = create_collision_buzzer(audio_context);
 
 export default function GameController(state) {
 	const {ball, vaus} = state;
@@ -58,17 +58,11 @@ export default function GameController(state) {
 		}
 	}
 
-	const buzz = cond([
-		[matches('brick'), constant({note: 'A', octave: '2', duration: .125})],
-		[matches('vaus'), constant({note: 'F', octave: '3', duration: .125})],
-		[constant(true), constant(null)]
-	]);
-
-	ball.on('hit', target => {
-		collisionBuzzer.buzz(buzz(target));
-	});
-
-
+	ball.on('hit', cond([
+			[matches('brick'), sound_controller.ball_collides_with_bricks],
+			[matches('vaus'), sound_controller.ball_collides_with_vaus],
+			[constant(true), constant(null)]
+	]));
 
 	function ball_collides_with_vaus(ball_box, speed) {
 		const v = bounce(ball_box, speed, vaus.boundingBox.absolute, 1/scale);

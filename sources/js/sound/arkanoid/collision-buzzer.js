@@ -1,4 +1,4 @@
-import { createSynth, createMixer, createKeyboard } from 'sound';
+import { createSynth, createKeyboard } from 'sound';
 
 
 const patch = {
@@ -92,24 +92,23 @@ const patch = {
 };
 
 function create_collision_buzzer(state){
-	const mixer = createMixer(state.audio_context);
 	const synth = createSynth(state.audio_context);
 	const keyboard = createKeyboard(state.audio_context);
 	synth.patch(patch);
 	keyboard.assign(synth);
-	mixer.assign('collision_keyboard', synth);
-	mixer.connect({input:state.audio_context.destination});
-	mixer.tracks['collision_keyboard'].gain.value = 1;
+	state.mixer.assign(state.track_id, synth);
+	state.mixer.connect({input:state.audio_context.destination});
+	state.mixer.tracks[state.track_id].gain.value = 1;
 	return {
 		buzz({note, octave, duration}){
-			keyboard.playNote({note: note, octave: octave, duration: duration});
+			keyboard.playNote(state.audio_context.currentTime, {note: note, octave: octave, duration: duration});
+		},
+		arpegiate(interval, ...notes){
+			keyboard.arpegiate(state.audio_context.currentTime, interval, ...notes);
 		}
 	};
 }
 
-export default audio_context => {
-	const state = {
-		audio_context: audio_context
-	}
+export default state => {
 	return create_collision_buzzer(state);
 }
