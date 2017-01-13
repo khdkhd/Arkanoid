@@ -16,10 +16,18 @@ import cond from 'lodash.cond';
 
 import {EventEmitter} from 'events';
 
-const AudioContext = AudioContext || webkitAudioContext;
+function create_audio_context(){
+	if(!is_nil(AudioContext)){
+		return new AudioContext()
+	}
+	else if(!is_nil(webkitAudioContext)) {
+		return new webkitAudioContext(); // eslint-disable-line new-cap
+	}
+	throw new Error('Audio context not found');
+}
 
 const keyboard = ui.keyboard;
-const audio_context = new AudioContext();
+const audio_context = create_audio_context();
 const collisionBuzzer = create_collision_buzzer(audio_context);
 
 export default function GameController(state) {
@@ -91,9 +99,10 @@ export default function GameController(state) {
 			// collide with roof
 			return Vector({x: speed.x, y: -speed.y});
 		} else if (ball_box.bottomY >= zone.bottomY) {
-			// collide width floor
-			// it should only happened if end of round has not been checked
-			return Vector({x: speed.x, y: -speed.y});
+			if(state.cheatMode) {
+				return Vector({x: speed.x, y: -speed.y});
+			}
+			return Vector.Null;
 		}
 	}
 
@@ -109,11 +118,7 @@ export default function GameController(state) {
 	function update_ball() {
 		if (!ball.velocity.isNull()) {
 			const ball_box = ball.boundingBox.absolute.translate(ball.velocity);
-			if (ball_box.bottomY >= zone.bottomY) {
-				reset_ball_position(vaus, ball);
-			} else {
-				ball.velocity = ball_collides(ball_box, ball.velocity);
-			}
+			ball.velocity = ball_collides(ball_box, ball.velocity);
 		} else {
 			reset_ball_position(vaus, ball);
 		}
