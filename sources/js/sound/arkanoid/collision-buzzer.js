@@ -5,81 +5,14 @@ const patch = {
 	nodes: [
 		{
 			id: 'generator',
-			factory: 'polyphonic_generator',
+			factory: 'buzz_generator',
 			voice: true,
-			options: {
-				num_voices: 2
-			},
 			config: {
 				gain: {
-					value: .5
+					value: 1
 				},
 				type: {
 					value: 'square'
-				},
-				attack: {
-					value: 0,
-					views: [
-						{
-							factory: 'fader',
-							options: {
-								pos: {
-									x: 100,
-									y: 150
-								},
-								width: 30,
-								height: 100,
-							}
-						}
-					]
-				},
-				decay : {
-					value: 1,
-					views: [
-						{
-							factory: 'fader',
-							options: {
-								pos: {
-									x: 130,
-									y: 150
-								},
-								width: 30,
-								height: 100,
-							}
-						}
-					]
-				},
-				sustain: {
-					value: 1,
-					views: [
-						{
-							factory: 'fader',
-							options: {
-								pos: {
-									x: 160,
-									y: 150
-								},
-								width: 30,
-								height: 100,
-							}
-						}
-					]
-				},
-				release: {
-					value: 0,
-					views: [
-						{
-							factory: 'fader',
-							options: {
-								pos: {
-									x: 190,
-									y: 150
-								},
-								width: 30,
-								height: 100,
-							}
-						}
-					]
 				}
 			}
 		},
@@ -89,7 +22,7 @@ const patch = {
 			output: true,
 			config: {
 				frequency: {
-					value: .25,
+					value: 1,
 					views: [
 						{
 							factory: 'knob',
@@ -104,7 +37,7 @@ const patch = {
 					]
 				},
 				Q: {
-					value: .75,
+					value: 0,
 					views: [
 						{
 							factory: 'knob',
@@ -119,7 +52,7 @@ const patch = {
 					]
 				},
 				type : {
-					value: 'bandpass'
+					value: 'lowpass'
 				}
 			},
 		},
@@ -128,7 +61,7 @@ const patch = {
 			factory: 'lfo',
 			config: {
 				frequency: {
-					value: 0,
+					value: 0.025,
 					views: [
 						{
 							factory: 'knob',
@@ -143,7 +76,7 @@ const patch = {
 					]
 				},
 				gain: {
-					value: .1
+					value: 1
 				},
 				type: {
 					value: 'square'
@@ -161,15 +94,15 @@ const patch = {
 function create_collision_buzzer(state){
 	const mixer = createMixer(state.audio_context);
 	const synth = createSynth(state.audio_context);
-	const keyboard = createKeyboard();
+	const keyboard = createKeyboard(state.audio_context);
 	synth.patch(patch);
 	keyboard.assign(synth);
 	mixer.assign('collision_keyboard', synth);
 	mixer.connect({input:state.audio_context.destination});
 	mixer.tracks['collision_keyboard'].gain.value = 1;
 	return {
-		buzz(){
-			keyboard.playNote({note: 'C', octave: 3, duration: .25});
+		buzz({note, octave, duration}){
+			keyboard.playNote({note: note, octave: octave, duration: duration});
 		}
 	};
 }

@@ -4,6 +4,7 @@ import Vector from 'maths/vector';
 import Rect from 'maths/rect';
 import VerletModel from 'physics/verlet-model';
 import SceneObject from 'graphics/scene-object';
+import {EventEmitter} from 'events';
 
 import is_nil from 'lodash.isnil';
 
@@ -203,11 +204,12 @@ export default function Vaus({x, y}) {
 	};
 	const boundingBox = VausBoundingBox({size, verlet});
 	const state = completeAssign(boundingBox, {
+		emitter: new EventEmitter(),
 		verlet,
 		size
 	});
 	return completeAssign(
-		{},
+		state.emitter,
 		boundingBox,
 		verlet,
 		VausController(state),

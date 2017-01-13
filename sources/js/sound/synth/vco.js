@@ -17,7 +17,7 @@ function create_vco(state) {
 			osc.connect(input);
 			osc.start(0);
 		},
-		gateOn(freq, time) {
+		noteOn(freq, time) {
 			osc.frequency.setValueAtTime(freq, time);
 		},
 		get type(){

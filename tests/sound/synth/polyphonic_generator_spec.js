@@ -58,13 +58,13 @@ describe('create_polyphonic_generator', () => {
 		const polyphonic_generator = create_polyphonic_generator(context.audio_context, {num_voices:2, factory: context.factory});
 		expect(polyphonic_generator.connect).to.be.function;
 	});
-	it('returns an object with a voiceOn method', () => {
+	it('returns an object with a noteOn method', () => {
 		const polyphonic_generator = create_polyphonic_generator(context.audio_context, {num_voices:2, factory: context.factory});
-		expect(polyphonic_generator.voiceOn).to.be.function;
+		expect(polyphonic_generator.noteOn).to.be.function;
 	});
-	it('returns an object with a voiceOff method', () => {
+	it('returns an object with a noteOff method', () => {
 		const polyphonic_generator = create_polyphonic_generator(context.audio_context, {num_voices:2, factory: context.factory});
-		expect(polyphonic_generator.voiceOff).to.be.function;
+		expect(polyphonic_generator.noteOff).to.be.function;
 	});
 
 	it('calls vco once on the synth factory if number of voices is 1', () => {
@@ -98,7 +98,7 @@ describe('create_polyphonic_generator', () => {
 	});
 });
 
-describe('polyphonic_generator.voiceOn()', ()=> {
+describe('polyphonic_generator.noteOn()', ()=> {
 
 	beforeEach(function() {
 		context.audio_context = create_audio_context(context.sandbox);
@@ -121,7 +121,7 @@ describe('polyphonic_generator.voiceOn()', ()=> {
 			});
 		const polyphonic_generator = create_polyphonic_generator(context.audio_context, {num_voices:1, factory: factory});
 		polyphonic_generator.connect({input:{connect(){}}});
-		polyphonic_generator.voiceOn(.440, 0);
+		polyphonic_generator.noteOn(.440, 0);
 		expect(polyphony_manager.assign.calledOnce).to.be.true;
 	});
 
@@ -137,12 +137,12 @@ describe('polyphonic_generator.voiceOn()', ()=> {
 			});
 		const polyphonic_generator = create_polyphonic_generator(context.audio_context, {num_voices:1, factory: factory});
 		polyphonic_generator.connect({input:{connect(){}}});
-		polyphonic_generator.voiceOn(.440, 0);
+		polyphonic_generator.noteOn(.440, 0);
 		expect(polyphony_manager.assign.calledWith(.440)).to.be.true;
 	});
 });
 
-describe('polyphonic_generator.voiceOff()', ()=> {
+describe('polyphonic_generator.noteOff()', ()=> {
 
 	beforeEach(function() {
 		context.audio_context = create_audio_context(context.sandbox);
@@ -165,7 +165,7 @@ describe('polyphonic_generator.voiceOff()', ()=> {
 			});
 		const polyphonic_generator = create_polyphonic_generator(context.audio_context, {num_voices:1, factory: factory});
 		polyphonic_generator.connect({input:{connect(){}}});
-		polyphonic_generator.voiceOff(.440);
+		polyphonic_generator.noteOff(.440);
 		expect(polyphony_manager.unassign.calledOnce).to.be.true;
 	});
 });

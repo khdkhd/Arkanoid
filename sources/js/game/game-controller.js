@@ -1,6 +1,7 @@
 import {completeAssign} from 'common/utils';
 import {dispatch} from 'common/functional';
 import {bounce} from 'physics/collisions';
+import create_collision_buzzer from 'sound/arkanoid/collision-buzzer';
 
 import ui from 'ui';
 
@@ -9,10 +10,15 @@ import Vector from 'maths/vector';
 import random from 'lodash.random';
 import remove from 'lodash.remove';
 import is_nil from 'lodash.isnil';
+import matches from 'lodash.matches';
+import constant from 'lodash.constant';
+import cond from 'lodash.cond';
 
 import {EventEmitter} from 'events';
 
 const keyboard = ui.keyboard;
+const audio_context = new AudioContext();
+const collisionBuzzer = create_collision_buzzer(audio_context);
 
 export default function GameController(state) {
 	const {ball, vaus} = state;
@@ -42,6 +48,7 @@ export default function GameController(state) {
 			const brick_box = brick.boundingBox.absolute;
 			const v = bounce(ball_box, speed, brick_box, .001);
 			if (!is_nil(v)) {
+				ball.emit('hit', 'brick');
 				brick.hit();
 				return v.add({
 					x: random(-1, 1, true)/1000,
@@ -51,9 +58,22 @@ export default function GameController(state) {
 		}
 	}
 
+	const buzz = cond([
+		[matches('brick'), constant({note: 'A', octave: '2', duration: .125})],
+		[matches('vaus'), constant({note: 'F', octave: '3', duration: .125})],
+		[constant(true), constant(null)]
+	]);
+
+	ball.on('hit', target => {
+		collisionBuzzer.buzz(buzz(target));
+	});
+
+
+
 	function ball_collides_with_vaus(ball_box, speed) {
 		const v = bounce(ball_box, speed, vaus.boundingBox.absolute, 1/scale);
 		if (!is_nil(v)) {
+			ball.emit('hit', 'vaus');
 			return v;
 		}
 	}
@@ -141,7 +161,9 @@ export default function GameController(state) {
 		reset() {
 			reset_ball_position();
 			state.bricks.forEach(brick => {
-				brick.on('hit', point => emitter.emit('update-score', point));
+				brick.on('hit', point => {
+					emitter.emit('update-score', point)
+				});
 				brick.once('destroyed', () => {
 					brick.removeAllListeners('destroyed');
 					brick.removeAllListeners('hit');

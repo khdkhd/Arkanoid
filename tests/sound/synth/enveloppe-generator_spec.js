@@ -51,7 +51,7 @@ describe('create_enveloppe_generator', () => {
 	});
 });
 
-describe('enveloppe_generator.voiceOn()', () => {
+describe('enveloppe_generator.gateOn()', () => {
 
 
 	beforeEach(() =>{

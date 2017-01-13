@@ -82,12 +82,12 @@ function create_polyphonic_generator(state) {
 			channel_merger.connect(main_vca.input);
 			main_vca.connect({input});
 		},
-		voiceOn(freq, time) {
+		noteOn(freq, time) {
 			const voice = polyphony_manager.assign(freq);
-			vcos[voice].gateOn(freq, time);
+			vcos[voice].noteOn(freq, time);
 			enveloppes[voice].gateOn(time);
 		},
-		voiceOff(freq, time){
+		noteOff(freq, time){
 			const voice = polyphony_manager.unassign(freq);
 			if(voice >= 0){
 				enveloppes[voice].gateOff(time);

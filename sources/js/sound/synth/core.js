@@ -35,12 +35,12 @@ function create_synth(state) {
 		},
 		noteOn(note, octave, time) {
 			state.voices.forEach(function(generator){
-				generator.voiceOn(get_frequency_of_note(note, octave), time);
+				generator.noteOn(get_frequency_of_note(note, octave), time);
 			});
 		},
 		noteOff(note, octave, time){
 			state.voices.forEach(function(generator){
-				generator.voiceOff(get_frequency_of_note(note, octave), time);
+				generator.noteOff(get_frequency_of_note(note, octave), time);
 			});
 		},
 		connect({input}){
@@ -60,8 +60,7 @@ export default audio_context  => {
 		output: null,
 		voices: [],
 		mods: [],
-		views: [],
-		renderEnabled: renderEnabled
+		views: []
 	}
 	return create_synth(state);
 }

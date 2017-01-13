@@ -5,18 +5,20 @@ function create_keyboard(state){
 		assign(slave){
 			state.slave = slave;
 		},
-		play({note, octave, duration}){
+		playNote({note, octave, duration}){
 			if(is_nil(state.slave)){
 				return;
 			}
-			state.slave.noteOn(note, octave, 0);
-			state.slave.noteOff(note, octave, duration);
+			const time = state.audio_context.currentTime;
+			state.slave.noteOn(note, octave, time);
+			state.slave.noteOff(note, octave, time + duration);
 		}
 	};
 }
 
-export default () => {
+export default audio_context => {
 	const state = {
+		audio_context: audio_context,
 		slave: null
 	};
 
