@@ -15,7 +15,7 @@ export const SceneObjectModel = state => completeAssign({
 
 export default (state) => {
 	state = SceneObjectModel(state);
-	return {
+	const object = {
 		set zIndex(value) {
 			if (state.zIndex !== value) {
 				state.zIndex = value;
@@ -62,4 +62,8 @@ export default (state) => {
 			return state.boundingBox;
 		}
 	};
+	if (is_nil(state.scene)) {
+		object.scene = state.scene;
+	}
+	return object;
 }
