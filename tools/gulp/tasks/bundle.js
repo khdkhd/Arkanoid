@@ -39,8 +39,14 @@ Object.entries(bundles).forEach(([bundle_name, entry_point]) => {
 		return bundler
 			.bundle()
 			.on('error', (err) => {
-				gutil.log(err.message);
-				err.stream.end();
+				gutil.log(
+					gutil.colors.red('Browserify compile error: '),
+					err.message, '\n\t'
+				);
+				if (env.isProduction) {
+					err.stream.end();
+					process.exit(1);
+				}
 			})
 			.pipe(source(`${bundle_name}.js`))
 			.pipe(buffer())
