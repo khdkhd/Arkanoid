@@ -9,6 +9,8 @@ export default function BoundingBox(state) {
 	return {
 		boundingBox: {
 			get absolute() {
+				// debugger;
+				// const pos = state.position;
 				return Rect(origin(state.position), state.size);
 			},
 			get relative() {

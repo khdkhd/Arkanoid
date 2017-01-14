@@ -1,5 +1,4 @@
 import {completeAssign} from 'common/utils';
-import BoundingBox from 'graphics/bounding-box';
 import Vector from 'maths/vector';
 import Rect from 'maths/rect';
 import VerletModel from 'physics/verlet-model';
@@ -93,12 +92,23 @@ function blue_brush(screen) {
 	])};
 }
 
-function VausBoundingBox(state) {
-	return BoundingBox(completeAssign({}, {size: state.size}, state.verlet));
+export function VausModel({x, y}) {
+	let padSize = 1;
+	return {
+		emitter: new EventEmitter(),
+		size: {
+			get padSize()  { return padSize; },
+			set padSize(w) { padSize = w; },
+			get width()    { return 2 + padSize; },
+			get height()   { return 1; }
+		},
+		verlet: VerletModel({x, y})
+	};
 }
 
-function VausView(state) {
-	return SceneObject({
+export function VausView(state) {
+	const {verlet} = state;
+	return SceneObject(completeAssign({
 		onSceneChanged(scene) {
 			state.scene = scene;
 		},
@@ -110,10 +120,6 @@ function VausView(state) {
 				red:  red_brush (screen),
 				gray: gray_brush(screen)
 			};
-			screen.save();
-
-			screen.translate(state.verlet.position);
-
 			screen.pen = 1/scene.scale;
 
 			screen.brush = brushes.blue;
@@ -144,19 +150,15 @@ function VausView(state) {
 
 			screen.brush = brushes.gray;
 			screen.fillPath(gray_box);
-
-			screen.restore();
 		}
-	});
+	}, verlet, state));
 }
 
-function VausController(state) {
-	const verlet = state.verlet;
-
+export function VausController(state) {
+	const {verlet} = state;
 	let acceleration = Vector.Null;
 	let moving = false;
-
-	return {
+	return completeAssign({
 		move(direction) {
 			const scene = state.scene;
 			if (!is_nil(scene)) {
@@ -190,29 +192,16 @@ function VausController(state) {
 				verlet.position = verlet.position.add(verlet.velocity);
 			}
 		}
-	};
+	}, verlet);
 }
 
-export default function Vaus({x, y}) {
-	let padSize = 1;
-	const verlet = VerletModel(Vector({x, y}));
-	const size = {
-		get padSize()  { return padSize; },
-		set padSize(w) { padSize = w; },
-		get width()    { return 2 + padSize; },
-		get height()   { return 1; }
-	};
-	const boundingBox = VausBoundingBox({size, verlet});
-	const state = completeAssign(boundingBox, {
-		emitter: new EventEmitter(),
-		verlet,
-		size
-	});
+export function Vaus({x, y}) {
+	const state = VausModel({x, y});
 	return completeAssign(
 		state.emitter,
-		boundingBox,
-		verlet,
 		VausController(state),
 		VausView(state)
 	);
 }
+
+export default Vaus;

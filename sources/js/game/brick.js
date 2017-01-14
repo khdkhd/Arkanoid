@@ -1,5 +1,4 @@
 import {completeAssign} from 'common/utils';
-import BoundingBox from 'graphics/bounding-box';
 import Rect from 'maths/rect';
 import Vector from 'maths/vector';
 import VerletModel from 'physics/verlet-model';
@@ -95,16 +94,37 @@ const bricks_state = {
 	})
 };
 
-function BrickBoundingBox(state) {
-	return BoundingBox(completeAssign(
-		{},
-		state.verlet,
-		{size: state.size}
-	));
+export function BrickModel({x, y}, color, level) {
+	return completeAssign(bricks_state[color](level), {
+		color,
+		destroyed: false,
+		emitter: new EventEmitter(),
+		size: {width: 2, height: 1},
+		verlet: VerletModel(Vector({x, y})),
+	});
 }
 
-function BrickController(state) {
-	return {
+export function BrickView(state) {
+	return SceneObject(completeAssign({
+		onRender(scene) {
+			const {screen} = scene;
+
+			screen.brush = 'black';
+			screen.fillRect(BOTTOM_OUTER_RECT);
+
+			screen.brush = state.colors.top || state.colors.inner;
+			screen.fillRect(TOP_OUTER_RECT);
+
+			screen.brush = state.colors.top || state.colors.inner;
+			screen.brush = state.colors.inner;
+			screen.fillRect(INNER_RECT);
+		}
+	}, state.verlet, state));
+}
+
+export function BrickController(state) {
+	const {verlet} = state;
+	return completeAssign({
 		hit() {
 			if (!(is_nil(state.hits) || state.destroyed)) {
 				state.hits = state.hits - 1;
@@ -126,46 +146,17 @@ function BrickController(state) {
 		get points() {
 			return state.points;
 		}
-	};
+	}, verlet);
 }
 
-function BrickView(state) {
-	return SceneObject({
-		onRender(scene) {
-			const {screen} = scene;
 
-			screen.translate(state.verlet.position);
-
-			screen.brush = 'black';
-			screen.fillRect(BOTTOM_OUTER_RECT);
-
-			screen.brush = state.colors.top || state.colors.inner;
-			screen.fillRect(TOP_OUTER_RECT);
-
-			screen.brush = state.colors.top || state.colors.inner;
-			screen.brush = state.colors.inner;
-			screen.fillRect(INNER_RECT);
-		}
-	});
-}
-
-export default function Brick({x, y}, color, level) {
-	const state = completeAssign(
-		bricks_state[color](level),
-		{
-			color,
-			destroyed: false,
-			emitter: new EventEmitter(),
-			size: {width: 2, height: 1},
-			verlet: VerletModel(Vector({x, y})),
-		}
-	);
-
+export function Brick({x, y}, color, level) {
+	const state = BrickModel({x, y}, color, level);
 	return completeAssign(
 		state.emitter,
-		state.verlet,
-		BrickBoundingBox(state),
-		BrickController(state),
-		BrickView(state)
+		BrickView(state),
+		BrickController(state)
 	);
 }
+
+export default Brick;

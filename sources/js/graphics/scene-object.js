@@ -1,11 +1,20 @@
 import is_nil from 'lodash.isnil';
 import noop from 'lodash.noop';
 
-export default ({onRender, onSceneChanged = noop, zIndex = 0}) => {
-	const state = Object.assign({
-		renderEnabled: true
-	}, {scene: null, onRender, zIndex});
+import {completeAssign} from 'common/utils';
+import BoundingBox from 'graphics/bounding-box';
 
+export const SceneObjectModel = state => completeAssign({
+	alignCenterToOrigin: false,
+	onRender: noop,
+	onSceneChanged: noop,
+	renderEnabled: true,
+	scene: null,
+	zIndex: 0
+}, BoundingBox(state), state);
+
+export default (state) => {
+	state = SceneObjectModel(state);
 	return {
 		set zIndex(value) {
 			if (state.zIndex !== value) {
@@ -27,7 +36,7 @@ export default ({onRender, onSceneChanged = noop, zIndex = 0}) => {
 			if (!is_nil(scene) && scene !== state.scene) {
 				state.scene = scene;
 				scene.add(this);
-				onSceneChanged(scene);
+				state.onSceneChanged(scene);
 			}
 		},
 		get scene() {
@@ -44,9 +53,13 @@ export default ({onRender, onSceneChanged = noop, zIndex = 0}) => {
 			if (state.renderEnabled) {
 				const screen = state.scene.screen;
 				screen.save();
-				onRender(state.scene);
+				screen.translate(state.boundingBox.absolute.topLeft);
+				state.onRender(state.scene);
 				screen.restore();
 			}
+		},
+		get boundingBox() {
+			return state.boundingBox;
 		}
 	};
 }
