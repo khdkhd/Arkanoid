@@ -30,8 +30,9 @@ export default (state) => {
 		},
 		set scene(scene) {
 			if (!is_nil(state.scene)) {
-				state.scene.remove(this);
+				const tmp = state.scene;
 				state.scene = null;
+				tmp.remove(this);
 			}
 			if (!is_nil(scene) && scene !== state.scene) {
 				state.scene = scene;
