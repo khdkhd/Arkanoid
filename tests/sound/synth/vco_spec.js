@@ -19,17 +19,17 @@ describe('create_vco', () => {
 
 
 	it('returns an object', () => {
-		const vca = create_vco(context.audio_context);
+		const vca = create_vco(context);
 		expect(vca).to.be.an('object');
 	});
 
 	it('returns an object with a type property', () => {
-		const vco = create_vco(context.audio_context);
+		const vco = create_vco(context);
 		expect(vco).to.have.property('type');
 	});
 
 	it('returns an object with a connect method', () => {
-		const vco = create_vco(context.audio_context);
+		const vco = create_vco(context);
 		expect(vco.connect).to.be.function;
 	});
 

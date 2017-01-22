@@ -10,7 +10,7 @@ const context = {
 describe('create_vca', () => {
 
 	beforeEach(function() {
-		context.audio_context = create_audio_context(context.sandbox);
+		context.audio_context =  create_audio_context(context.sandbox);
 	});
 
 	afterEach(() => {
@@ -18,27 +18,27 @@ describe('create_vca', () => {
 	});
 
 	it('returns an object', () => {
-		const vca = create_vca(context.audio_context);
+		const vca = create_vca(context);
 		expect(vca).to.be.an('object');
 	});
 
 	it('returns an object with a input property', () => {
-		const vca = create_vca(context.audio_context);
+		const vca = create_vca(context);
 		expect(vca).to.have.property('input');
 	});
 
 	it('returns an object with a gain property', () => {
-		const vca = create_vca(context.audio_context);
+		const vca = create_vca(context);
 		expect(vca).to.have.property('gain');
 	});
 
 	it('returns an object with an input property', () => {
-		const vca = create_vca(context.audio_context);
+		const vca = create_vca(context);
 		expect(vca).to.have.property('input');
 	});
 
 	it('returns an object with a connect method', () => {
-		const vca = create_vca(context.audio_context);
+		const vca = create_vca(context);
 		expect(vca.connect).to.be.function;
 	});
 
