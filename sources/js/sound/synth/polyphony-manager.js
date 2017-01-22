@@ -1,5 +1,5 @@
-function create_polyphony_manager(state) {
-	const freqs = new Array(state.num_voices);
+export default({num_voices}) => {
+	const freqs = new Array(num_voices);
 	let index = 0;
 	return {
 		assign(freq) {
@@ -11,11 +11,4 @@ function create_polyphony_manager(state) {
 			return freqs.indexOf(freq);
 		}
 	}
-}
-
-export default({num_voices}) => {
-	const state = {
-		num_voices: num_voices
-	};
-	return create_polyphony_manager(state);
 }

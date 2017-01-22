@@ -88,6 +88,7 @@ export default function Game() {
 		vaus: create_vaus(game_scene),
 		ball: create_ball(game_scene),
 		scene: game_scene,
+		cheatMode: false,
 		paused: false,
 		end: false,
 		score: 0

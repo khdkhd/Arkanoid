@@ -1,8 +1,7 @@
 import create_vca from 'sound/synth/vca';
 
-function create_track(state){
-
-	const gain = create_vca(state.audio_context);
+export default({audio_context}) => {
+	const gain = create_vca({audio_context});
 
 	return {
 		connect({input}) {
@@ -15,11 +14,4 @@ function create_track(state){
 			return gain.gain;
 		}
 	};
-}
-
-export default(audio_context) => {
-	const state = {
-		audio_context: audio_context
-	};
-	return create_track(state);
 }

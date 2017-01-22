@@ -1,8 +1,8 @@
 import create_track from 'sound/audio/track';
 
-function create_mixer(state){
-
-	const channel_merger = state.audio_context.createChannelMerger(4);
+export default({audio_context}) => {
+	const channel_merger = audio_context.createChannelMerger(4);
+  const tracks = {};
 
 	return {
 		connect({input}){
@@ -12,22 +12,14 @@ function create_mixer(state){
 			return channel_merger;
 		},
 		assign(track_id, instrument){
-			if(!state.tracks.hasOwnProperty(track_id)){
-				state.tracks[track_id] = create_track(state.audio_context);
+			if(!tracks.hasOwnProperty(track_id)){
+				tracks[track_id] = create_track({audio_context});
 			}
-			state.tracks[track_id].assign(instrument);
-			state.tracks[track_id].connect({input:channel_merger});
+			tracks[track_id].assign(instrument);
+			tracks[track_id].connect({input:channel_merger});
 		},
 		get tracks(){
-			return state.tracks;
+			return tracks;
 		}
 	};
-}
-
-export default(audio_context) => {
-	const state = {
-		audio_context: audio_context,
-		tracks: {}
-	};
-	return create_mixer(state);
 }

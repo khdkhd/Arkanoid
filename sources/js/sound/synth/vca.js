@@ -1,27 +1,16 @@
-import EventEmitter from 'events';
-import { completeAssign as assign } from 'common/utils';
+import { create_audio_model } from 'sound/common/utils';
+import constant from 'lodash.constant';
 
-function create_vca(state) {
-	const vca = state.audio_context.createGain();
-	vca.gain.value = 0;
+export default({audio_context}) => {
 
-	const gain = assign(new EventEmitter(), {
-		set value(value){
-			vca.gain.value = value;
-			this.emit('change', value);
-		},
-		get value(){
-			return vca.gain.value;
-		},
-		setValueAtTime(value, time) {
-			vca.gain.setValueAtTime(value, time)
-		},
-		linearRampToValueAtTime(value, time) {
-			vca.gain.linearRampToValueAtTime(value, time);
-		},
-		cancelScheduledValues(time){
-			vca.gain.cancelScheduledValues(time);
-		},
+	const vca = audio_context.createGain();
+	const gain = create_audio_model({
+		param: vca.gain,
+		init: constant(0),
+		range: {
+			min: -1,
+			max: 1
+		}
 	});
 
 	return {
@@ -35,12 +24,4 @@ function create_vca(state) {
 			return gain;
 		}
 	};
-}
-
-export default(audio_context) => {
-	const state = {
-		audio_context: audio_context,
-		gain: 0
-	};
-	return create_vca(state);
 }

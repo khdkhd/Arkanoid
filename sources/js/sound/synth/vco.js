@@ -1,14 +1,16 @@
-import EventEmitter from 'events';
-import { completeAssign as assign } from 'common/utils';
+import { create_audio_model } from 'sound/common/utils';
 
-function create_vco(state) {
-	const osc = state.audio_context.createOscillator();
-	const type = assign(new EventEmitter(), {
-		set value(value){
-			osc.type = value;
-		},
-		get value(){
-			return osc.type;
+export default({audio_context}) => {
+	const osc = audio_context.createOscillator();
+
+	const type = create_audio_model({
+		param: {
+			get value(){
+				return osc.type;
+			},
+			set value(value){
+				osc.type = value;
+			}
 		}
 	});
 
@@ -24,11 +26,4 @@ function create_vco(state) {
 			return type;
 		}
 	};
-}
-
-export default(audio_context)=>{
-	const state = {
-		audio_context: audio_context
-	};
-	return create_vco(state);
 }

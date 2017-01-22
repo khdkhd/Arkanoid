@@ -1,27 +1,27 @@
-function create_keyboard(state){
+import is_nil from 'lodash.isnil';
+
+export default ({slave } = {}) => {
+
+	let _slave;
+
+	if(!is_nil(slave)){
+		_slave = slave;
+	}
+
 	return {
 		assign(slave){
-			state.slave = slave;
+			_slave = slave;
 		},
 		playNote(time, {note, octave, duration}){
-			state.slave.noteOn(note, octave, time);
-			state.slave.noteOff(note, octave, time + duration);
+			_slave.noteOn(note, octave, time);
+			_slave.noteOff(note, octave, time + duration);
 		},
-		arpegiate(time, interval, ...notes) {
+		arpegiate(time, interval, notes) {
 			for(let note of notes){
-				state.slave.noteOn(note.note, note.octave, time);
-				state.slave.noteOff(note.note, note.octave, time + note.duration);
+				_slave.noteOn(note.note, note.octave, time);
+				_slave.noteOff(note.note, note.octave, time + note.duration);
 				time+= interval;
 			}
 		}
 	};
-}
-
-export default audio_context => {
-	const state = {
-		audio_context: audio_context,
-		slave: null
-	};
-
-	return create_keyboard(state);
 }
