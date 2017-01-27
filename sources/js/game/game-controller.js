@@ -41,17 +41,19 @@ const collisionBuzzer = create_collision_buzzer(audio_context);
 export default function GameController(state) {
 	const {ball, vaus} = state;
 	const zone = state.scene.boundingBox.relative;
-	const scale = state.scene.scale;
 	const emitter = new EventEmitter();
 
 	// Position helpers
 
 	function ball_neighborhood() {
-		const col = Math.round(ball.position.x);
-		const row = Math.round(ball.position.y);
+		const pos = ball.position();
+		const col = Math.round(pos.x);
+		const row = Math.round(pos.y);
 		return state.bricks
-			.filter(brick => Math.abs(col - brick.position.x) <= 2
-								&& Math.abs(row - brick.position.y) <= 1);
+			.filter(brick => {
+				const brick_pos = brick.position();
+				return Math.abs(col - brick_pos.x) <= 2 && Math.abs(row - brick_pos.y) <= 1;
+			});
 	}
 
 	function reset_ball_position() {
@@ -86,10 +88,8 @@ export default function GameController(state) {
 		collisionBuzzer.buzz(buzz(target));
 	});
 
-
-
 	function ball_collides_with_vaus(ball_box, speed) {
-		const v = bounce(ball_box, speed, vaus.boundingBox.absolute, 1/scale);
+		const v = bounce(ball_box, speed, vaus.boundingBox.absolute, 1/16);
 		if (!is_nil(v)) {
 			ball.emit('hit', 'vaus');
 			return v;
@@ -124,9 +124,9 @@ export default function GameController(state) {
 	// Move helpers
 
 	function update_ball() {
-		if (!ball.velocity.isNull()) {
-			const ball_box = ball.boundingBox.absolute.translate(ball.velocity);
-			ball.velocity = ball_collides(ball_box, ball.velocity);
+		if (!ball.velocity().isNull()) {
+			const ball_box = ball.boundingBox.absolute.translate(ball.velocity());
+			ball.setVelocity(ball_collides(ball_box, ball.velocity()));
 		} else {
 			reset_ball_position(vaus, ball);
 		}
@@ -137,14 +137,14 @@ export default function GameController(state) {
 		const {leftX: vaux_left_x, rightX: vaus_right_x} = vaus.boundingBox.absolute;
 		const {leftX: zone_left_x, rightX: zone_right_x} = zone;
 
-		if (!vaus.velocity.isNull() && vaux_left_x <= zone_left_x) {
+		if (!vaus.velocity().isNull() && vaux_left_x <= zone_left_x) {
 			vaus.move(Vector.Null);
-			vaus.position = vaus.position.add({x: zone_left_x - vaux_left_x, y: 0});
+			vaus.setPosition(vaus.position().add({x: zone_left_x - vaux_left_x, y: 0}));
 		}
 
-		if (!vaus.velocity.isNull() && vaus_right_x >= zone_right_x) {
+		if (!vaus.velocity().isNull() && vaus_right_x >= zone_right_x) {
 			vaus.move(Vector.Null);
-			vaus.position = vaus.position.add({x: zone_right_x - vaus_right_x, y: 0});
+			vaus.setPosition(vaus.position().add({x: zone_right_x - vaus_right_x, y: 0}));
 		}
 
 		vaus.update();
@@ -162,8 +162,8 @@ export default function GameController(state) {
 		vaus.move(direction);
 	});
 	keyboard.on('fire', () => {
-		if (ball.velocity.isNull()) {
-			ball.velocity = Vector({x: 1, y: -1}).toUnit().mul(.2);
+		if (ball.velocity().isNull()) {
+			ball.setVelocity(Vector({x: 1, y: -1}).toUnit().mul(.2));
 		}
 	});
 	keyboard.on('pause', () => emitter.emit('pause'));

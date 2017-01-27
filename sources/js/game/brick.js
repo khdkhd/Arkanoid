@@ -6,6 +6,7 @@ import SceneObject from 'graphics/scene-object';
 
 import {EventEmitter} from 'events';
 
+import constant from 'lodash.constant';
 import is_nil from 'lodash.isnil';
 
 const BOTTOM_OUTER_RECT = Rect(Vector.Null, {width: 2, height: 1});
@@ -99,16 +100,14 @@ export function BrickModel({x, y}, color, level) {
 		color,
 		destroyed: false,
 		emitter: new EventEmitter(),
-		size: {width: 2, height: 1},
+		size: constant({width: 2, height: 1}),
 		verlet: VerletModel(Vector({x, y})),
 	});
 }
 
 export function BrickView(state) {
-	return SceneObject(completeAssign({
-		onRender(scene) {
-			const {screen} = scene;
-
+	return SceneObject(null, completeAssign({
+		onRender(screen) {
 			screen.brush = 'black';
 			screen.fillRect(BOTTOM_OUTER_RECT);
 
@@ -148,7 +147,6 @@ export function BrickController(state) {
 		}
 	}, verlet);
 }
-
 
 export function Brick({x, y}, color, level) {
 	const state = BrickModel({x, y}, color, level);

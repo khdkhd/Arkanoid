@@ -5,6 +5,7 @@ import VerletModel from 'physics/verlet-model';
 import SceneObject from 'graphics/scene-object';
 import {EventEmitter} from 'events';
 
+import constant from 'lodash.constant';
 import is_nil from 'lodash.isnil';
 
 const blue_box = new Path2D(`
@@ -96,11 +97,17 @@ export function VausModel({x, y}) {
 	let padSize = 1;
 	return {
 		emitter: new EventEmitter(),
-		size: {
-			get padSize()  { return padSize; },
-			set padSize(w) { padSize = w; },
-			get width()    { return 2 + padSize; },
-			get height()   { return 1; }
+		size: function() {
+			return {
+				width: 2 + padSize,
+				height: 1
+			};
+		},
+		get padSize()  {
+			return padSize;
+		},
+		set padSize(w) {
+			padSize = w;
 		},
 		verlet: VerletModel({x, y})
 	};
@@ -108,19 +115,15 @@ export function VausModel({x, y}) {
 
 export function VausView(state) {
 	const {verlet} = state;
-	return SceneObject(completeAssign({
-		onSceneChanged(scene) {
-			state.scene = scene;
-		},
-		onRender(scene) {
-			const {screen} = scene;
-			const pad_size = state.size.padSize;
+	return SceneObject(null, completeAssign({
+		onRender(screen) {
+			const pad_size = state.padSize;
 			const brushes = {
 				blue: blue_brush(screen),
 				red:  red_brush (screen),
 				gray: gray_brush(screen)
 			};
-			screen.pen = 1/scene.scale;
+			screen.pen = 1/screen.absoluteScale;
 
 			screen.brush = brushes.blue;
 			screen.fillPath(blue_box);
@@ -137,7 +140,7 @@ export function VausView(state) {
 			screen.fillRect(Rect({x: 1, y: 0}, {width: pad_size, height: 14/16}));
 
 			screen.translate({x: 2 + pad_size, y: 0});
-			screen.scale({x: -1, y: 1});
+			screen.scale = {x: -1, y: 1};
 
 			screen.brush = brushes.blue;
 			screen.fillPath(blue_box);
@@ -150,6 +153,9 @@ export function VausView(state) {
 
 			screen.brush = brushes.gray;
 			screen.fillPath(gray_box);
+		},
+		onSceneChanged(scene) {
+			state.scene = scene;
 		}
 	}, verlet, state));
 }
@@ -162,11 +168,11 @@ export function VausController(state) {
 		move(direction) {
 			const scene = state.scene;
 			if (!is_nil(scene)) {
-				const thrust = 1/scene.scale;
+				const thrust = 1/16;
 				moving = !direction.isNull();
 				if (moving) {
 					acceleration = direction.mul(thrust);
-				} else if (verlet.velocity.scalar(acceleration) > 0) {
+				} else if (verlet.velocity().scalar(acceleration) > 0) {
 					acceleration = acceleration.opposite;
 				}
 			}
@@ -174,22 +180,21 @@ export function VausController(state) {
 		update() {
 			const scene = state.scene;
 			if (!is_nil(scene)) {
-				const velocity = verlet.velocity.add(acceleration);
+				const velocity = verlet.velocity().add(acceleration);
 				const scalar = velocity.scalar(acceleration);
 				const speed = Math.abs(velocity.x); // equivalent to velocity.norm
-
-				const thrust = 1/scene.scale;
-				const max_speed = 8/scene.scale;
+				const thrust = 1/16;
+				const max_speed = 8/16;
 
 				if (!moving && speed <= thrust) {
-					verlet.velocity = Vector.Null;
+					verlet.setVelocity(Vector.Null);
 				} else if (moving && scalar >= 0 && Math.abs(speed - max_speed) <= thrust) {
-					verlet.velocity = Vector({x: Math.sign(acceleration.x)*max_speed, y: 0});
+					verlet.setVelocity(Vector({x: Math.sign(acceleration.x)*max_speed, y: 0}));
 				} else {
-					verlet.velocity = velocity;
+					verlet.setVelocity(velocity);
 				}
 
-				verlet.position = verlet.position.add(verlet.velocity);
+				verlet.setPosition(verlet.position().add(verlet.velocity()));
 			}
 		}
 	}, verlet);

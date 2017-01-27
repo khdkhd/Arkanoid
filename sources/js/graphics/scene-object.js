@@ -1,20 +1,38 @@
 import is_nil from 'lodash.isnil';
+import is_number from 'lodash.isnumber';
 import noop from 'lodash.noop';
+import pick from 'lodash.pick';
 
 import {completeAssign} from 'common/utils';
 import BoundingBox from 'graphics/bounding-box';
 
-export const SceneObjectModel = state => completeAssign({
+function normalize_scale(state) {
+	const {scale} = state;
+	state.scale = is_number(scale) ? {x: scale, y: scale} : scale;
+	return state;
+}
+
+export const SceneObjectModel = state => normalize_scale(completeAssign({
 	alignCenterToOrigin: false,
 	onRender: noop,
 	onSceneChanged: noop,
 	renderEnabled: true,
+	scale: 1,
 	scene: null,
-	zIndex: 0
-}, BoundingBox(state), state);
+	zIndex: 0,
+}, BoundingBox(state), state));
 
-export default (state) => {
-	state = SceneObjectModel(state);
+export default (parent_scene, options) => {
+	const state = SceneObjectModel(pick(options, [
+		'alignCenterToOrigin',
+		'onRender',
+		'onSceneChanged',
+		'renderEnabled',
+		'position',
+		'scale',
+		'size',
+		'zIndex'
+	]));
 	const object = {
 		set zIndex(value) {
 			if (state.zIndex !== value) {
@@ -37,25 +55,44 @@ export default (state) => {
 			if (!is_nil(scene) && scene !== state.scene) {
 				state.scene = scene;
 				scene.add(this);
-				state.onSceneChanged(scene);
+				state.onSceneChanged.call(this, scene);
 			}
 		},
 		get scene() {
 			return state.scene;
 		},
-		toggleRender(enabled){
-			if(is_nil(enabled)){
+		get scale() {
+			return state.scale;
+		},
+		set scale(f) {
+			state.scale = is_number(f) ? {x: f, y: f} : f;
+		},
+		get size() {
+			return {
+				width: state.size.width,
+				height: state.size.height
+			};
+		},
+		set size({width, height}) {
+			state.size.width = width;
+			state.size.height = height;
+		},
+		toggleRender(enabled) {
+			if(is_nil(enabled)) {
 				state.renderEnabled = !state.renderEnabled;
 			} else {
 				state.renderEnabled = enabled;
 			}
 		},
-		render() {
+		render(screen) {
 			if (state.renderEnabled) {
-				const screen = state.scene.screen;
+				const rect = state.boundingBox.relative;
+				const pos = state.position();
 				screen.save();
-				screen.translate(state.boundingBox.absolute.topLeft);
-				state.onRender(state.scene);
+				screen.scale = state.scale;
+				screen.translate(pos);
+				screen.clipRect(rect);
+				state.onRender.call(this, screen, state.scene, rect);
 				screen.restore();
 			}
 		},
@@ -63,8 +100,6 @@ export default (state) => {
 			return state.boundingBox;
 		}
 	};
-	if (is_nil(state.scene)) {
-		object.scene = state.scene;
-	}
+	object.scene = parent_scene;
 	return object;
 }

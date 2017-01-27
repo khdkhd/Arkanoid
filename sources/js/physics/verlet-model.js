@@ -6,19 +6,21 @@ export default function VerletModel({x: px0, y: py0}, {x: vx0, y: vy0} = {x: 0, 
 
 	const velocity = () => current.sub(previous);
 	return {
-		get position() {
+		position() {
 			return current;
 		},
-		set position({x, y}) {
+		setPosition({x, y}) {
 			const v = velocity();
 			current = Vector({x, y});
 			previous = current.sub(v);
+			return this;
 		},
-		get velocity() {
+		velocity() {
 			return velocity();
 		},
-		set velocity({x, y}) {
+		setVelocity({x, y}) {
 			previous = current.sub({x, y});
+			return this;
 		}
 	};
 }

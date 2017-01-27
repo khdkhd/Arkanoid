@@ -78,10 +78,16 @@ export default function Game() {
 	const columns = screen.width/scale;
 	const rows = screen.height/scale;
 
-	const walls_scene = Scene(screen, screen.rect.scale(1/scale), scale, '#123');
+	const scene = Scene(screen, {
+		backgroundColor: '#123',
+		rect: screen.rect.scale(1/scale),
+		scale
+	});
 
 	const zone = Rect({x: 1, y: 1}, {width: columns - 2, height: rows - 2});
-	const game_scene = Scene(screen, zone, scale, '#123');
+	const game_scene = Scene(scene, {
+		rect: zone
+	});
 
 	const state = {
 		bricks: [],
@@ -93,7 +99,7 @@ export default function Game() {
 		end: false,
 		score: 0
 	};
-
+	//
 	const game_contoller = Controller(state);
 
 	function loop() {
@@ -101,25 +107,24 @@ export default function Game() {
 			if (!state.paused) {
 				game_contoller.update();
 			}
-			walls_scene.render(screen);
-			game_scene.render(screen);
+			screen.render();
 			requestAnimationFrame(loop);
 		} else {
 			emitter.emit('end', state.level);
 		}
 	}
 
-	game_contoller.on('pause', () => {
-		state.paused = !state.paused;
-	});
-	game_contoller.on('update-score', points => {
-		state.score += points;
-	});
-	game_contoller.on('end-of-level', () => {
-		state.end = true;
-	});
-
-	create_walls(columns - 1, rows, walls_scene);
+	// game_contoller.on('pause', () => {
+	// 	state.paused = !state.paused;
+	// });
+	// game_contoller.on('update-score', points => {
+	// 	state.score += points;
+	// });
+	// game_contoller.on('end-of-level', () => {
+	// 	state.end = true;
+	// });
+	//
+	create_walls(columns - 1, rows, scene);
 
 	return completeAssign(emitter, {
 		start(level) {

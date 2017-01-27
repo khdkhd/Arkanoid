@@ -4,32 +4,34 @@ import VerletModel from 'physics/verlet-model';
 import SceneObject from 'graphics/scene-object';
 import {EventEmitter} from 'events';
 
+import constant from 'lodash.constant';
+
 const radius = .3;
 
 export function BallModel({x, y}) {
 	return {
 		emitter: new EventEmitter(),
 		radius,
-		size: {
+		size: constant({
 			width: 2*radius,
 			height: 2*radius,
-		},
+		}),
 		verlet: VerletModel({x, y})
 	};
 }
 
 export function BallView(state) {
-	return SceneObject(completeAssign({
+	return SceneObject(null, completeAssign({
 		alignCenterToOrigin: true,
-		onRender(scene) {
-			const {screen} = scene;
+		onRender(screen) {
+			const scale = Math.max(screen.absoluteScale.x, screen.absoluteScale.y);
 			screen.brush = 'white';
 			screen.pen = {
 				strokeStyle: 'hsl(210, 50%, 50%)',
-				lineWidth: 1/scene.scale
+				lineWidth: 1/scale
 			};
 			screen.beginPath();
-			screen.arc({x: state.radius, y: state.radius}, state.radius, 0, 2*Math.PI, false);
+			screen.arc({x: 0, y: 0}, state.radius, 0, 2*Math.PI, false);
 			screen.closePath();
 			screen.fillPath();
 			screen.drawPath();
@@ -40,11 +42,11 @@ export function BallView(state) {
 export function BallController({verlet}) {
 	return completeAssign({
 		reset({x, y}) {
-			verlet.velocity = Vector.Null;
-			verlet.position = Vector({x, y});
+			verlet.setVelocity(Vector.Null);
+			verlet.setPosition(Vector({x, y}));
 		},
 		update() {
-			verlet.position = verlet.position.add(verlet.velocity);
+			verlet.setPosition(verlet.position().add(verlet.velocity()));
 		},
 		get radius() {
 			return radius;

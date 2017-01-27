@@ -1,15 +1,25 @@
-import BoundingBox from 'graphics/bounding-box';
 import {completeAssign} from 'common/utils';
-import remove from 'lodash.remove';
+import SceneObject from 'graphics/scene-object';
 
-function SceneController(state) {
+import constant from 'lodash.constant';
+import remove from 'lodash.remove';
+import is_nil from 'lodash.isnil';
+
+export function SceneModel(scene, {backgroundColor = 'rgba(0, 0, 0, 0)', scale = 1, rect}) {
+	if (is_nil(rect)) {
+		rect = scene.boundingBox.relative;
+	}
 	return {
-		get screen() {
-			return state.screen;
-		},
-		get scale() {
-			return state.scale;
-		},
+		backgroundColor,
+		children:[],
+		position: constant(rect.topLeft),
+		scale,
+		size: constant(rect.size)
+	};
+}
+
+export function SceneController(state) {
+	return {
 		add(child) {
 			remove(state.children, child);
 			state.children.push(child);
@@ -17,6 +27,7 @@ function SceneController(state) {
 			if (child.scene !== this) {
 				child.scene = this;
 			}
+			return this;
 		},
 		remove(child) {
 			remove(state.children, child);
@@ -26,43 +37,22 @@ function SceneController(state) {
 	};
 }
 
-function SceneRenderer(state) {
-	const {boundingBox} = BoundingBox(state);
-	return {
-		boundingBox,
-		render() {
-			const screen = state.screen;
-			const rect = boundingBox.relative;
-			screen.save();
-
-			screen.scale(state.scale);
-			screen.translate(state.position);
-			screen.clipRect(rect);
-
+export function SceneView(parent_scene, state) {
+	return SceneObject(parent_scene, completeAssign({
+		onRender(screen, scene, rect) {
 			screen.brush = state.backgroundColor;
 			screen.fillRect(rect);
-
 			for (let child of state.children) {
-				child.render();
+				child.render(screen);
 			}
-
-			screen.restore();
 		}
-	};
+	}, state));
 }
 
-export default function Scene(screen, rect, scale, backgroundColor = 'rgba(0, 0, 0, 0)') {
-	const state = {
-		backgroundColor,
-		children:[],
-		position: rect.topLeft,
-		size: rect.size,
-		screen,
-		scale
-	};
+export default (parent_scene, options) => {
+	const state = SceneModel(parent_scene, options);
 	return completeAssign(
-		{},
-		SceneRenderer(state),
-		SceneController(state)
+		SceneController(state),
+		SceneView(parent_scene, state)
 	);
 }

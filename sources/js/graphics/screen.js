@@ -2,31 +2,38 @@ import is_nil from 'lodash/isNil';
 import is_number from 'lodash/isNumber';
 import is_string from 'lodash/isString';
 
+import {completeAssign} from 'common/utils';
+import {SceneController} from 'graphics/scene';
 import Rect from 'maths/rect';
 
 export default function createScreen(canvas_context) {
-	let scale_factor = {x: 1, y: 1};
-	let scale_factor_stack = [];
+	const state = {
+		children: [],
+		renderEnabled: true,
+		absoluteScale: {x: 1, y: 1},
+		scale: {x: 1, y: 1},
+		scale_stack: []
+	};
 
-	return {
+	return completeAssign(SceneController(state), {
 		///////////////////////////////////////////////////////////////////////
 		/// Screen metrics
 		get width() {
-			return canvas_context.canvas.width;
+			return canvas_context.canvas.width*state.scale.x;
 		},
 		set width(w) {
-			canvas_context.canvas.width = w;
+			canvas_context.canvas.width = w/state.scale.x;
 		},
 		get height() {
-			return canvas_context.canvas.height;
+			return canvas_context.canvas.height*state.scale.y;
 		},
 		set height(h) {
-			canvas_context.canvas.height = h;
+			canvas_context.canvas.height = h/state.scale.y;
 		},
 		get size() {
 			return {
-				width: canvas_context.canvas.width,
-				height: canvas_context.canvas.height
+				width: this.width,
+				height: this.height
 			};
 		},
 		set size({width, height}) {
@@ -148,18 +155,32 @@ export default function createScreen(canvas_context) {
 		///////////////////////////////////////////////////////////////////////
 		/// Context save/restore
 		save() {
+			const {scale, absoluteScale} = state;
+			state.scale_stack.push({scale, absoluteScale});
 			canvas_context.save();
-			scale_factor_stack.push(scale_factor);
 		},
 		restore() {
+			const {scale, absoluteScale} = state.scale_stack.pop();
+			state.scale = scale;
+			state.absoluteScale = absoluteScale;
 			canvas_context.restore();
-			scale_factor = scale_factor_stack.pop();
 		},
 		///////////////////////////////////////////////////////////////////////
 		/// Transformations
-		scale(f) {
-			scale_factor = is_number(f) ? {x: f, y: f} : f;
-			canvas_context.scale(scale_factor.x, scale_factor.y);
+		get absoluteScale() {
+			return state.absoluteScale;
+		},
+		get scale() {
+			return state.scale;
+		},
+		set scale(f) {
+			const scale = is_number(f) ? {x: f, y: f} : f;
+			state.absoluteScale = {
+				x: state.absoluteScale.x*scale.x,
+				y: state.absoluteScale.x*scale.y
+			};
+			state.scale = scale;
+			canvas_context.scale(state.scale.x, state.scale.y);
 		},
 		translate({x, y}) {
 			canvas_context.translate(x, y);
@@ -175,6 +196,31 @@ export default function createScreen(canvas_context) {
 				grd.addColorStop(stop.pos, stop.color);
 			}
 			return grd;
+		},
+		///////////////////////////////////////////////////////////////////////
+		/// Scene
+		toggleRender(enabled){
+			if(is_nil(enabled)){
+				state.renderEnabled = !state.renderEnabled;
+			} else {
+				state.renderEnabled = enabled;
+			}
+		},
+		render() {
+			this.brush = 'rgba(0, 0, 0, 0)';
+			this.clear();
+			for (let child of state.children) {
+				child.render(this);
+			}
+		},
+		get scene() {
+			return null;
+		},
+		get boundingBox() {
+			return {
+				relative: this.rect,
+				absolute: this.rect
+			};
 		}
-	};
+	});
 }
