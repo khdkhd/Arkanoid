@@ -147,7 +147,7 @@ describe('graphics.SceneObject(coordinates, {[, onSceneChanged][, onRender][, sc
 			expect(scene_object.hide()).to.equal(scene_object);
 		});
 	});
-	describe('#render()', () => {
+	describe('#render(screen)', () => {
 		it('calls back onRender if object is visible', () => {
 			const onRender = sinon.spy();
 			const scene_object = SceneObject(Coordinates(size, position), {onRender});
@@ -155,6 +155,29 @@ describe('graphics.SceneObject(coordinates, {[, onSceneChanged][, onRender][, sc
 			scene_object.show();
 			scene_object.render(screen);
 			expect(onRender).to.have.been.calledOnce;
+		});
+		it('calls back onRender if object is visible with this bind to itself', () => {
+			const onRender = sinon.spy();
+			const scene_object = SceneObject(Coordinates(size, position), {onRender});
+			const screen = Screen(CanvasContextMock());
+			scene_object.show();
+			scene_object.render(screen);
+			expect(onRender.thisValues[0]).to.equal(scene_object);
+		});
+		it('calls back onRender if object is visible with screen, scene and localRect as parameters', () => {
+			const onRender = sinon.spy();
+			const coordinates = Coordinates(size, position);
+			const scene_object = SceneObject(coordinates, {onRender});
+			const scene = SceneMock();
+			const screen = Screen(CanvasContextMock());
+			scene_object.show();
+			scene_object.setScene(scene);
+			scene_object.render(screen);
+			expect(onRender).to.have.been.calledWithExactly(
+				screen,
+				scene,
+				coordinates.localRect()
+			);
 		});
 		it('does not calls back onRender if object is not visible', () => {
 			const onRender = sinon.spy();
