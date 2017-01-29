@@ -20,7 +20,8 @@ const canvas_context_methods = [
 	'scale',
 	'rotate',
 	'translate',
-	'createLinearGradient'
+	'createLinearGradient',
+	'clip'
 ];
 
 export default function() {
