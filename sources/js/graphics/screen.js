@@ -1,4 +1,3 @@
-import constant from 'lodash.constant';
 import is_nil from 'lodash.isnil';
 import is_number from 'lodash.isnumber';
 import is_string from 'lodash.isstring';
