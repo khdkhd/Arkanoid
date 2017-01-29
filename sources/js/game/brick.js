@@ -6,7 +6,6 @@ import SceneObject from 'graphics/scene-object';
 
 import {EventEmitter} from 'events';
 
-import constant from 'lodash.constant';
 import is_nil from 'lodash.isnil';
 
 const BOTTOM_OUTER_RECT = Rect(Vector.Null, {width: 2, height: 1});
