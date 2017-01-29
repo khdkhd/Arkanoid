@@ -7,7 +7,6 @@ export default function Rect({x, y}, {width, height}) {
 	const center      = Vector({x: x + width/2, y: y + height/2});
 	const topLeft     = Vector({x,  y});
 	const topRight    = Vector({x: x + width, y: y});
-
 	return {
 		get x() {
 			return x;
