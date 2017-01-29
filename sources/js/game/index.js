@@ -95,11 +95,6 @@ export default function Game() {
 		zone
 	};
 
-	screen
-		.setBackgroundColor('#123')
-		.setScale(scale)
-		.add(scene);
-
 	const game_contoller = Controller(state);
 
 	function loop() {
@@ -123,6 +118,11 @@ export default function Game() {
 	game_contoller.on('end-of-level', () => {
 		state.end = true;
 	});
+
+	screen
+		.setBackgroundColor('#123')
+		.setScale(scale)
+		.add(scene);
 
 	create_walls(columns - 1, rows, screen);
 

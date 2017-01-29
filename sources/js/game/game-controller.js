@@ -81,16 +81,6 @@ export default function GameController(state) {
 		}
 	}
 
-	const buzz = cond([
-		[matches('brick'), constant({note: 'A', octave: '2', duration: .125})],
-		[matches('vaus'), constant({note: 'F', octave: '3', duration: .125})],
-		[constant(true), constant(null)]
-	]);
-
-	ball.on('hit', target => {
-		collisionBuzzer.buzz(buzz(target));
-	});
-
 	function ball_collides_with_vaus(ball_box, speed) {
 		const v = bounce(ball_box, speed, vaus.rect(), 1/16);
 		if (!is_nil(v)) {
@@ -123,6 +113,12 @@ export default function GameController(state) {
 		ball_collides_with_walls,
 		(ball_box, speed) => speed
 	);
+
+	const buzz = cond([
+		[matches('brick'), constant({note: 'A', octave: '2', duration: .125})],
+		[matches('vaus'), constant({note: 'F', octave: '3', duration: .125})],
+		[constant(true), constant(null)]
+	]);
 
 	// Move helpers
 
@@ -178,6 +174,9 @@ export default function GameController(state) {
 		},
 		reset() {
 			reset_ball_position();
+			ball.on('hit', target => {
+				collisionBuzzer.buzz(buzz(target));
+			});
 			state.bricks.forEach(brick => {
 				brick.on('hit', point => {
 					emitter.emit('update-score', point)
