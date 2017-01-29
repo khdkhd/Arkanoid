@@ -1,15 +1,16 @@
-import is_nil from 'lodash/isNil';
-import is_number from 'lodash/isNumber';
-import is_string from 'lodash/isString';
+import constant from 'lodash.constant';
+import is_nil from 'lodash.isnil';
+import is_number from 'lodash.isnumber';
+import is_string from 'lodash.isstring';
 
 import {completeAssign} from 'common/utils';
 import {SceneController} from 'graphics/scene';
 import Rect from 'maths/rect';
 
-export default function createScreen(canvas_context) {
+export default function Screen(canvas_context) {
 	const state = {
+		backgroundColor: 'rgba(0, 0, 0, 0)',
 		children: [],
-		renderEnabled: true,
 		absoluteScale: {x: 1, y: 1},
 		scale: {x: 1, y: 1},
 		scale_stack: []
@@ -40,8 +41,11 @@ export default function createScreen(canvas_context) {
 			this.width = width;
 			this.height = height;
 		},
-		get rect() {
+		localRect() {
 			return Rect({x: 0, y: 0}, this.size);
+		},
+		rect() {
+			return this.localRect();
 		},
 		///////////////////////////////////////////////////////////////////////
 		/// Pen
@@ -85,12 +89,14 @@ export default function createScreen(canvas_context) {
 		/// Basics drawing routines
 		clear() {
 			canvas_context.fillRect(0, 0, this.width, this.height);
+			return this;
 		},
 		drawLine({x: x1, y: y1}, {x: x2, y: y2}) {
 			this.beginPath();
 			this.moveTo({x: x1, y: y1});
 			this.lineTo({x: x2, y: y2});
 			this.drawPath();
+			return this;
 		},
 		drawRect({topLeft, topRight, bottomLeft, bottomRight}) {
 			this.beginPath();
@@ -100,6 +106,7 @@ export default function createScreen(canvas_context) {
 			this.lineTo(bottomLeft);
 			this.closePath();
 			this.drawPath();
+			return this;
 		},
 		fillRect({topLeft, topRight, bottomLeft, bottomRight}) {
 			this.beginPath();
@@ -109,23 +116,29 @@ export default function createScreen(canvas_context) {
 			this.lineTo(bottomLeft);
 			this.closePath();
 			this.fillPath();
+			return this;
 		},
 		///////////////////////////////////////////////////////////////////////
 		/// Path
 		beginPath() {
 			canvas_context.beginPath();
+			return this;
 		},
 		closePath() {
 			canvas_context.closePath();
+			return this;
 		},
 		moveTo({x, y}) {
 			canvas_context.moveTo(x, y);
+			return this;
 		},
 		lineTo({x, y}) {
 			canvas_context.lineTo(x, y);
+			return this;
 		},
 		arc({x, y}, radius, start_angle, end_angle, anticlockwise) {
 			canvas_context.arc(x, y, radius, start_angle, end_angle, anticlockwise);
+			return this;
 		},
 		drawPath(path) {
 			if (is_nil(path)) {
@@ -133,6 +146,7 @@ export default function createScreen(canvas_context) {
 			} else {
 				canvas_context.stroke(path);
 			}
+			return this;
 		},
 		fillPath(path) {
 			if (is_nil(path)) {
@@ -140,6 +154,7 @@ export default function createScreen(canvas_context) {
 			} else {
 				canvas_context.fill(path);
 			}
+			return this;
 		},
 		///////////////////////////////////////////////////////////////////////
 		/// Clip
@@ -151,6 +166,7 @@ export default function createScreen(canvas_context) {
 			this.lineTo(bottomLeft);
 			this.closePath();
 			canvas_context.clip();
+			return this;
 		},
 		///////////////////////////////////////////////////////////////////////
 		/// Context save/restore
@@ -158,22 +174,24 @@ export default function createScreen(canvas_context) {
 			const {scale, absoluteScale} = state;
 			state.scale_stack.push({scale, absoluteScale});
 			canvas_context.save();
+			return this;
 		},
 		restore() {
 			const {scale, absoluteScale} = state.scale_stack.pop();
 			state.scale = scale;
 			state.absoluteScale = absoluteScale;
 			canvas_context.restore();
+			return this;
 		},
 		///////////////////////////////////////////////////////////////////////
 		/// Transformations
-		get absoluteScale() {
+		absoluteScale() {
 			return state.absoluteScale;
 		},
-		get scale() {
+		scale() {
 			return state.scale;
 		},
-		set scale(f) {
+		setScale(f) {
 			const scale = is_number(f) ? {x: f, y: f} : f;
 			state.absoluteScale = {
 				x: state.absoluteScale.x*scale.x,
@@ -181,12 +199,15 @@ export default function createScreen(canvas_context) {
 			};
 			state.scale = scale;
 			canvas_context.scale(state.scale.x, state.scale.y);
+			return this;
 		},
 		translate({x, y}) {
 			canvas_context.translate(x, y);
+			return this;
 		},
 		rotate(angle) {
 			canvas_context.rotate(angle);
+			return this;
 		},
 		///////////////////////////////////////////////////////////////////////
 		/// Gradient
@@ -199,28 +220,20 @@ export default function createScreen(canvas_context) {
 		},
 		///////////////////////////////////////////////////////////////////////
 		/// Scene
-		toggleRender(enabled){
-			if(is_nil(enabled)){
-				state.renderEnabled = !state.renderEnabled;
-			} else {
-				state.renderEnabled = enabled;
-			}
-		},
 		render() {
-			this.brush = 'rgba(0, 0, 0, 0)';
+			this.brush = state.backgroundColor;
 			this.clear();
 			for (let child of state.children) {
 				child.render(this);
 			}
+			return this;
 		},
-		get scene() {
+		setBackgroundColor(color) {
+			state.backgroundColor = color;
+			return this;
+		},
+		scene() {
 			return null;
-		},
-		get boundingBox() {
-			return {
-				relative: this.rect,
-				absolute: this.rect
-			};
 		}
 	});
 }

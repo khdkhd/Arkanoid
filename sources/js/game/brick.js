@@ -1,7 +1,7 @@
 import {completeAssign} from 'common/utils';
 import Rect from 'maths/rect';
 import Vector from 'maths/vector';
-import VerletModel from 'physics/verlet-model';
+import Coordinates from 'graphics/coordinates';
 import SceneObject from 'graphics/scene-object';
 
 import {EventEmitter} from 'events';
@@ -98,15 +98,14 @@ const bricks_state = {
 export function BrickModel({x, y}, color, level) {
 	return completeAssign(bricks_state[color](level), {
 		color,
+		coordinates: Coordinates({width: 2, height: 1}, {x, y}),
 		destroyed: false,
 		emitter: new EventEmitter(),
-		size: constant({width: 2, height: 1}),
-		verlet: VerletModel(Vector({x, y})),
 	});
 }
 
 export function BrickView(state) {
-	return SceneObject(null, completeAssign({
+	return SceneObject(state.coordinates, {
 		onRender(screen) {
 			screen.brush = 'black';
 			screen.fillRect(BOTTOM_OUTER_RECT);
@@ -118,12 +117,11 @@ export function BrickView(state) {
 			screen.brush = state.colors.inner;
 			screen.fillRect(INNER_RECT);
 		}
-	}, state.verlet, state));
+	});
 }
 
 export function BrickController(state) {
-	const {verlet} = state;
-	return completeAssign({
+	return {
 		hit() {
 			if (!(is_nil(state.hits) || state.destroyed)) {
 				state.hits = state.hits - 1;
@@ -145,13 +143,14 @@ export function BrickController(state) {
 		get points() {
 			return state.points;
 		}
-	}, verlet);
+	};
 }
 
 export function Brick({x, y}, color, level) {
 	const state = BrickModel({x, y}, color, level);
 	return completeAssign(
 		state.emitter,
+		state.coordinates,
 		BrickView(state),
 		BrickController(state)
 	);

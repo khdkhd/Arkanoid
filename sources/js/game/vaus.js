@@ -5,7 +5,6 @@ import VerletModel from 'physics/verlet-model';
 import SceneObject from 'graphics/scene-object';
 import {EventEmitter} from 'events';
 
-import constant from 'lodash.constant';
 import is_nil from 'lodash.isnil';
 
 const blue_box = new Path2D(`
@@ -94,28 +93,19 @@ function blue_brush(screen) {
 }
 
 export function VausModel({x, y}) {
-	let padSize = 1;
 	return {
 		emitter: new EventEmitter(),
-		size: function() {
-			return {
-				width: 2 + padSize,
-				height: 1
-			};
-		},
-		get padSize()  {
-			return padSize;
-		},
-		set padSize(w) {
-			padSize = w;
-		},
-		verlet: VerletModel({x, y})
+		padSize: 1,
+		verlet: VerletModel({
+			width: 3,
+			height: 1
+		}, {x, y})
 	};
 }
 
 export function VausView(state) {
 	const {verlet} = state;
-	return SceneObject(null, completeAssign({
+	return SceneObject(verlet, {
 		onRender(screen) {
 			const pad_size = state.padSize;
 			const brushes = {
@@ -123,7 +113,7 @@ export function VausView(state) {
 				red:  red_brush (screen),
 				gray: gray_brush(screen)
 			};
-			screen.pen = 1/screen.absoluteScale;
+			screen.pen = 1/screen.absoluteScale().x;
 
 			screen.brush = brushes.blue;
 			screen.fillPath(blue_box);
@@ -140,7 +130,7 @@ export function VausView(state) {
 			screen.fillRect(Rect({x: 1, y: 0}, {width: pad_size, height: 14/16}));
 
 			screen.translate({x: 2 + pad_size, y: 0});
-			screen.scale = {x: -1, y: 1};
+			screen.setScale({x: -1, y: 1});
 
 			screen.brush = brushes.blue;
 			screen.fillPath(blue_box);
@@ -157,14 +147,14 @@ export function VausView(state) {
 		onSceneChanged(scene) {
 			state.scene = scene;
 		}
-	}, verlet, state));
+	});
 }
 
 export function VausController(state) {
 	const {verlet} = state;
 	let acceleration = Vector.Null;
 	let moving = false;
-	return completeAssign({
+	return {
 		move(direction) {
 			const scene = state.scene;
 			if (!is_nil(scene)) {
@@ -176,6 +166,7 @@ export function VausController(state) {
 					acceleration = acceleration.opposite;
 				}
 			}
+			return this;
 		},
 		update() {
 			const scene = state.scene;
@@ -193,19 +184,31 @@ export function VausController(state) {
 				} else {
 					verlet.setVelocity(velocity);
 				}
-
-				verlet.setPosition(verlet.position().add(verlet.velocity()));
+				verlet.update();
 			}
+			return this;
+		},
+		padSize() {
+			return state.padSize;
+		},
+		setPadSize(pad_size) {
+			state.padSize = Math.round(pad_size),
+			state.verlet.setSize({
+				width: 2 + pad_size,
+				height: 1
+			});
+			return this;
 		}
-	}, verlet);
+	};
 }
 
 export function Vaus({x, y}) {
 	const state = VausModel({x, y});
 	return completeAssign(
 		state.emitter,
-		VausController(state),
-		VausView(state)
+		state.verlet,
+		VausView(state),
+		VausController(state)
 	);
 }
 

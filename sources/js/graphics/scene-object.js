@@ -1,105 +1,75 @@
 import is_nil from 'lodash.isnil';
 import is_number from 'lodash.isnumber';
 import noop from 'lodash.noop';
-import pick from 'lodash.pick';
 
-import {completeAssign} from 'common/utils';
-import BoundingBox from 'graphics/bounding-box';
-
-function normalize_scale(state) {
-	const {scale} = state;
-	state.scale = is_number(scale) ? {x: scale, y: scale} : scale;
-	return state;
+function normalize_scale(scale) {
+	if (is_nil(scale)) {
+		scale = 1;
+	}
+	return is_number(scale) ? {x: scale, y: scale} : scale;
 }
 
-export const SceneObjectModel = state => normalize_scale(completeAssign({
-	alignCenterToOrigin: false,
-	onRender: noop,
-	onSceneChanged: noop,
-	renderEnabled: true,
-	scale: 1,
-	scene: null,
-	zIndex: 0,
-}, BoundingBox(state), state));
-
-export default (parent_scene, options) => {
-	const state = SceneObjectModel(pick(options, [
-		'alignCenterToOrigin',
-		'onRender',
-		'onSceneChanged',
-		'renderEnabled',
-		'position',
-		'scale',
-		'size',
-		'zIndex'
-	]));
-	const object = {
-		set zIndex(value) {
-			if (state.zIndex !== value) {
-				state.zIndex = value;
-				if (!is_nil(state.scene)) {
+export default (coordinates, options) => {
+	const onRender = is_nil(options.onRender) ? noop : options.onRender;
+	const onSceneChanged = is_nil(options.onSceneChanged) ? noop : options.onSceneChanged;
+	let scale = normalize_scale(options.scale);
+	let scene = null;
+	let visible = is_nil(options.visible) ? true : options.visible;
+	let zIndex = is_nil(options.zIndex) ? 0 : options.zIndex;
+	return {
+		zIndex() {
+			return zIndex;
+		},
+		setZIndex(value) {
+			if (zIndex !== value) {
+				zIndex = value;
+				if (!is_nil(scene)) {
 					// make the scene to sort its children
-					state.scene.add(this);
+					scene.add(this);
 				}
 			}
+			return this;
 		},
-		get zIndex() {
-			return state.zIndex;
+		scene() {
+			return scene;
 		},
-		set scene(scene) {
-			if (!is_nil(state.scene)) {
-				const tmp = state.scene;
-				state.scene = null;
+		setScene(s) {
+			if (!is_nil(scene)) {
+				const tmp = scene;
+				scene = null;
 				tmp.remove(this);
 			}
-			if (!is_nil(scene) && scene !== state.scene) {
-				state.scene = scene;
+			if (!is_nil(s) && scene !== s) {
+				scene = s;
 				scene.add(this);
-				state.onSceneChanged.call(this, scene);
+				onSceneChanged.call(this, scene);
 			}
+			return this;
 		},
-		get scene() {
-			return state.scene;
+		scale() {
+			return scale;
 		},
-		get scale() {
-			return state.scale;
+		setScale(f) {
+			scale = is_number(f) ? {x: f, y: f} : f;
+			return this;
 		},
-		set scale(f) {
-			state.scale = is_number(f) ? {x: f, y: f} : f;
+		show() {
+			visible = true;
+			return this;
 		},
-		get size() {
-			return {
-				width: state.size.width,
-				height: state.size.height
-			};
-		},
-		set size({width, height}) {
-			state.size.width = width;
-			state.size.height = height;
-		},
-		toggleRender(enabled) {
-			if(is_nil(enabled)) {
-				state.renderEnabled = !state.renderEnabled;
-			} else {
-				state.renderEnabled = enabled;
-			}
+		hide() {
+			visible = false;
+			return this;
 		},
 		render(screen) {
-			if (state.renderEnabled) {
-				const rect = state.boundingBox.relative;
-				const pos = state.position();
+			if (visible) {
 				screen.save();
-				screen.scale = state.scale;
-				screen.translate(pos);
-				screen.clipRect(rect);
-				state.onRender.call(this, screen, state.scene, rect);
+				screen.setScale(scale);
+				screen.clipRect(coordinates.rect());
+				screen.translate(coordinates.position());
+				onRender.call(this, screen, scene, coordinates.localRect());
 				screen.restore();
 			}
-		},
-		get boundingBox() {
-			return state.boundingBox;
 		}
 	};
-	object.scene = parent_scene;
-	return object;
 }

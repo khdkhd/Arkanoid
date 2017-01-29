@@ -1,5 +1,7 @@
 import {completeAssign} from 'common/utils';
 
+import Coordinates from 'graphics/coordinates';
+
 import Rect from 'maths/rect';
 import Vector from 'maths/vector';
 
@@ -43,8 +45,8 @@ function create_bricks(level, scene) {
 	return bricks;
 }
 
-function create_vaus(scene) {
-	const position = {x: 1, y: scene.boundingBox.relative.height - 2};
+function create_vaus(scene, zone) {
+	const position = {x: 1, y: zone.height - 2};
 	const vaus = Vaus(position);
 	scene.add(vaus);
 	return vaus;
@@ -78,28 +80,26 @@ export default function Game() {
 	const columns = screen.width/scale;
 	const rows = screen.height/scale;
 
-	const scene = Scene(screen, {
-		backgroundColor: '#123',
-		rect: screen.rect.scale(1/scale),
-		scale
-	});
-
 	const zone = Rect({x: 1, y: 1}, {width: columns - 2, height: rows - 2});
-	const game_scene = Scene(scene, {
-		rect: zone
-	});
+	const scene = Scene(Coordinates(zone.size, zone.topLeft));
 
 	const state = {
 		bricks: [],
-		vaus: create_vaus(game_scene),
-		ball: create_ball(game_scene),
-		scene: game_scene,
+		ball: create_ball(scene),
+		vaus: create_vaus(scene, zone),
+		scene: scene,
 		cheatMode: false,
 		paused: false,
 		end: false,
-		score: 0
+		score: 0,
+		zone
 	};
-	//
+
+	screen
+		.setBackgroundColor('#123')
+		.setScale(scale)
+		.add(scene);
+
 	const game_contoller = Controller(state);
 
 	function loop() {
@@ -114,24 +114,24 @@ export default function Game() {
 		}
 	}
 
-	// game_contoller.on('pause', () => {
-	// 	state.paused = !state.paused;
-	// });
-	// game_contoller.on('update-score', points => {
-	// 	state.score += points;
-	// });
-	// game_contoller.on('end-of-level', () => {
-	// 	state.end = true;
-	// });
-	//
-	create_walls(columns - 1, rows, scene);
+	game_contoller.on('pause', () => {
+		state.paused = !state.paused;
+	});
+	game_contoller.on('update-score', points => {
+		state.score += points;
+	});
+	game_contoller.on('end-of-level', () => {
+		state.end = true;
+	});
+
+	create_walls(columns - 1, rows, screen);
 
 	return completeAssign(emitter, {
 		start(level) {
 			state.end = false;
 			state.level = level;
-			state.bricks.forEach(brick => game_scene.remove(brick));
-			state.bricks = create_bricks(level - 1, game_scene);
+			state.bricks.forEach(brick => scene.remove(brick));
+			state.bricks = create_bricks(level - 1, scene);
 			game_contoller.reset();
 			keyboard.use(gameKeyboardController);
 			requestAnimationFrame(loop);

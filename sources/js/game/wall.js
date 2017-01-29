@@ -1,8 +1,5 @@
-import {completeAssign} from 'common/utils';
-import Vector from 'maths/vector';
+import Coordinates from 'graphics/coordinates';
 import SceneObject from 'graphics/scene-object';
-
-import constant from 'lodash.constant';
 
 function WallBrush(start, stop, screen) {
 	return {fillStyle: screen.createLinearGradient(start, stop, [
@@ -18,26 +15,22 @@ function WallBrush(start, stop, screen) {
 }
 
 function WallModel({x, y, gradientStart, gradientStop, path}) {
-	return completeAssign({
+	return {
+		coordinates: Coordinates({width: 1, height: 1}, {x, y}),
 		gradientStart,
 		gradientStop,
-		path,
-		position: constant(Vector({x, y})),
-		size: constant({
-			width: 1,
-			height: 1
-		})
-	});
+		path
+	};
 }
 
 function WallView(state) {
-	return SceneObject(null, completeAssign({
+	return SceneObject(state.coordinates, {
 		onRender(screen) {
 			const brush = WallBrush(state.gradientStart, state.gradientStop, screen);
 			screen.brush = brush;
 			screen.fillPath(state.path);
 		}
-	}, state));
+	});
 }
 
 function VerticalWall({x, y}, gradientStart, gradientStop) {

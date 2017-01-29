@@ -40,7 +40,7 @@ const collisionBuzzer = create_collision_buzzer(audio_context);
 
 export default function GameController(state) {
 	const {ball, vaus} = state;
-	const zone = state.scene.boundingBox.relative;
+	const zone = state.zone.translate({x: -1, y: -1});
 	const emitter = new EventEmitter();
 
 	// Position helpers
@@ -57,15 +57,18 @@ export default function GameController(state) {
 	}
 
 	function reset_ball_position() {
-		const vaus_box = vaus.boundingBox.absolute;
-		ball.reset({x: vaus_box.center.x, y: vaus_box.topY - ball.radius});
+		const vaus_box = vaus.rect();
+		ball.reset(vaus_box.center.sub({
+			x: ball.size().width/2,
+			y: ball.size().height + vaus_box.height/2
+		}));
 	}
 
 	// Collision helpers
 
 	function ball_collides_with_bricks(ball_box, speed) {
 		for (let brick of ball_neighborhood(ball)) {
-			const brick_box = brick.boundingBox.absolute;
+			const brick_box = brick.rect();
 			const v = bounce(ball_box, speed, brick_box, .001);
 			if (!is_nil(v)) {
 				ball.emit('hit', 'brick');
@@ -89,7 +92,7 @@ export default function GameController(state) {
 	});
 
 	function ball_collides_with_vaus(ball_box, speed) {
-		const v = bounce(ball_box, speed, vaus.boundingBox.absolute, 1/16);
+		const v = bounce(ball_box, speed, vaus.rect(), 1/16);
 		if (!is_nil(v)) {
 			ball.emit('hit', 'vaus');
 			return v;
@@ -125,7 +128,7 @@ export default function GameController(state) {
 
 	function update_ball() {
 		if (!ball.velocity().isNull()) {
-			const ball_box = ball.boundingBox.absolute.translate(ball.velocity());
+			const ball_box = ball.rect().translate(ball.velocity());
 			ball.setVelocity(ball_collides(ball_box, ball.velocity()));
 		} else {
 			reset_ball_position(vaus, ball);
@@ -134,7 +137,7 @@ export default function GameController(state) {
 	}
 
 	function update_vaus() {
-		const {leftX: vaux_left_x, rightX: vaus_right_x} = vaus.boundingBox.absolute;
+		const {leftX: vaux_left_x, rightX: vaus_right_x} = vaus.rect();
 		const {leftX: zone_left_x, rightX: zone_right_x} = zone;
 
 		if (!vaus.velocity().isNull() && vaux_left_x <= zone_left_x) {
@@ -182,7 +185,7 @@ export default function GameController(state) {
 				brick.once('destroyed', () => {
 					brick.removeAllListeners('destroyed');
 					brick.removeAllListeners('hit');
-					brick.toggleRender(false);
+					brick.hide();
 					remove(state.bricks, brick);
 					const remain = bricks_remaining();
 					if (remain === 0) {
