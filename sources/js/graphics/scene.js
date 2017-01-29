@@ -1,68 +1,55 @@
-import BoundingBox from 'graphics/bounding-box';
 import {completeAssign} from 'common/utils';
+import SceneObject from 'graphics/scene-object';
+
 import remove from 'lodash.remove';
 
-function SceneController(state) {
+export function SceneModel(options) {
+	return Object.assign({
+		backgroundColor: 'rgba(0, 0, 0, 0)',
+		children:[]
+	}, options);
+}
+
+export function SceneController({children}) {
 	return {
-		get screen() {
-			return state.screen;
-		},
-		get scale() {
-			return state.scale;
-		},
-		add(child) {
-			remove(state.children, child);
-			state.children.push(child);
-			state.children.sort((a, b) => a.zIndex - b.zIndex);
-			if (child.scene !== this) {
-				child.scene = this;
+		add(...objects) {
+			for (let child of objects) {
+				remove(children, child);
+				children.push(child);
+				children.sort((a, b) => a.zIndex - b.zIndex);
+				if (child.scene() !== this) {
+					child.setScene(this);
+				}
 			}
+			return this;
 		},
 		remove(child) {
-			remove(state.children, child);
-			child.scene = null;
+			remove(children, child);
+			child.setScene(null);
 			return this;
-		}
+		},
 	};
 }
 
-function SceneRenderer(state) {
-	const {boundingBox} = BoundingBox(state);
-	return {
-		boundingBox,
-		render() {
-			const screen = state.screen;
-			const rect = boundingBox.relative;
-			screen.save();
-
-			screen.scale(state.scale);
-			screen.translate(state.position);
-			screen.clipRect(rect);
-
+export function SceneView(coordinates, state) {
+	return SceneObject(coordinates, Object.assign(state, {
+		onSceneChanged() {},
+		onRender(screen, scene, rect) {
 			screen.brush = state.backgroundColor;
 			screen.fillRect(rect);
-
 			for (let child of state.children) {
-				child.render();
+				child.render(screen);
 			}
-
-			screen.restore();
 		}
-	};
+	}));
 }
 
-export default function Scene(screen, rect, scale, backgroundColor = 'rgba(0, 0, 0, 0)') {
-	const state = {
-		backgroundColor,
-		children:[],
-		position: rect.topLeft,
-		size: rect.size,
-		screen,
-		scale
-	};
+export default (coordinates, options) => {
+	const state = SceneModel(options);
 	return completeAssign(
 		{},
-		SceneRenderer(state),
+		coordinates,
+		SceneView(coordinates, state),
 		SceneController(state)
 	);
 }

@@ -3,8 +3,14 @@ function createVector({x, y}) {
 		get x() {
 			return x;
 		},
+		set x(x_) {
+			x = x_;
+		},
 		get y() {
 			return y;
+		},
+		set y(y_) {
+			y = y_;
 		},
 		get norm() {
 			return Math.sqrt(this.x*this.x + this.y*this.y);
@@ -12,20 +18,37 @@ function createVector({x, y}) {
 		get opposite() {
 			return createVector({x: -x, y: -y});
 		},
-		add({x, y}) {
-			return createVector({x: this.x + x, y: this.y + y});
+		mutAdd({x, y}) {
+			this.x += x;
+			this.y += y;
+			return this;
 		},
-		sub({x, y}) {
-			return createVector({x: this.x - x, y: this.y - y});
+		add(v) {
+			return createVector({x: this.x, y: this.y}).mutAdd(v);
+		},
+		mutSub({x, y}) {
+			this.x -= x;
+			this.y -= y;
+			return this;
+		},
+		sub(v) {
+			return createVector({x: this.x, y: this.y}).mutSub(v);
+		},
+		mutMul(k) {
+			this.x *= k;
+			this.y *= k;
+			return this;
 		},
 		mul(k) {
-			return createVector({x: this.x*k, y: this.y*k});
+			return createVector({x: this.x, y: this.y}).mutMul(k);
 		},
-		transform({m11, m12, m21, m22}) {
-			return createVector({
-				x: this.x*m11 + this.y*m12,
-				y: this.x*m21 + this.y*m22
-			});
+		mutTransform({m11, m12, m21, m22}) {
+			this.x = this.x*m11 + this.y*m12;
+			this.y = this.x*m21 + this.y*m22;
+			return this;
+		},
+		transform(m) {
+			return createVector({x: this.x, y: this.y}).mutTransform(m);
 		},
 		scalar({x, y}) {
 			return this.x*x + this.y*y;

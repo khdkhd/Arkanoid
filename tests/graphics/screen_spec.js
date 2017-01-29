@@ -55,11 +55,22 @@ describe('graphics.Screen(canvas_context)', () => {
 			expect(context.canvas.height).to.equal(42);
 		});
 	});
-	describe('#rect', () => {
+	describe('#localRect()', () => {
 		it('returns the rect of the screen', () => {
 			const context = CanvasContextMock();
 			const screen = Screen(context);
-			const r = screen.rect;
+			const r = screen.localRect();
+			expect(r.x).to.equal(0);
+			expect(r.y).to.equal(0);
+			expect(r.width).to.equal(context.canvas.width);
+			expect(r.height).to.equal(context.canvas.height);
+		});
+	});
+	describe('#rect()', () => {
+		it('returns the rect of the screen', () => {
+			const context = CanvasContextMock();
+			const screen = Screen(context);
+			const r = screen.rect();
 			expect(r.x).to.equal(0);
 			expect(r.y).to.equal(0);
 			expect(r.width).to.equal(context.canvas.width);
@@ -127,7 +138,11 @@ describe('graphics.Screen(canvas_context)', () => {
 			const {width, height} = context.canvas;
 			screen.clear();
 			expect(context.fillRect.calledWith(0, 0, width, height)).to.be.true;
-		})
+		});
+		it('returns itself', () => {
+			const screen = Screen(CanvasContextMock());
+			expect(screen.clear()).to.equal(screen);
+		});
 	});
 	describe('#drawLine(p1, p2)', () => {
 		const p1 = {x: 0,   y: 0};
@@ -180,6 +195,10 @@ describe('graphics.Screen(canvas_context)', () => {
 			expect(context.beginPath.calledBefore(context.moveTo)).to.be.true;
 			expect(context.moveTo.calledBefore(context.lineTo)).to.be.true;
 			expect(context.lineTo.calledBefore(context.stroke)).to.be.true;
+		});
+		it('returns itself', () => {
+			const screen = Screen(CanvasContextMock());
+			expect(screen.drawLine(p1, p2)).to.equal(screen);
 		});
 	});
 	describe('#drawRect(r)', () => {
@@ -246,6 +265,10 @@ describe('graphics.Screen(canvas_context)', () => {
 			expect(context.lineTo.calledBefore(context.closePath)).to.be.true;
 			expect(context.closePath.calledBefore(context.stroke)).to.be.true;
 		});
+		it('returns itself', () => {
+			const screen = Screen(CanvasContextMock());
+			expect(screen.drawRect(r)).to.equal(screen);
+		});
 	});
 	describe('#fillRect(r)', () => {
 		const r = Rect({x: 0, y: 0}, {width: 1, height: 1});
@@ -311,6 +334,10 @@ describe('graphics.Screen(canvas_context)', () => {
 			expect(context.lineTo.calledBefore(context.closePath)).to.be.true;
 			expect(context.closePath.calledBefore(context.fill)).to.be.true;
 		});
+		it('returns itself', () => {
+			const screen = Screen(CanvasContextMock());
+			expect(screen.fillRect(r)).to.equal(screen);
+		});
 	});
 	describe('#beginPath', () => {
 		it('calls beginPath on context', () => {
@@ -319,6 +346,10 @@ describe('graphics.Screen(canvas_context)', () => {
 			screen.beginPath();
 			expect(context.beginPath.calledOnce).to.be.true;
 		});
+		it('returns itself', () => {
+			const screen = Screen(CanvasContextMock());
+			expect(screen.beginPath()).to.equal(screen);
+		});
 	});
 	describe('#closePath', () => {
 		it('calls closePath on context', () => {
@@ -326,6 +357,10 @@ describe('graphics.Screen(canvas_context)', () => {
 			const screen = Screen(context);
 			screen.closePath();
 			expect(context.closePath.calledOnce).to.be.true;
+		});
+		it('returns itself', () => {
+			const screen = Screen(CanvasContextMock());
+			expect(screen.closePath()).to.equal(screen);
 		});
 	});
 	describe('#moveTo(p)', () => {
@@ -341,6 +376,10 @@ describe('graphics.Screen(canvas_context)', () => {
 			screen.moveTo({x: 0, y: 0});
 			expect(context.moveTo.calledWith(0, 0)).to.be.true;
 		});
+		it('returns itself', () => {
+			const screen = Screen(CanvasContextMock());
+			expect(screen.moveTo({x: 0, y: 0})).to.equal(screen);
+		});
 	});
 	describe('#lineTo(p)', () => {
 		it('calls lineTo on context', () => {
@@ -354,6 +393,10 @@ describe('graphics.Screen(canvas_context)', () => {
 			const screen = Screen(context);
 			screen.lineTo({x: 0, y: 0});
 			expect(context.lineTo.calledWith(0, 0)).to.be.true;
+		});
+		it('returns itself', () => {
+			const screen = Screen(CanvasContextMock());
+			expect(screen.lineTo({x: 0, y: 0})).to.equal(screen);
 		});
 	});
 	describe('#arc(p, radius, start_angle, end_angle, anticlockwise)', () => {
@@ -370,6 +413,10 @@ describe('graphics.Screen(canvas_context)', () => {
 			expect(context.arc.calledWith(0, 1, 2, 3, 4, false)).to.be.true;
 			screen.arc({x: 0, y: 1}, 2, 3, 4, true);
 			expect(context.arc.calledWith(0, 1, 2, 3, 4, true)).to.be.true;
+		});
+		it('returns itself', () => {
+			const screen = Screen(CanvasContextMock());
+			expect(screen.arc({x: 0, y: 1}, 2, 3, 4, false)).to.equal(screen);
 		});
 	});
 	describe('#drawPath(path)', () => {
@@ -392,6 +439,10 @@ describe('graphics.Screen(canvas_context)', () => {
 			screen.drawPath(path);
 			expect(context.stroke.calledWith(path)).to.be.true;
 		});
+		it('returns itself', () => {
+			const screen = Screen(CanvasContextMock());
+			expect(screen.drawPath({})).to.equal(screen);
+		});
 	});
 	describe('#fillPath(path)', () => {
 		it('calls fill on the context', () => {
@@ -413,6 +464,10 @@ describe('graphics.Screen(canvas_context)', () => {
 			screen.fillPath(path);
 			expect(context.fill.calledWith(path)).to.be.true;
 		});
+		it('returns itself', () => {
+			const screen = Screen(CanvasContextMock());
+			expect(screen.fillPath({})).to.equal(screen);
+		});
 	});
 	describe('#save()', () => {
 		it('calls save once on the context', () => {
@@ -422,42 +477,85 @@ describe('graphics.Screen(canvas_context)', () => {
 			expect(context.save.calledOnce).to.be.true;
 			expect(context.save.thisValues[0]).to.equal(context);
 		});
+		it('returns itself', () => {
+			const context = CanvasContextMock();
+			const screen = Screen(context);
+			expect(screen.save()).to.equal(screen);
+		});
 	});
 	describe('#restore()', () => {
 		it('calls restore once on the context', () => {
 			const context = CanvasContextMock();
 			const screen = Screen(context);
+			screen.save();
 			screen.restore();
 			expect(context.restore.calledOnce).to.be.true;
 			expect(context.restore.thisValues[0]).to.equal(context);
 		});
+		it('restore scale and absoluteScale', () => {
+			const context = CanvasContextMock();
+			const screen = Screen(context);
+			screen.save();
+			screen.scale(2);
+			screen.restore();
+			expect(screen.scale()).to.deep.equal({x: 1, y: 1});
+			expect(screen.absoluteScale()).to.deep.equal({x: 1, y: 1});
+		});
+		it('returns itself', () => {
+			const context = CanvasContextMock();
+			const screen = Screen(context);
+			screen.save();
+			expect(screen.restore()).to.equal(screen);
+		});
 	});
-	describe('#scale(f)', () => {
+	describe('#scale()', () => {
+		it('returns the scale factor', () => {
+			const context = CanvasContextMock();
+			const screen = Screen(context);
+			expect(screen.scale()).to.deep.equal({x: 1, y: 1});
+		});
+	});
+	describe('#absoluteScale()', () => {
+		it('returns the absolute scale factor', () => {
+			const context = CanvasContextMock();
+			const screen = Screen(context);
+			screen.setScale(2);
+			screen.setScale(2);
+			screen.setScale(2);
+			expect(screen.absoluteScale()).to.deep.equal({x: 8, y: 8});
+		});
+	});
+	describe('#setScale(f)', () => {
 		it('calls scale once on context', () => {
 			const context = CanvasContextMock();
 			const screen = Screen(context);
-			screen.scale(1);
+			screen.setScale(1);
 			expect(context.scale.calledOnce).to.be.true;
 		});
-		it('calls scale with f, f as parameters', () => {
+		it('calls scale on context with f, f as parameters', () => {
 			const context = CanvasContextMock();
 			const screen = Screen(context);
-			screen.scale(1);
+			screen.setScale(1);
 			expect(context.scale.calledWith(1, 1)).to.be.true;
 		});
 	});
-	describe('#scale({x, y})', () => {
+	describe('#setScale({x, y})', () => {
 		it('calls scale once on context', () => {
 			const context = CanvasContextMock();
 			const screen = Screen(context);
-			screen.scale({x: 1, y: 2});
+			screen.setScale({x: 1, y: 2});
 			expect(context.scale.calledOnce).to.be.true;
 		});
 		it('calls scale with f, f as parameters', () => {
 			const context = CanvasContextMock();
 			const screen = Screen(context);
-			screen.scale({x: 1, y: 2});
+			screen.setScale({x: 1, y: 2});
 			expect(context.scale.calledWith(1, 2)).to.be.true;
+		});
+		it('returns itself', () => {
+			const context = CanvasContextMock();
+			const screen = Screen(context);
+			expect(screen.setScale({x: 1, y: 2})).to.equal(screen);
 		});
 	});
 	describe('#translate({x, y})', () => {
@@ -473,6 +571,11 @@ describe('graphics.Screen(canvas_context)', () => {
 			screen.translate({x: 1, y: 2});
 			expect(context.translate.calledWith(1, 2)).to.be.true;
 		});
+		it('returns itself', () => {
+			const context = CanvasContextMock();
+			const screen = Screen(context);
+			expect(screen.translate({x: 1, y: 2})).to.equal(screen);
+		});
 	});
 	describe('#rotate(angle)', () => {
 		it('calls rotate once on context', () => {
@@ -486,6 +589,11 @@ describe('graphics.Screen(canvas_context)', () => {
 			const screen = Screen(context);
 			screen.rotate(1);
 			expect(context.rotate.calledWith(1)).to.be.true;
+		});
+		it('returns itself', () => {
+			const context = CanvasContextMock();
+			const screen = Screen(context);
+			expect(screen.rotate(1)).to.equal(screen);
 		});
 	});
 	describe('#createLinearGradient(p1, p2, stops)', () => {

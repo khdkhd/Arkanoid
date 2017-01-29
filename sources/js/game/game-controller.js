@@ -39,31 +39,35 @@ const audio_context = audioContext();
 const collisionBuzzer = create_collision_buzzer(audio_context);
 
 export default function GameController(state) {
-	const {ball, vaus} = state;
-	const zone = state.scene.boundingBox.relative;
-	const scale = state.scene.scale;
+	const {ball, vaus, zone} = state;
 	const emitter = new EventEmitter();
 
 	// Position helpers
 
 	function ball_neighborhood() {
-		const col = Math.round(ball.position.x);
-		const row = Math.round(ball.position.y);
+		const pos = ball.position();
+		const col = Math.round(pos.x);
+		const row = Math.round(pos.y);
 		return state.bricks
-			.filter(brick => Math.abs(col - brick.position.x) <= 2
-								&& Math.abs(row - brick.position.y) <= 1);
+			.filter(brick => {
+				const brick_pos = brick.position();
+				return Math.abs(col - brick_pos.x) <= 2 && Math.abs(row - brick_pos.y) <= 1;
+			});
 	}
 
 	function reset_ball_position() {
-		const vaus_box = vaus.boundingBox.absolute;
-		ball.reset({x: vaus_box.center.x, y: vaus_box.topY - ball.radius});
+		const vaus_box = vaus.rect();
+		ball.reset(vaus_box.center.sub({
+			x: ball.size().width/2,
+			y: ball.size().height + vaus_box.height/2
+		}));
 	}
 
 	// Collision helpers
 
 	function ball_collides_with_bricks(ball_box, speed) {
 		for (let brick of ball_neighborhood(ball)) {
-			const brick_box = brick.boundingBox.absolute;
+			const brick_box = brick.rect();
 			const v = bounce(ball_box, speed, brick_box, .001);
 			if (!is_nil(v)) {
 				ball.emit('hit', 'brick');
@@ -76,20 +80,8 @@ export default function GameController(state) {
 		}
 	}
 
-	const buzz = cond([
-		[matches('brick'), constant({note: 'A', octave: '2', duration: .125})],
-		[matches('vaus'), constant({note: 'F', octave: '3', duration: .125})],
-		[constant(true), constant(null)]
-	]);
-
-	ball.on('hit', target => {
-		collisionBuzzer.buzz(buzz(target));
-	});
-
-
-
 	function ball_collides_with_vaus(ball_box, speed) {
-		const v = bounce(ball_box, speed, vaus.boundingBox.absolute, 1/scale);
+		const v = bounce(ball_box, speed, vaus.rect(), 1/16);
 		if (!is_nil(v)) {
 			ball.emit('hit', 'vaus');
 			return v;
@@ -121,12 +113,18 @@ export default function GameController(state) {
 		(ball_box, speed) => speed
 	);
 
+	const buzz = cond([
+		[matches('brick'), constant({note: 'A', octave: '2', duration: .125})],
+		[matches('vaus'), constant({note: 'F', octave: '3', duration: .125})],
+		[constant(true), constant(null)]
+	]);
+
 	// Move helpers
 
 	function update_ball() {
-		if (!ball.velocity.isNull()) {
-			const ball_box = ball.boundingBox.absolute.translate(ball.velocity);
-			ball.velocity = ball_collides(ball_box, ball.velocity);
+		if (!ball.velocity().isNull()) {
+			const ball_box = ball.rect().translate(ball.velocity());
+			ball.setVelocity(ball_collides(ball_box, ball.velocity()));
 		} else {
 			reset_ball_position(vaus, ball);
 		}
@@ -134,17 +132,17 @@ export default function GameController(state) {
 	}
 
 	function update_vaus() {
-		const {leftX: vaux_left_x, rightX: vaus_right_x} = vaus.boundingBox.absolute;
+		const {leftX: vaux_left_x, rightX: vaus_right_x} = vaus.rect();
 		const {leftX: zone_left_x, rightX: zone_right_x} = zone;
 
-		if (!vaus.velocity.isNull() && vaux_left_x <= zone_left_x) {
+		if (!vaus.velocity().isNull() && vaux_left_x <= zone_left_x) {
 			vaus.move(Vector.Null);
-			vaus.position = vaus.position.add({x: zone_left_x - vaux_left_x, y: 0});
+			vaus.setPosition(vaus.position().add({x: zone_left_x - vaux_left_x, y: 0}));
 		}
 
-		if (!vaus.velocity.isNull() && vaus_right_x >= zone_right_x) {
+		if (!vaus.velocity().isNull() && vaus_right_x >= zone_right_x) {
 			vaus.move(Vector.Null);
-			vaus.position = vaus.position.add({x: zone_right_x - vaus_right_x, y: 0});
+			vaus.setPosition(vaus.position().add({x: zone_right_x - vaus_right_x, y: 0}));
 		}
 
 		vaus.update();
@@ -162,8 +160,8 @@ export default function GameController(state) {
 		vaus.move(direction);
 	});
 	keyboard.on('fire', () => {
-		if (ball.velocity.isNull()) {
-			ball.velocity = Vector({x: 1, y: -1}).toUnit().mul(.2);
+		if (ball.velocity().isNull()) {
+			ball.setVelocity(Vector({x: 1, y: -1}).toUnit().mul(.2));
 		}
 	});
 	keyboard.on('pause', () => emitter.emit('pause'));
@@ -175,6 +173,9 @@ export default function GameController(state) {
 		},
 		reset() {
 			reset_ball_position();
+			ball.on('hit', target => {
+				collisionBuzzer.buzz(buzz(target));
+			});
 			state.bricks.forEach(brick => {
 				brick.on('hit', point => {
 					emitter.emit('update-score', point)
@@ -182,7 +183,7 @@ export default function GameController(state) {
 				brick.once('destroyed', () => {
 					brick.removeAllListeners('destroyed');
 					brick.removeAllListeners('hit');
-					brick.toggleRender(false);
+					brick.hide();
 					remove(state.bricks, brick);
 					const remain = bricks_remaining();
 					if (remain === 0) {

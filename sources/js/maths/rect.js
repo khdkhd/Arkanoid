@@ -2,66 +2,81 @@ import Vector from 'maths/vector';
 import is_number from 'lodash/isNumber';
 
 export default function Rect({x, y}, {width, height}) {
-	const left_x = x;
-	const right_x = x + width;
-	const top_y = y;
-	const bottom_y = y + height;
-
-	const center = Vector({x: left_x + width/2, y: top_y + height/2});
-
-	const top_left     = Vector({x: left_x,  y: top_y});
-	const top_right    = Vector({x: right_x, y: top_y});
-	const bottom_left  = Vector({x: left_x,  y: bottom_y});
-	const bottom_right = Vector({x: right_x, y: bottom_y});
-
+	const bottomLeft  = Vector({x,  y: y + height});
+	const bottomRight = Vector({x: x + width, y: y + height});
+	const center      = Vector({x: x + width/2, y: y + height/2});
+	const topLeft     = Vector({x,  y});
+	const topRight    = Vector({x: x + width, y: y});
 	return {
 		get x() {
 			return x;
 		},
+		set x(x_) {
+			x = x_;
+			bottomLeft.x = topLeft.x = x_;
+			bottomRight.x = topRight.x = x_ + width;
+			center.x = x_ + width/2;
+		},
 		get y() {
 			return y;
+		},
+		set y(y_) {
+			y = y_;
+			topLeft.y = topRight.y = y_;
+			bottomLeft.y = bottomRight.y = y_ + height;
+			center.y = y_ + height/2;
 		},
 		get width() {
 			return width;
 		},
+		set width(w) {
+			width = w;
+			topRight.x = bottomRight.x = x + width;
+			center.x = x + width/2;
+		},
 		get height() {
 			return height;
+		},
+		set height(h) {
+			height = h;
+			bottomLeft.y = bottomRight.y = y + height;
+			center.y = y + height/2;
 		},
 		get size() {
 			return { width, height };
 		},
 		get leftX() {
-			return left_x;
+			return x;
 		},
 		get rightX() {
-			return right_x;
+			return topRight.x;
 		},
 		get topY() {
-			return top_y;
+			return y;
 		},
 		get bottomY() {
-			return bottom_y;
+			return bottomLeft.y;
 		},
 		get topLeft() {
-			return top_left;
+			return topLeft;
 		},
 		get topRight() {
-			return top_right;
+			return topRight;
 		},
 		get bottomLeft() {
-			return bottom_left;
+			return bottomLeft;
 		},
 		get bottomRight() {
-			return bottom_right;
+			return bottomRight;
 		},
 		get center() {
 			return center;
 		},
 		contains({x, y}) {
-			return x >= bottom_left.x  && y <= bottom_left.y
-				&& x >= top_left.x     && y >= top_left.y
-				&& x <= top_right.x    && y >= top_right.y
-				&& x <= bottom_right.x && y <= bottom_right.y;
+			return x >= bottomLeft.x  && y <= bottomLeft.y
+				&& x >= topLeft.x     && y >= topLeft.y
+				&& x <= topRight.x    && y >= topRight.y
+				&& x <= bottomRight.x && y <= bottomRight.y;
 		},
 		intersect(rect) {
 			return this.contains(rect.topRight)
@@ -70,11 +85,11 @@ export default function Rect({x, y}, {width, height}) {
 				|| this.contains(rect.topLeft);
 		},
 		translate({x, y}) {
-			return Rect(top_left.add({x, y}), {width, height});
+			return Rect(topLeft.add({x, y}), {width, height});
 		},
 		scale(f) {
 			const {x, y} = is_number(f) ? {x: f, y: f} : f;
-			return Rect(top_left, {width: width*x, height: height*y});
+			return Rect(topLeft, {width: width*x, height: height*y});
 		}
 	};
 }
