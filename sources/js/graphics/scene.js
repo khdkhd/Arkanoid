@@ -12,12 +12,14 @@ export function SceneModel(options) {
 
 export function SceneController({children}) {
 	return {
-		add(child) {
-			remove(children, child);
-			children.push(child);
-			children.sort((a, b) => a.zIndex - b.zIndex);
-			if (child.scene() !== this) {
-				child.setScene(this);
+		add(...objects) {
+			for (let child of objects) {
+				remove(children, child);
+				children.push(child);
+				children.sort((a, b) => a.zIndex - b.zIndex);
+				if (child.scene() !== this) {
+					child.setScene(this);
+				}
 			}
 			return this;
 		},

@@ -52,7 +52,7 @@ function create_vaus(scene, zone) {
 	return vaus;
 }
 
-function create_walls(cols, rows, scene) {
+function create_walls(cols, rows) {
 	const walls = [];
 	for (let y = 1; y < rows; ++y) {
 		walls.push(VerticalLeftWall({x: 0, y}));
@@ -65,9 +65,6 @@ function create_walls(cols, rows, scene) {
 	}
 	walls.push(HorizontalLeftWall({x: 0, y: 0}));
 	walls.push(HorizontalRightWall({x: cols, y: 0}));
-	for(let wall of walls){
-		scene.add(wall);
-	}
 	return walls;
 }
 
@@ -122,9 +119,8 @@ export default function Game() {
 	screen
 		.setBackgroundColor('#123')
 		.setScale(scale)
+		.add(...create_walls(columns - 1, rows))
 		.add(scene);
-
-	create_walls(columns - 1, rows, screen);
 
 	return completeAssign(emitter, {
 		start(level) {
