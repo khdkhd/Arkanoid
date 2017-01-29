@@ -25,14 +25,15 @@ export function SceneController({children}) {
 		},
 		remove(child) {
 			remove(children, child);
-			child.scene = null;
+			child.setScene(null);
 			return this;
-		}
+		},
 	};
 }
 
 export function SceneView(coordinates, state) {
-	return SceneObject(coordinates, Object.assign({
+	return SceneObject(coordinates, Object.assign(state, {
+		onSceneChanged() {},
 		onRender(screen, scene, rect) {
 			screen.brush = state.backgroundColor;
 			screen.fillRect(rect);
@@ -40,7 +41,7 @@ export function SceneView(coordinates, state) {
 				child.render(screen);
 			}
 		}
-	}, state));
+	}));
 }
 
 export default (coordinates, options) => {
