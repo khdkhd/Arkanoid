@@ -3,53 +3,31 @@ import Vector from 'maths/vector';
 import {expect} from 'chai';
 
 describe('Rect({x, y}, {width, height})', () => {
-	const r = Rect({x: 0, y: 0}, {width: 100, height: 100});
-	it('creates and return a new Rect object', () => {
-		expect(r).to.be.an('object');
-		expect(r.x).to.be.a('number');
-		expect(r.y).to.be.a('number');
-		expect(r.width).to.be.a('number');
-		expect(r.height).to.be.a('number');
-		expect(r.topLeft).to.be.an('object');
-		expect(r.topRight).to.be.an('object');
-		expect(r.bottomRight).to.be.an('object');
-		expect(r.bottomLeft).to.be.an('object');
-		expect(r.center).to.be.an('object');
-		expect(r.contains).to.be.a('function');
-		expect(r.intersect).to.be.an('function');
-	});
-});
-
-describe('Rect', () => {
-	describe('x', () => {
+	describe('#x', () => {
 		it('is the x coordinate of this rectangle', () => {
 			const r = Rect({x: 10, y: 15}, {width: 20, height: 25});
 			expect(r.x).to.equal(10);
 		});
 	});
-
-	describe('y', () => {
+	describe('#y', () => {
 		it('is the y coordinate of this rectangle', () => {
 			const r = Rect({x: 10, y: 15}, {width: 20, height: 25});
 			expect(r.y).to.equal(15);
 		});
 	});
-
-	describe('width', () => {
+	describe('#width', () => {
 		it('is the width of this rectangle', () => {
 			const r = Rect({x: 10, y: 15}, {width: 20, height: 25});
 			expect(r.width).to.equal(20);
 		});
 	});
-
-	describe('height', () => {
+	describe('#height', () => {
 		it('is the height of this rectangle', () => {
 			const r = Rect({x: 10, y: 15}, {width: 20, height: 25});
 			expect(r.height).to.equal(25);
 		});
 	});
-
-	describe('size', () => {
+	describe('#size', () => {
 		it('returns the size of this rectangle', () => {
 			const r = Rect({x: 10, y: 15}, {width: 20, height: 25});
 			expect(r.size).to.deep.equal({
@@ -58,76 +36,66 @@ describe('Rect', () => {
 			});
 		});
 	});
-
-	describe('leftX', () => {
+	describe('#leftX', () => {
 		it('returns the left x value of this rectangle', () => {
 			const r = Rect({x: 10, y: 15}, {width: 20, height: 25});
 			expect(r.leftX).to.equal(10);
 		});
 	});
-
-	describe('rightX', () => {
+	describe('#rightX', () => {
 		it('returns the right x value of this rectangle', () => {
 			const r = Rect({x: 10, y: 15}, {width: 20, height: 25});
 			expect(r.rightX).to.equal(30);
 		});
 	});
-
-	describe('topY', () => {
+	describe('#topY', () => {
 		it('returns the top y value of this rectangle', () => {
 			const r = Rect({x: 10, y: 15}, {width: 20, height: 25});
 			expect(r.topY).to.equal(15);
 		});
 	});
-
-	describe('bottomY', () => {
+	describe('#bottomY', () => {
 		it('returns the bottom y value of this rectangle', () => {
 			const r = Rect({x: 10, y: 15}, {width: 20, height: 25});
 			expect(r.bottomY).to.equal(40);
 		});
 	});
-
-	describe('topLeft', () => {
+	describe('#topLeft', () => {
 		it('returns a vector with the top left coordinates of this rectangle', () => {
 			const r = Rect({x: 10, y: 15}, {width: 20, height: 25});
 			expect(r.topLeft.x).to.equal(10);
 			expect(r.topLeft.y).to.equal(15);
 		});
 	});
-
-	describe('topRight', () => {
+	describe('#topRight', () => {
 		it('returns a vector with the top right coordinates of this rectangle', () => {
 			const r = Rect({x: 10, y: 15}, {width: 20, height: 25});
 			expect(r.topRight.x).to.equal(30);
 			expect(r.topRight.y).to.equal(15);
 		});
 	});
-
-	describe('bottomRight', () => {
+	describe('#bottomRight', () => {
 		it('returns a vector with the bottom right coordinates of this rectangle', () => {
 			const r = Rect({x: 10, y: 15}, {width: 20, height: 25});
 			expect(r.bottomRight.x).to.equal(30);
 			expect(r.bottomRight.y).to.equal(40);
 		});
 	});
-
-	describe('bottomLeft', () => {
+	describe('#bottomLeft', () => {
 		it('returns a vector with the bottom left coordinates of this rectangle', () => {
 			const r = Rect({x: 10, y: 15}, {width: 20, height: 25});
 			expect(r.bottomLeft.x).to.equal(10);
 			expect(r.bottomLeft.y).to.equal(40);
 		});
 	});
-
-	describe('center', () => {
+	describe('#center', () => {
 		it('returns a vector with the center coordinates of this rectangle', () => {
 			const r = Rect({x: 10, y: 10}, {width: 10, height: 10});
 			expect(r.center.x).to.equal(15);
 			expect(r.center.y).to.equal(15);
 		});
 	});
-
-	describe('contains', () => {
+	describe('#contains({x, y})', () => {
 		const r = Rect({x: 10, y: 10}, {width: 10, height: 10});
 		const p = Vector({x: 21, y: 21});
 		it('returns true for the center of this rectangle', () => {
@@ -149,10 +117,9 @@ describe('Rect', () => {
 			expect(r.contains(p)).to.be.false;
 		});
 	});
-
-	describe('intersect', () => {
+	describe('#intersect(rect)', () => {
 		const r1 = Rect({x: 10, y: 10}, {width: 10, height: 10});
-		const r2 = Rect({x: 0, y: 0}, {width: 20, height: 20});
+		const r2 = Rect({x:  0, y:  0}, {width: 20, height: 20});
 		const r3 = Rect({x: 15, y: 15}, {width: 10, height: 10});
 		const r4 = Rect({x: 21, y: 21}, {width: 20, height: 20});
 		it('returns true for two equal rectangles', () => {
@@ -171,7 +138,6 @@ describe('Rect', () => {
 			expect(r4.intersect(r1)).to.be.false;
 		});
 	});
-
 	describe('translate(v)', () => {
 		it('return a new rectangle which is the image of this rectangle by the translation of the given vector', () => {
 			const r1 = Rect({x: 0, y: 0}, {width: 1, height: 1});
@@ -187,5 +153,15 @@ describe('Rect', () => {
 			expect(r2.height).to.equal(r1.height);
 		});
 	});
-
+	describe('#scale({x, y}|f)', () => {
+		it('returns a new rectangle which is the image ot this rectangle scale by the given factor', () => {
+			const r1 = Rect({x: 0, y: 0}, {width: 1, height: 2});
+			const r2 = r1.scale(2);
+			const r3 = r1.scale({x: 2, y: 3});
+			expect(r2.width).to.equal(2);
+			expect(r2.height).to.equal(4);
+			expect(r3.width).to.equal(2);
+			expect(r3.height).to.equal(6);
+		});
+	});
 });
