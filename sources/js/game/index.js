@@ -92,7 +92,7 @@ export default function Game() {
 		paused: false,
 		end: false,
 		score: 0,
-		zone
+		zone: scene.localRect()
 	};
 
 	const game_contoller = Controller(state);

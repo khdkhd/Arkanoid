@@ -39,8 +39,7 @@ const audio_context = audioContext();
 const collisionBuzzer = create_collision_buzzer(audio_context);
 
 export default function GameController(state) {
-	const {ball, vaus} = state;
-	const zone = state.zone.translate({x: -1, y: -1});
+	const {ball, vaus, zone} = state;
 	const emitter = new EventEmitter();
 
 	// Position helpers

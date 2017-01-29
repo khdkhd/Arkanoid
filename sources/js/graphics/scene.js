@@ -45,6 +45,7 @@ export default (coordinates, options) => {
 	const state = SceneModel(options);
 	return completeAssign(
 		{},
+		coordinates,
 		SceneView(coordinates, state),
 		SceneController(state)
 	);
