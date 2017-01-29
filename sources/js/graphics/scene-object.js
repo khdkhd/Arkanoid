@@ -9,7 +9,7 @@ function normalize_scale(scale) {
 	return is_number(scale) ? {x: scale, y: scale} : scale;
 }
 
-export default (coordinates, options) => {
+export default (coordinates, options = {}) => {
 	const onRender = is_nil(options.onRender) ? noop : options.onRender;
 	const onSceneChanged = is_nil(options.onSceneChanged) ? noop : options.onSceneChanged;
 	let scale = normalize_scale(options.scale);
@@ -61,6 +61,13 @@ export default (coordinates, options) => {
 			visible = false;
 			return this;
 		},
+		visible() {
+			return visible;
+		},
+		setVisible(visibility) {
+			visible = visibility;
+			return this;
+		},
 		render(screen) {
 			if (visible) {
 				screen.save();
@@ -70,6 +77,7 @@ export default (coordinates, options) => {
 				onRender.call(this, screen, scene, coordinates.localRect());
 				screen.restore();
 			}
+			return this;
 		}
 	};
 }
