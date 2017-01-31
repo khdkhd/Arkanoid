@@ -2,32 +2,45 @@ import is_nil from 'lodash.isnil';
 
 
 export default {
-	bind_events({mousedown, mouseup, mousemove} = {}) {
+	bind_events({element, mousedown, mouseup, mousemove, mousewheel} = {}) {
 
-		const canvas = document.getElementById('screen');
+		element = element || document;
 
 		if(!is_nil(mousemove)){
-			canvas.addEventListener('mousemove', mousemove);
+			element.addEventListener('mousemove', mousemove);
 		}
 		if(!is_nil(mouseup)){
-			canvas.addEventListener('mouseup', mouseup);
+			element.addEventListener('mouseup', mouseup);
 		}
 		if(!is_nil(mousedown)){
-			canvas.addEventListener('mousedown', mousedown);
+			element.addEventListener('mousedown', mousedown);
+		}
+		if(!is_nil(mousedown)){
+			element.addEventListener('mousewheel', mousedown);
+		}
+		if(!is_nil(mousewheel)){
+			element.addEventListener('mousewheel', mousewheel);
+			element.addEventListener('DOMMouseScroll', mousewheel);
 		}
 
 		return {
 			mousemove(handler) {
-				canvas.removeEventListener('mousemove', mousemove);
-				canvas.addEventListener('mousemove', handler);
+				element.removeEventListener('mousemove', mousemove);
+				element.addEventListener('mousemove', handler);
 			},
 			mouseup(handler) {
-				canvas.removeEventListener('mouseup', mouseup);
-				canvas.addEventListener('mouseup', handler);
+				element.removeEventListener('mouseup', mouseup);
+				element.addEventListener('mouseup', handler);
 			},
 			mousedown(handler) {
-				canvas.removeEventListener('mousedown', mousedown);
-				canvas.addEventListener('mousedown', handler);
+				element.removeEventListener('mousedown', mousedown);
+				element.addEventListener('mousedown', handler);
+			},
+			mousewheel(handler) {
+				element.removeEventListener('mousewheel', mousewheel);
+				element.removeEventListener('DOMMouseScroll', mousewheel);
+				element.addEventListener('mousewheel', handler);
+				element.addEventListener('DOMMouseScroll', handler);
 			}
 		}
 	}

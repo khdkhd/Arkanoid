@@ -10,7 +10,7 @@ const context = {
 describe('create_enveloppe_generator', () => {
 
 	beforeEach(() =>{
-		context.audio_context = create_audio_context(context.sandbox);
+		context.audio_context = {audio_context: create_audio_context(context.sandbox)};
 	});
 
 	afterEach(() => {

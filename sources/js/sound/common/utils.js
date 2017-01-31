@@ -40,10 +40,10 @@ function create_audio_model({param,  init, range}) {
 			return unscale(range, param.value);
 		},
 		setValueAtTime(value, time) {
-			param.setValueAtTime(scale(range,value), time)
+			param.setValueAtTime(value, time)
 		},
 		linearRampToValueAtTime(value, time) {
-			param.linearRampToValueAtTime(scale(range, value), time);
+			param.linearRampToValueAtTime(value, time);
 		},
 		cancelScheduledValues(time){
 			param.cancelScheduledValues(time);

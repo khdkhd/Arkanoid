@@ -1,16 +1,17 @@
-import SynthFactory from 'sound/synth/factory';
-import ControlFactory from 'sound/controls/factory';
+import synth_factory from 'sound/synth/factory';
+import control_factory from 'sound/controls/factory';
 import {get_frequency_of_note } from 'sound/common/utils';
 
 
 export default ({audio_context})  => {
+
 		const voices = [];
 		const views = [];
 		let output, mods;
 
 		function bind_views(param, view_defs = []){
 			view_defs.forEach(view_def => {
-				const view = ControlFactory[view_def.factory](view_def.options);
+				const view = control_factory[view_def.factory](view_def.options);
 				view.param = param;
 				views.push(view);
 			});
@@ -20,8 +21,8 @@ export default ({audio_context})  => {
 			patch(patch) {
 				mods = patch.nodes.reduce((mods, node)=> {
 					const options = Object.assign({}, node.options)
-					options.factory = SynthFactory;
-					const mod = options.factory[node.factory](Object.assign({audio_context}, options));
+					options.factory = synth_factory;
+					const mod = synth_factory[node.factory](Object.assign({audio_context}, options));
 					for(let [param, config] of Object.entries(node.config)){
 						mod[param].value = config.value;
 						bind_views(mod[param], config.views);
@@ -53,8 +54,6 @@ export default ({audio_context})  => {
 				output.connect(input);
 			},
 			render(screen){
-				screen.brush = '#123';
-				screen.clear();
 				views.forEach(view => view.render(screen));
 			}
 		};

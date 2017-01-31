@@ -102,20 +102,39 @@ tasks.push(Task('changelog')
 );
 
 if (env.isDevelopment) {
-	const editor_suffix = path.join('editor', 'index.html');
-	const editor_source = path.join(sources_dir, editor_suffix);
-	const editor_output_dir = path.join(env.outputDirectory, 'editor');
+	const level_editor_suffix = path.join('editor', 'index.html');
+	const level_editor_source = path.join(sources_dir, level_editor_suffix);
+	const level_editor_output_dir = path.join(env.outputDirectory, 'editor');
 	tasks.push(Task('editor')
 		.build(() => {
 			return gulp
-				.src(editor_source)
-				.pipe(gulp.dest(editor_output_dir))
+				.src(level_editor_source)
+				.pipe(gulp.dest(level_editor_output_dir))
 				.pipe(livereload());
 		})
 		.clean(() => {
-			return del(path.join(editor_output_dir, editor_suffix));
+			return del(path.join(level_editor_output_dir, level_editor_suffix));
 		})
-		.watch(editor_source)
+		.watch(level_editor_source)
+		.tasks
+	);
+}
+
+if (env.isDevelopment) {
+	const sound_editor_suffix = path.join('sound', 'index.html');
+	const sound_editor_source = path.join(sources_dir, sound_editor_suffix);
+	const sound_editor_output_dir = path.join(env.outputDirectory, 'sound');
+	tasks.push(Task('sound')
+		.build(() => {
+			return gulp
+				.src(sound_editor_source)
+				.pipe(gulp.dest(sound_editor_output_dir))
+				.pipe(livereload());
+		})
+		.clean(() => {
+			return del(path.join(sound_editor_output_dir, sound_editor_suffix));
+		})
+		.watch(sound_editor_source)
 		.tasks
 	);
 }

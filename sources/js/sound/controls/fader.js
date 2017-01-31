@@ -5,58 +5,10 @@ import _clamp from 'lodash.clamp';
 import { completeAssign as assign } from 'common/utils';
 import { scale, unscale } from 'sound/common/utils';
 import ui from 'sound/controls/ui';
+import Screen from 'graphics/screen';
+
 
 function create_fader_view(state){
-	function get_cursor_height(){
-		return state.inner_rect.y - state.cursor;
-	}
-
-	return  {
-		render(screen){
-			screen.save();
-			screen.pen = 1;
-			screen.pen = '#fff';
-			screen.beginPath();
-			screen.drawRect(state.outer_rect);
-			screen.drawPath();
-			screen.brush = '#ccc';
-			screen.beginPath();
-			screen.fillRect(state.inner_rect);
-			screen.drawPath();
-			screen.restore();
-			screen.save();
-			screen.brush = '#fff';
-			screen.pen = '#fff';
-			screen.beginPath();
-			screen.fillRect({
-				topLeft: {
-					x: state.inner_rect.bottomLeft.x,
-					y: state.cursor
-				},
-				topRight: {
-					x: state.inner_rect.topRight.x,
-					y: state.cursor
-				},
-				bottomRight: {
-					x: state.inner_rect.bottomRight.x,
-					y: state.inner_rect.bottomRight.y
-				},
-				bottomLeft: {
-					x: state.inner_rect.bottomLeft.x,
-					y: state.inner_rect.bottomLeft.y
-				},
-				x: state.inner_rect.x,
-				y: state.inner_rect.y + state.inner_rect.height,
-				width: state.inner_rect.width,
-				height: get_cursor_height()
-			});
-			screen.drawPath();
-			screen.restore();
-		}
-	};
-}
-
-function create_fader_controller(state) {
 
 	function clamp(pos, state){
 		return _clamp(pos, state.inner_rect.topLeft.y, state.inner_rect.bottomRight.y);
@@ -67,11 +19,15 @@ function create_fader_controller(state) {
 		state.emitter.emit('change', unscale({max: state.inner_rect.topLeft.y, min: state.inner_rect.bottomRight.y}, state.cursor));
 	}
 
-	function update(value){
-		state.cursor = scale({max: state.inner_rect.topLeft.y, min: state.inner_rect.bottomRight.y}, value);
-	}
+	const canvas = document.createElement('canvas');
+	canvas.innerHTML = 'Your browser does not support canvas!';
+	const screen = Screen(canvas.getContext('2d'));
+	screen.width = state.width;
+	screen.height =  state.height;
+	state.parent.appendChild(canvas);
 
 	ui.bind_events({
+		element: state.parent,
 		mousedown: event => {
 			const x = event.clientX - event.target.offsetLeft;
 			const y = event.clientY - event.target.offsetTop;
@@ -91,6 +47,56 @@ function create_fader_controller(state) {
 		}
 	});
 
+	return  {
+		render(){
+			screen.brush= '#fff';
+			screen.clear();
+			screen.save();
+			screen.pen = 1;
+			screen.pen = '#9a8c8c';
+			screen.beginPath();
+			screen.drawRect(state.outer_rect);
+			screen.drawPath();
+			screen.brush = '#546e6c';
+			screen.pen = '#546e6c';
+			screen.beginPath();
+			screen.fillRect(state.inner_rect);
+			screen.drawPath();
+			screen.restore();
+			screen.save();
+			screen.brush = '#a5cbc8';
+			screen.pen = '#a5cbc8';
+			screen.beginPath();
+			screen.fillRect({
+				topLeft: {
+					x: state.inner_rect.bottomLeft.x,
+					y: state.cursor
+				},
+				topRight: {
+					x: state.inner_rect.topRight.x,
+					y: state.cursor
+				},
+				bottomRight: {
+					x: state.inner_rect.bottomRight.x,
+					y: state.inner_rect.bottomRight.y
+				},
+				bottomLeft: {
+					x: state.inner_rect.bottomLeft.x,
+					y: state.inner_rect.bottomLeft.y
+				}
+			});
+			screen.drawPath();
+			screen.restore();
+		}
+	};
+}
+
+function create_fader_controller(state) {
+
+	function update(value){
+		state.cursor = scale({min: state.inner_rect.topLeft.y, max: state.inner_rect.bottomRight.y}, value);
+	}
+
 	state.emitter.on('change', value => state.param.value = value);
 
 	return {
@@ -109,12 +115,17 @@ function create_fader_controller(state) {
 	};
 }
 
-export default ({pos, width, height})=> {
+export default ({parent})=> {
 
-	const padding = width*.175;
+	let width = 50, height = 150;
+	const padding = 5;
+	const pos = {x: padding, y: padding};
 	const state = {
-		pos: pos,
-		height: height - padding,
+		pos,
+		parent: document.querySelector(parent),
+		padding,
+		width,
+		height,
 		cursor: pos.y + height - padding,
 		outer_rect: {
 			topLeft: {
@@ -122,16 +133,16 @@ export default ({pos, width, height})=> {
 				y: pos.y
 			},
 			topRight: {
-				x: pos.x + width,
+				x: pos.x + width - padding,
 				y: pos.y
 			},
 			bottomRight: {
-				x: pos.x + width,
-				y: pos.y + height
+				x: pos.x + width -padding,
+				y: pos.y + height-padding
 			},
 			bottomLeft: {
 				x: pos.x,
-				y: pos.y + height
+				y: pos.y + height-padding
 			},
 		},
 		inner_rect: {
@@ -140,19 +151,17 @@ export default ({pos, width, height})=> {
 				y: pos.y + padding
 			},
 			topRight: {
-				x: pos.x + width - padding,
+				x: pos.x + width - padding*2,
 				y: pos.y + padding
 			},
 			bottomRight: {
-				x: pos.x + width - padding,
-				y: pos.y + height - padding
+				x: pos.x + width - padding*2,
+				y: pos.y + height - padding*2
 			},
 			bottomLeft: {
 				x: pos.x + padding,
-				y: pos.y + height - padding
-			},
-			width: width - padding*2,
-			height: height - padding*2
+				y: pos.y + height - padding*2
+			}
 		},
 		bbox: Rect(Vector(pos), {width, height}),
 		isActive: false,

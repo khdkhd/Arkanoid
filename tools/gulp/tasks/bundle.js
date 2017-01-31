@@ -31,7 +31,8 @@ const browserify_base_options = {
 
 const bundles = Object.assign(
 	{arkanoid: path.join(sources_dir, env.target)},
-	env.isDevelopment ? {editor: path.join(sources_dir, 'editor', 'main.js')}: {}
+	env.isDevelopment ? {editor: path.join(sources_dir, 'editor', 'main.js')}: {},
+	env.isDevelopment ? {sound: path.join(sources_dir, 'sound', 'arkanoid', 'main.js')}: {}
 );
 
 Object.entries(bundles).forEach(([bundle_name, entry_point]) => {

@@ -3,20 +3,61 @@ import Rect from 'maths/rect';
 import EventEmitter from 'events';
 import _clamp from 'lodash.clamp';
 import { completeAssign as assign } from 'common/utils';
+import Screen from 'graphics/screen';
 import ui from 'sound/controls/ui';
 
-const offset = 0;
-const curve_start = -Math.PI/2 + offset;
-const curve_end = 2*Math.PI - Math.PI/2 - offset;
-const curve_length = curve_end - curve_start;
-const inc_factor = 25;
-
 function create_knob_view(state){
+
+	const canvas = document.createElement('canvas');
+	canvas.innerHTML = 'Your browser does not support canvas!';
+	const screen = Screen(canvas.getContext('2d'));
+	screen.width = 2 * state.outer_radius + state.padding*2;
+	screen.height = 2 * state.outer_radius + state.padding*2;
+	state.parent.appendChild(canvas);
+
+	function clamp(angle) {
+		return _clamp(angle, state.curve_start, state.curve_end);
+	}
+
+	function get_angle_increment(event){
+		switch(event.type){
+			case 'mousewheel':
+				return Math.sign(event.wheelDelta)*(state.curve_length/state.inc_factor);
+			case 'mousemove':
+				return Math.sign(-event.movementY)*(state.curve_length/state.inc_factor);
+		}
+	}
+
+	function tweak(event) {
+		state.angle = clamp(state.angle + get_angle_increment(event));
+		state.emitter.emit('change', (state.angle + Math.PI/2)/state.curve_length);
+	}
+
+	ui.bind_events({
+		element: state.parent,
+		mousemove: event => {
+			if (state.isActive) {
+				//tweak(event);
+			}
+		},
+		mouseup: () => {
+			state.isActive = false;
+		},
+		mousedown: () => {
+			state.isActive = true;
+		},
+		mousewheel: event => {
+			tweak(event);
+		}
+	});
+
 	return  {
-		render(screen){
+		render(){
+			screen.clear();
+			screen.brush = '#40504f';
 			screen.save();
 			screen.pen =1;
-			screen.pen = '#fff';
+			screen.pen = '#999';
 			screen.beginPath();
 			screen.arc(state.pos, state.outer_radius, 0, 2*Math.PI);
 			screen.drawPath();
@@ -24,16 +65,16 @@ function create_knob_view(state){
 			screen.arc(state.pos, state.inner_radius, 0, 2*Math.PI);
 			screen.drawPath();
 			screen.pen = state.cursor_width;
-			screen.pen = '#ccc';
+			screen.pen = '#546e6c';
 			screen.beginPath();
-			screen.arc(state.pos, state.cursor_radius, curve_start, curve_end);
+			screen.arc(state.pos, state.cursor_radius, state.curve_start, state.curve_end);
 			screen.drawPath();
 			screen.restore();
 			screen.save();
-			screen.pen = '#fff';
+			screen.pen = '#a5cbc8';
 			screen.pen = state.cursor_width;
 			screen.beginPath();
-			screen.arc(state.pos, state.cursor_radius, curve_start, state.angle);
+			screen.arc(state.pos, state.cursor_radius, state.curve_start, state.angle);
 			screen.drawPath();
 			screen.restore();
 		}
@@ -42,42 +83,9 @@ function create_knob_view(state){
 
 function create_knob_controller(state) {
 
-	function clamp(angle){
-		return _clamp(angle, curve_start, curve_end);
-	}
-
-	function get_angle_increment(event){
-		return Math.sign(-event.movementY)*curve_length/inc_factor;
-	}
-
-	function tweak(event) {
-		state.angle = clamp(state.angle + get_angle_increment(event));
-		state.emitter.emit('change', (state.angle + Math.PI/2)/curve_length);
-	}
-
 	function update(value){
-		state.angle = curve_length*value - Math.PI/2;
+		state.angle = state.curve_length*value - Math.PI/2;
 	}
-
-	ui.bind_events({
-		mousemove: event => {
-			if (state.isActive) {
-				tweak(event);
-			}
-		},
-		mouseup: () => {
-			if (state.isActive) {
-				state.isActive = false;
-			}
-		},
-		mousedown: event => {
-			const x = event.clientX - event.target.offsetLeft;
-			const y = event.clientY - event.target.offsetTop;
-			if (state.bbox.contains({x: x,y: y})) {
-				state.isActive = true;
-			}
-		}
-	});
 
 	state.emitter.on('change', value => state.param.value = value);
 
@@ -97,9 +105,23 @@ function create_knob_controller(state) {
 	};
 }
 
-export default ({pos, radius})=> {
+export default ({parent})=> {
+	let radius = 50;
+	const padding = 5;
+	let pos = {x:radius + padding,y: radius + padding};
+	const offset = 0;
+	const curve_start = -Math.PI/2 + offset;
+	const curve_end = 2*Math.PI - Math.PI/2 - offset;
+	const curve_length = curve_end - curve_start;
+	const inc_factor = 25;
 	const state = {
-		pos: pos,
+		parent: document.querySelector(parent),
+		pos,
+		padding,
+		curve_start,
+		curve_end,
+		curve_length,
+		inc_factor,
 		outer_radius: radius,
 		inner_radius: radius - radius*.64,
 		cursor_radius: radius - radius*.32,
