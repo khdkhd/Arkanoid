@@ -46,8 +46,7 @@ export default  {
 		}
 	],
 	connexions: [
-		['generator', 'filter'],
-		['lfo', 'filter']
+		['generator', 'filter']
 	]
 
 };

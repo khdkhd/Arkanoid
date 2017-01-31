@@ -5,7 +5,7 @@ export default({audio_context})=> {
 
 		const frequency_range = {
 			min: 0,
-			max: 750
+			max: 12250
 		};
 		const gain_range = {
 			min: 0,
