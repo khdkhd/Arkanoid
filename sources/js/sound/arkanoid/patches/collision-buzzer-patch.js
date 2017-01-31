@@ -19,34 +19,10 @@ export default  {
 			output: true,
 			config: {
 				frequency: {
-					value: 1,
-					views: [
-						{
-							factory: 'knob',
-							options: {
-								pos: {
-									x: 100,
-									y: 100
-								},
-								radius: 20
-							}
-						}
-					]
+					value: 1
 				},
 				Q: {
-					value: 0,
-					views: [
-						{
-							factory: 'knob',
-							options: {
-								pos: {
-									x: 150,
-									y: 100
-								},
-								radius: 20
-							}
-						}
-					]
+					value: 0
 				},
 				type : {
 					value: 'lowpass'
@@ -58,19 +34,7 @@ export default  {
 			factory: 'lfo',
 			config: {
 				frequency: {
-					value: 0.025,
-					views: [
-						{
-							factory: 'knob',
-							options: {
-								pos: {
-									x: 200,
-									y: 100
-								},
-								radius: 20
-							}
-						}
-					]
+					value: 0.025
 				},
 				amplitude: {
 					value: 1

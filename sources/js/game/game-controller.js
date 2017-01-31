@@ -1,42 +1,23 @@
 import {completeAssign} from 'common/utils';
 import {dispatch} from 'common/functional';
 import {bounce} from 'physics/collisions';
-import create_collision_buzzer from 'sound/arkanoid/collision-buzzer';
 
 import ui from 'ui';
 
 import Vector from 'maths/vector';
 
+import matches from 'lodash.matches';
 import random from 'lodash.random';
 import remove from 'lodash.remove';
 import is_nil from 'lodash.isnil';
-import matches from 'lodash.matches';
-import constant from 'lodash.constant';
 import cond from 'lodash.cond';
 
 import {EventEmitter} from 'events';
 
-const audioContext = (() => {
-	let context = null;
-	return cond([
-		[() => !is_nil(context), () => context],
-		[() => typeof AudioContext !== 'undefined', () => {
-			context = new AudioContext();
-			return context;
-		}],
-		[() => typeof webkitAudioContext != 'undefined', () => {
-			context = new webkitAudioContext(); // eslint-disable-line new-cap
-			return context;
-		}],
-		[constant(true), () => {
-			throw new Error('Audio context not found')
-		}]
-	]);
-})();
+import soundController  from 'sound/arkanoid/sound-controller';
+
 
 const keyboard = ui.keyboard;
-const audio_context = audioContext();
-const collisionBuzzer = create_collision_buzzer(audio_context);
 
 export default function GameController(state) {
 	const {ball, vaus, zone} = state;
@@ -113,11 +94,6 @@ export default function GameController(state) {
 		(ball_box, speed) => speed
 	);
 
-	const buzz = cond([
-		[matches('brick'), constant({note: 'A', octave: '2', duration: .125})],
-		[matches('vaus'), constant({note: 'F', octave: '3', duration: .125})],
-		[constant(true), constant(null)]
-	]);
 
 	// Move helpers
 
@@ -173,9 +149,6 @@ export default function GameController(state) {
 		},
 		reset() {
 			reset_ball_position();
-			ball.on('hit', target => {
-				collisionBuzzer.buzz(buzz(target));
-			});
 			state.bricks.forEach(brick => {
 				brick.on('hit', point => {
 					emitter.emit('update-score', point)
@@ -190,6 +163,10 @@ export default function GameController(state) {
 						emitter.emit('end-of-level');
 					}
 				});
+				ball.on('hit', cond([
+						[matches('brick'), soundController.ball_collides_with_bricks],
+						[matches('vaus'), soundController.ball_collides_with_vaus],
+					]));
 			});
 		}
 	})
