@@ -1,40 +1,50 @@
-import is_nil from 'lodash/isNil';
-import is_number from 'lodash/isNumber';
-import is_string from 'lodash/isString';
+import is_nil from 'lodash.isnil';
+import is_number from 'lodash.isnumber';
+import is_string from 'lodash.isstring';
 
+import {completeAssign} from 'common/utils';
+import {SceneController} from 'graphics/scene';
 import Rect from 'maths/rect';
 
-export default function createScreen(canvas_context) {
-	let scale_factor = {x: 1, y: 1};
-	let scale_factor_stack = [];
+export default function Screen(canvas_context) {
+	const state = {
+		backgroundColor: 'rgba(0, 0, 0, 0)',
+		children: [],
+		absoluteScale: {x: 1, y: 1},
+		scale: {x: 1, y: 1},
+		scale_stack: []
+	};
 
-	return {
+	return completeAssign(SceneController(state), {
 		///////////////////////////////////////////////////////////////////////
 		/// Screen metrics
 		get width() {
-			return canvas_context.canvas.width;
+			return canvas_context.canvas.width*state.scale.x;
 		},
 		set width(w) {
-			canvas_context.canvas.width = w;
+			canvas_context.canvas.width = w/state.scale.x;
 		},
 		get height() {
-			return canvas_context.canvas.height;
+			return canvas_context.canvas.height*state.scale.y;
 		},
 		set height(h) {
-			canvas_context.canvas.height = h;
+			canvas_context.canvas.height = h/state.scale.y;
 		},
 		get size() {
 			return {
-				width: canvas_context.canvas.width,
-				height: canvas_context.canvas.height
+				width: this.width,
+				height: this.height
 			};
 		},
 		set size({width, height}) {
 			this.width = width;
 			this.height = height;
 		},
-		get rect() {
+		localRect() {
 			return Rect({x: 0, y: 0}, this.size);
+		},
+		rect() {
+			return this.localRect();
 		},
 		///////////////////////////////////////////////////////////////////////
 		/// Pen
@@ -78,12 +88,14 @@ export default function createScreen(canvas_context) {
 		/// Basics drawing routines
 		clear() {
 			canvas_context.fillRect(0, 0, this.width, this.height);
+			return this;
 		},
 		drawLine({x: x1, y: y1}, {x: x2, y: y2}) {
 			this.beginPath();
 			this.moveTo({x: x1, y: y1});
 			this.lineTo({x: x2, y: y2});
 			this.drawPath();
+			return this;
 		},
 		drawRect({topLeft, topRight, bottomLeft, bottomRight}) {
 			this.beginPath();
@@ -93,6 +105,7 @@ export default function createScreen(canvas_context) {
 			this.lineTo(bottomLeft);
 			this.closePath();
 			this.drawPath();
+			return this;
 		},
 		fillRect({topLeft, topRight, bottomLeft, bottomRight}) {
 			this.beginPath();
@@ -102,23 +115,29 @@ export default function createScreen(canvas_context) {
 			this.lineTo(bottomLeft);
 			this.closePath();
 			this.fillPath();
+			return this;
 		},
 		///////////////////////////////////////////////////////////////////////
 		/// Path
 		beginPath() {
 			canvas_context.beginPath();
+			return this;
 		},
 		closePath() {
 			canvas_context.closePath();
+			return this;
 		},
 		moveTo({x, y}) {
 			canvas_context.moveTo(x, y);
+			return this;
 		},
 		lineTo({x, y}) {
 			canvas_context.lineTo(x, y);
+			return this;
 		},
 		arc({x, y}, radius, start_angle, end_angle, anticlockwise) {
 			canvas_context.arc(x, y, radius, start_angle, end_angle, anticlockwise);
+			return this;
 		},
 		drawPath(path) {
 			if (is_nil(path)) {
@@ -126,6 +145,7 @@ export default function createScreen(canvas_context) {
 			} else {
 				canvas_context.stroke(path);
 			}
+			return this;
 		},
 		fillPath(path) {
 			if (is_nil(path)) {
@@ -133,6 +153,7 @@ export default function createScreen(canvas_context) {
 			} else {
 				canvas_context.fill(path);
 			}
+			return this;
 		},
 		///////////////////////////////////////////////////////////////////////
 		/// Clip
@@ -144,28 +165,48 @@ export default function createScreen(canvas_context) {
 			this.lineTo(bottomLeft);
 			this.closePath();
 			canvas_context.clip();
+			return this;
 		},
 		///////////////////////////////////////////////////////////////////////
 		/// Context save/restore
 		save() {
+			const {scale, absoluteScale} = state;
+			state.scale_stack.push({scale, absoluteScale});
 			canvas_context.save();
-			scale_factor_stack.push(scale_factor);
+			return this;
 		},
 		restore() {
+			const {scale, absoluteScale} = state.scale_stack.pop();
+			state.scale = scale;
+			state.absoluteScale = absoluteScale;
 			canvas_context.restore();
-			scale_factor = scale_factor_stack.pop();
+			return this;
 		},
 		///////////////////////////////////////////////////////////////////////
 		/// Transformations
-		scale(f) {
-			scale_factor = is_number(f) ? {x: f, y: f} : f;
-			canvas_context.scale(scale_factor.x, scale_factor.y);
+		absoluteScale() {
+			return state.absoluteScale;
+		},
+		scale() {
+			return state.scale;
+		},
+		setScale(f) {
+			const scale = is_number(f) ? {x: f, y: f} : f;
+			state.absoluteScale = {
+				x: state.absoluteScale.x*scale.x,
+				y: state.absoluteScale.x*scale.y
+			};
+			state.scale = scale;
+			canvas_context.scale(state.scale.x, state.scale.y);
+			return this;
 		},
 		translate({x, y}) {
 			canvas_context.translate(x, y);
+			return this;
 		},
 		rotate(angle) {
 			canvas_context.rotate(angle);
+			return this;
 		},
 		///////////////////////////////////////////////////////////////////////
 		/// Gradient
@@ -175,6 +216,23 @@ export default function createScreen(canvas_context) {
 				grd.addColorStop(stop.pos, stop.color);
 			}
 			return grd;
+		},
+		///////////////////////////////////////////////////////////////////////
+		/// Scene
+		render() {
+			this.brush = state.backgroundColor;
+			this.clear();
+			for (let child of state.children) {
+				child.render(this);
+			}
+			return this;
+		},
+		setBackgroundColor(color) {
+			state.backgroundColor = color;
+			return this;
+		},
+		scene() {
+			return null;
 		}
-	};
+	});
 }

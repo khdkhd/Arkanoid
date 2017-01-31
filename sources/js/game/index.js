@@ -1,5 +1,7 @@
 import {completeAssign} from 'common/utils';
 
+import Coordinates from 'graphics/coordinates';
+
 import Rect from 'maths/rect';
 import Vector from 'maths/vector';
 
@@ -43,14 +45,14 @@ function create_bricks(level, scene) {
 	return bricks;
 }
 
-function create_vaus(scene) {
-	const position = {x: 1, y: scene.boundingBox.relative.height - 2};
+function create_vaus(scene, zone) {
+	const position = {x: 1, y: zone.height - 2};
 	const vaus = Vaus(position);
 	scene.add(vaus);
 	return vaus;
 }
 
-function create_walls(cols, rows, scene) {
+function create_walls(cols, rows) {
 	const walls = [];
 	for (let y = 1; y < rows; ++y) {
 		walls.push(VerticalLeftWall({x: 0, y}));
@@ -63,9 +65,6 @@ function create_walls(cols, rows, scene) {
 	}
 	walls.push(HorizontalLeftWall({x: 0, y: 0}));
 	walls.push(HorizontalRightWall({x: cols, y: 0}));
-	for(let wall of walls){
-		scene.add(wall);
-	}
 	return walls;
 }
 
@@ -78,20 +77,19 @@ export default function Game() {
 	const columns = screen.width/scale;
 	const rows = screen.height/scale;
 
-	const walls_scene = Scene(screen, screen.rect.scale(1/scale), scale, '#123');
-
 	const zone = Rect({x: 1, y: 1}, {width: columns - 2, height: rows - 2});
-	const game_scene = Scene(screen, zone, scale, '#123');
+	const scene = Scene(Coordinates(zone.size, zone.topLeft));
 
 	const state = {
 		bricks: [],
-		vaus: create_vaus(game_scene),
-		ball: create_ball(game_scene),
-		scene: game_scene,
+		ball: create_ball(scene),
+		vaus: create_vaus(scene, zone),
+		scene: scene,
 		cheatMode: false,
 		paused: false,
 		end: false,
-		score: 0
+		score: 0,
+		zone: scene.localRect()
 	};
 
 	const game_contoller = Controller(state);
@@ -101,8 +99,7 @@ export default function Game() {
 			if (!state.paused) {
 				game_contoller.update();
 			}
-			walls_scene.render(screen);
-			game_scene.render(screen);
+			screen.render();
 			requestAnimationFrame(loop);
 		} else {
 			emitter.emit('end', state.level);
@@ -119,14 +116,18 @@ export default function Game() {
 		state.end = true;
 	});
 
-	create_walls(columns - 1, rows, walls_scene);
+	screen
+		.setBackgroundColor('#123')
+		.setScale(scale)
+		.add(...create_walls(columns - 1, rows))
+		.add(scene);
 
 	return completeAssign(emitter, {
 		start(level) {
 			state.end = false;
 			state.level = level;
-			state.bricks.forEach(brick => game_scene.remove(brick));
-			state.bricks = create_bricks(level - 1, game_scene);
+			state.bricks.forEach(brick => scene.remove(brick));
+			state.bricks = create_bricks(level - 1, scene);
 			game_contoller.reset();
 			keyboard.use(gameKeyboardController);
 			requestAnimationFrame(loop);

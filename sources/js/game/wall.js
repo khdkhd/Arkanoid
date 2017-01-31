@@ -1,4 +1,4 @@
-import Vector from 'maths/vector';
+import Coordinates from 'graphics/coordinates';
 import SceneObject from 'graphics/scene-object';
 
 function WallBrush(start, stop, screen) {
@@ -14,22 +14,29 @@ function WallBrush(start, stop, screen) {
 	])};
 }
 
-function Wall(state) {
-	return SceneObject({
-		onRender(scene) {
-			const {screen} = scene;
+function WallModel({x, y, gradientStart, gradientStop, path}) {
+	return {
+		coordinates: Coordinates({width: 1, height: 1}, {x, y}),
+		gradientStart,
+		gradientStop,
+		path
+	};
+}
+
+function WallView(state) {
+	return SceneObject(state.coordinates, {
+		onRender(screen) {
 			const brush = WallBrush(state.gradientStart, state.gradientStop, screen);
-			screen.save();
-			screen.translate(state.position);
 			screen.brush = brush;
 			screen.fillPath(state.path);
-			screen.restore();
 		}
 	});
 }
 
 function VerticalWall({x, y}, gradientStart, gradientStop) {
-	return Wall({
+	const state = WallModel({
+		x,
+		y,
 		gradientStart,
 		gradientStop,
 		path: new Path2D(`
@@ -38,9 +45,9 @@ function VerticalWall({x, y}, gradientStart, gradientStop) {
 			L ${15/16} 1
 			L ${ 1/16} 1
 			L ${ 1/16} 0
-		`),
-		position: Vector({x, y})
+		`)
 	});
+	return WallView(state);
 }
 
 export function VerticalLeftWall({x, y}) {
@@ -52,7 +59,9 @@ export function VerticalRightWall({x, y}) {
 }
 
 export function VerticalTopLeftWall({x, y}) {
-	return Wall({
+	const state = WallModel({
+		x,
+		y,
 		gradientStart: {x: 0, y: 0},
 		gradientStop: {x: 1, y: 0},
 		path: new Path2D(`
@@ -61,13 +70,15 @@ export function VerticalTopLeftWall({x, y}) {
 			L ${15/16} 1
 			L ${ 1/16} 1
 			L ${ 1/16} ${ 1/16}
-		`),
-		position: Vector({x, y}),
+		`)
 	});
+	return WallView(state);
 }
 
 export function VerticalTopRightWall({x, y}) {
-	return Wall({
+	const state = WallModel({
+		x,
+		y,
 		gradientStart: {x: 1, y: 0},
 		gradientStop: {x: 0, y: 0},
 		path: new Path2D(`
@@ -76,13 +87,15 @@ export function VerticalTopRightWall({x, y}) {
 			L ${ 1/16} 1
 			L ${ 1/16} ${15/16}
 			L ${15/16} ${ 1/16}
-		`),
-		position: Vector({x, y})
+		`)
 	});
+	return WallView(state);
 }
 
 export function HorizontalWall({x, y}) {
-	return Wall({
+	const state = WallModel({
+		x,
+		y,
 		gradientStart: {x: 0, y: 0},
 		gradientStop: {x: 0, y: 1},
 		path: new Path2D(`
@@ -91,13 +104,15 @@ export function HorizontalWall({x, y}) {
 			L 1 ${15/16}
 			L 0 ${15/16}
 			L 0 ${ 1/16}
-		`),
-		position: Vector({x, y})
+		`)
 	});
+	return WallView(state);
 }
 
 export function HorizontalLeftWall({x, y}) {
-	return Wall({
+	const state = WallModel({
+		x,
+		y,
 		gradientStart: {x: 0, y: 0},
 		gradientStop: {x: 0, y: 1},
 		path: new Path2D(`
@@ -106,13 +121,15 @@ export function HorizontalLeftWall({x, y}) {
 			L 1 ${15/16}
 			L ${15/16} ${15/16}
 			L ${1/16} ${ 1/16}
-		`),
-		position: Vector({x, y})
+		`)
 	});
+	return WallView(state);
 }
 
 export function HorizontalRightWall({x, y}) {
-	return Wall({
+	const state = WallModel({
+		x,
+		y,
 		gradientStart: {x: 0, y: 0},
 		gradientStop: {x: 0, y: 1},
 		path: new Path2D(`
@@ -121,7 +138,7 @@ export function HorizontalRightWall({x, y}) {
 			L ${ 1/16} ${15/16}
 			L 0 ${15/16}
 			L 0 ${ 1/16}
-		`),
-		position: Vector({x, y})
+		`)
 	});
+	return WallView(state);
 }

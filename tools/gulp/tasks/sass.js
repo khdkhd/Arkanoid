@@ -11,8 +11,6 @@ const env = require('tools/gulp/env');
 const output_dir =  path.join(env.outputDirectory, 'assets', 'css');
 const sources_dir = 'sources/sass';
 
-// TODO fix this task this is dirty !
-
 const sources = (env.isDevelopment
 	? path.join(sources_dir, '**/*.scss')
 	: [
@@ -28,7 +26,12 @@ gulp.task('sass', () => gulp.src(sources)
 	.pipe(sass({
 		includePaths: [sources_dir],
 		outputStyle: 'compressed'
-	})).on('error', sass.logError)
+	})).on('error', function(err) {
+		sass.logError.bind(this)(err); // ugly, but this is the only way
+		if (env.isProduction) {
+			process.exit(1);
+		}
+	})
 	.pipe(gulp_if(env.isDevelopment, sourcemaps.write()))
 	.pipe(gulp.dest(output_dir))
 	.pipe(livereload())

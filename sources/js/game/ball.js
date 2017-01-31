@@ -1,5 +1,4 @@
 import {completeAssign} from 'common/utils';
-import BoundingBox from 'graphics/bounding-box';
 import Vector from 'maths/vector';
 import VerletModel from 'physics/verlet-model';
 import SceneObject from 'graphics/scene-object';
@@ -7,32 +6,29 @@ import {EventEmitter} from 'events';
 
 const radius = .3;
 
-function BallController({verlet}) {
+export function BallModel({x, y}) {
 	return {
-		reset({x, y}) {
-			verlet.velocity = Vector.Null;
-			verlet.position = Vector({x, y});
-		},
-		update() {
-			verlet.position = verlet.position.add(verlet.velocity);
-		},
-		get radius() {
-			return radius;
-		}
+		emitter: new EventEmitter(),
+		radius,
+		verlet: VerletModel({
+			width: 2*radius,
+			height: 2*radius,
+		}, {x, y})
 	};
 }
 
-function BallView(state) {
-	return SceneObject({
-		onRender(scene) {
-			const {screen} = scene;
+export function BallView(state) {
+	return SceneObject(state.verlet, {
+		onRender(screen) {
+			const scale = screen.absoluteScale().x;
+			const center = state.verlet.localRect().center;
 			screen.brush = 'white';
 			screen.pen = {
 				strokeStyle: 'hsl(210, 50%, 50%)',
-				lineWidth: 1/scene.scale
+				lineWidth: 1/scale
 			};
 			screen.beginPath();
-			screen.arc(state.verlet.position, state.radius, 0, 2*Math.PI, false);
+			screen.arc(center, state.radius, 0, 2*Math.PI, false);
 			screen.closePath();
 			screen.fillPath();
 			screen.drawPath();
@@ -40,31 +36,25 @@ function BallView(state) {
 	});
 }
 
-function BallBoundingBox(state) {
-	return BoundingBox(completeAssign(
-		{},
-		{alignCenterToOrigin: true},
-		{size: state.size},
-		state.verlet
-	));
+export function BallController({verlet}) {
+	return completeAssign({
+		reset({x, y}) {
+			verlet.setVelocity(Vector.Null);
+			verlet.setPosition(Vector({x, y}));
+		},
+		get radius() {
+			return radius;
+		}
+	}, verlet);
 }
 
-function Ball({x, y}) {
-	const verlet = VerletModel(Vector({x, y}));
-	const size = {width: 2*radius, height: 2*radius};
-	const boundingBox = BallBoundingBox({verlet, size});
-	const state = completeAssign(boundingBox, {
-		emitter: new EventEmitter(),
-		radius,
-		size,
-		verlet,
-	});
+export function Ball({x, y}) {
+	const state = BallModel({x, y});
 	return completeAssign(
 		state.emitter,
-		verlet,
-		boundingBox,
-		BallController(state),
-		BallView(state)
+		state.verlet,
+		BallView(state),
+		BallController(state)
 	);
 }
 

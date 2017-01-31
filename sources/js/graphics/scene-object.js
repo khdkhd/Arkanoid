@@ -1,52 +1,83 @@
 import is_nil from 'lodash.isnil';
+import is_number from 'lodash.isnumber';
 import noop from 'lodash.noop';
 
-export default ({onRender, onSceneChanged = noop, zIndex = 0}) => {
-	const state = Object.assign({
-		renderEnabled: true
-	}, {scene: null, onRender, zIndex});
+function normalize_scale(scale) {
+	if (is_nil(scale)) {
+		scale = 1;
+	}
+	return is_number(scale) ? {x: scale, y: scale} : scale;
+}
 
+export default (coordinates, options = {}) => {
+	const onRender = is_nil(options.onRender) ? noop : options.onRender;
+	const onSceneChanged = is_nil(options.onSceneChanged) ? noop : options.onSceneChanged;
+	let scale = normalize_scale(options.scale);
+	let scene = null;
+	let visible = is_nil(options.visible) ? true : options.visible;
+	let zIndex = is_nil(options.zIndex) ? 0 : options.zIndex;
 	return {
-		set zIndex(value) {
-			if (state.zIndex !== value) {
-				state.zIndex = value;
-				if (!is_nil(state.scene)) {
+		zIndex() {
+			return zIndex;
+		},
+		setZIndex(value) {
+			if (zIndex !== value) {
+				zIndex = value;
+				if (!is_nil(scene)) {
 					// make the scene to sort its children
-					state.scene.add(this);
+					scene.add(this);
 				}
 			}
+			return this;
 		},
-		get zIndex() {
-			return state.zIndex;
+		scene() {
+			return scene;
 		},
-		set scene(scene) {
-			if (!is_nil(state.scene)) {
-				state.scene.remove(this);
-				state.scene = null;
+		setScene(s) {
+			if (!is_nil(scene)) {
+				const tmp = scene;
+				scene = null;
+				tmp.remove(this);
 			}
-			if (!is_nil(scene) && scene !== state.scene) {
-				state.scene = scene;
+			if (!is_nil(s) && scene !== s) {
+				scene = s;
 				scene.add(this);
-				onSceneChanged(scene);
+				onSceneChanged.call(this, scene);
 			}
+			return this;
 		},
-		get scene() {
-			return state.scene;
+		scale() {
+			return scale;
 		},
-		toggleRender(enabled){
-			if(is_nil(enabled)){
-				state.renderEnabled = !state.renderEnabled;
-			} else {
-				state.renderEnabled = enabled;
-			}
+		setScale(f) {
+			scale = is_number(f) ? {x: f, y: f} : f;
+			return this;
 		},
-		render() {
-			if (state.renderEnabled) {
-				const screen = state.scene.screen;
+		show() {
+			visible = true;
+			return this;
+		},
+		hide() {
+			visible = false;
+			return this;
+		},
+		visible() {
+			return visible;
+		},
+		setVisible(visibility) {
+			visible = visibility;
+			return this;
+		},
+		render(screen) {
+			if (visible) {
 				screen.save();
-				onRender(state.scene);
+				screen.setScale(scale);
+				screen.clipRect(coordinates.rect());
+				screen.translate(coordinates.position());
+				onRender.call(this, screen, scene, coordinates.localRect());
 				screen.restore();
 			}
+			return this;
 		}
 	};
 }
