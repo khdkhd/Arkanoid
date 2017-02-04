@@ -3,9 +3,10 @@ import constant from 'lodash.constant';
 
 export default({audio_context}) => {
 
-	const vca = audio_context.createGain();
+	const _gain = audio_context.createGain();
+
 	const gain = create_audio_model({
-		param: vca.gain,
+		param: _gain,
 		init: constant(0),
 		range: {
 			min: -1,
@@ -15,13 +16,16 @@ export default({audio_context}) => {
 
 	return {
 		connect({input}) {
-			vca.connect(input);
+			_gain.connect(input);
 		},
 		get input() {
-			return vca;
+			return _gain;
 		},
 		get gain(){
 			return gain;
+		},
+		get param(){
+			return _gain.gain;
 		}
 	};
 }

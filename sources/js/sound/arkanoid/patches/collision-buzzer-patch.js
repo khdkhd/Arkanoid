@@ -2,12 +2,9 @@ export default  {
 	nodes: [
 		{
 			id: 'generator',
-			factory: 'buzz_generator',
+			factory: 'mono',
 			voice: true,
 			config: {
-				gain: {
-					value: 1
-				},
 				type: {
 					value: 'square'
 				}
@@ -15,7 +12,7 @@ export default  {
 		},
 		{
 			id: 'filter',
-			factory: 'biquad_filter',
+			factory: 'filter',
 			output: true,
 			config: {
 				frequency: {

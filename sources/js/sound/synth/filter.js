@@ -1,4 +1,3 @@
-import EnveloppeGenerator from 'sound/synth/enveloppe-generator';
 import { create_audio_model } from 'sound/common/utils';
 
 export default({audio_context})=> {
@@ -17,7 +16,6 @@ export default({audio_context})=> {
 		};
 
 		const filter = audio_context.createBiquadFilter();
-		const enveloppe = EnveloppeGenerator();
 
 		const frequency = create_audio_model({
 			param: filter.frequency,
@@ -48,7 +46,6 @@ export default({audio_context})=> {
 		return {
 			connect({input}){
 				filter.connect(input);
-				enveloppe.connect({ input: filter.gain });
 			},
 			get input(){
 				return filter;
@@ -67,18 +64,6 @@ export default({audio_context})=> {
 			},
 			get Q(){
 				return Q;
-			},
-			get attack(){
-				return enveloppe.attack;
-			},
-			get decay(){
-				return enveloppe.decay;
-			},
-			get sustain(){
-				return enveloppe.sustain;
-			},
-			get release(){
-				return enveloppe.release;
 			}
 		};
 }

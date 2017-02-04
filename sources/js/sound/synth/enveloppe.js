@@ -27,22 +27,26 @@ export default()=>{
 			}
 		});
 
-		let parameter;
+		let params;
 
 		return {
 			connect({param}){
-				parameter = param;
+				params = Array.isArray(param) ? param : [param];
 			},
 			gateOn(time){
-				parameter.cancelScheduledValues(time);
-				parameter.setValueAtTime(0, time);
-				parameter.linearRampToValueAtTime(1, time + attack.value);
-				parameter.linearRampToValueAtTime(sustain.value, time + attack.value + decay.value);
+				for(let param of params){
+					param.cancelScheduledValues(time);
+					param.setValueAtTime(0, time);
+					param.linearRampToValueAtTime(1, time + attack.value);
+					param.linearRampToValueAtTime(sustain.value, time + attack.value + decay.value);
+				}
 			},
 			gateOff(time){
-				parameter.cancelScheduledValues(time);
-				parameter.setValueAtTime(parameter.value, time);
-				parameter.linearRampToValueAtTime(0, time + release.value);
+				for(let param of params){
+					param.cancelScheduledValues(time);
+					param.setValueAtTime(param.value, time);
+					param.linearRampToValueAtTime(0, time + release.value);
+				}
 			},
 			get attack(){
 				return attack;

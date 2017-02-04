@@ -1,7 +1,7 @@
-import create_vca from 'sound/synth/vca';
+import amp from 'sound/synth/amp';
 
 export default({audio_context}) => {
-	const gain = create_vca({audio_context});
+	const gain = amp({audio_context});
 
 	return {
 		connect({input}) {

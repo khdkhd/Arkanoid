@@ -7,59 +7,21 @@ import {
 const synth_patch = {
 	nodes: [{
 			id: 'generator',
-			factory: 'polyphonic_generator',
+			factory: 'mono',
 			voice: true,
-			options: {
-				num_voices: 2
-			},
 			config: {
-				gain: {
-					value: 1
-				},
 				type: {
 					value: 'square'
-				},
-				attack: {
-					value: 0,
-					views: [{
-						factory: 'fader',
-						options:{
-							parent: '#fader-1'
-						}
-					}]
-				},
-				decay: {
-					value: 1,
-					views: [{
-						factory: 'fader',
-						options:{
-							parent: '#fader-2'
-						}
-					}]
-				},
-				sustain: {
-					value: 1,
-					views: [{
-						factory: 'fader',
-						options:{
-							parent: '#fader-3'
-						}
-					}]
-				},
-				release: {
-					value: 0,
-					views: [{
-						factory: 'fader',
-						options:{
-							parent: '#fader-4'
-						}
-					}]
 				}
 			}
 		},
 		{
+			id: 'enveloppe',
+			factory: 'enveloppe'
+		},
+		{
 			id: 'filter',
-			factory: 'biquad_filter',
+			factory: 'filter',
 			output: true,
 			config:{
 				frequency:{

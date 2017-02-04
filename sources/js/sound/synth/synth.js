@@ -1,7 +1,7 @@
 import synth_factory from 'sound/synth/factory';
 import control_factory from 'sound/controls/factory';
 import {get_frequency_of_note } from 'sound/common/utils';
-
+import is_nil from 'lodash.isnil';
 
 export default ({audio_context})  => {
 
@@ -23,9 +23,12 @@ export default ({audio_context})  => {
 					const options = Object.assign({}, node.options)
 					options.factory = synth_factory;
 					const mod = synth_factory[node.factory](Object.assign({audio_context}, options));
-					for(let [param, config] of Object.entries(node.config)){
-						mod[param].value = config.value;
-						bind_views(mod[param], config.views);
+					for(let [param, config] of Object.entries(Object.assign({}, node.config))){
+						console.log(param, config);
+						if(!is_nil(mod[param])){
+							mod[param].value = config.value;
+							bind_views(mod[param], config.views);
+						}
 					}
 					if(node.voice){
 						voices.push(mod);
@@ -47,7 +50,7 @@ export default ({audio_context})  => {
 			},
 			noteOff(note, octave, time){
 				voices.forEach((generator) => {
-					generator.noteOff(get_frequency_of_note(note, octave), time);
+					generator.noteOff(time);
 				});
 			},
 			connect({input}){

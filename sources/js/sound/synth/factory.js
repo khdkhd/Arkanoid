@@ -1,21 +1,15 @@
-import polyphonic_generator from 'sound/synth/polyphonic-generator';
-import enveloppe_generator from 'sound/synth/enveloppe-generator';
-import polyphony_manager from 'sound/synth/polyphony-manager';
-import buzz_generator from 'sound/synth/buzz-generator';
-import biquad_filter from 'sound/synth/biquad-filter';
-import master_output from 'sound/synth/master-output';
+import enveloppe from 'sound/synth/enveloppe';
+import filter from 'sound/synth/filter';
 import lfo from 'sound/synth/lfo';
-import vco from 'sound/synth/vco';
-import vca from 'sound/synth/vca';
+import mono from 'sound/synth/mono';
+import poly from 'sound/synth/poly';
+import amp from 'sound/synth/amp';
 
 export default  {
-	biquad_filter: biquad_filter,
-	enveloppe_generator: enveloppe_generator,
-	lfo: lfo,
-	polyphonic_generator: polyphonic_generator,
-	polyphony_manager: polyphony_manager,
-	buzz_generator:  buzz_generator,
-	master: master_output,
-	vco: vco,
-	vca: vca
+	enveloppe,
+	filter,
+	lfo,
+	mono,
+	poly,
+	amp
 };
