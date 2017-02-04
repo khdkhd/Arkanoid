@@ -21,6 +21,5 @@ export default({audio_context}) => {
 		get param(){
 			return Object.values(voices).map(voice => voice.param);
 		}
-
 	}
 }

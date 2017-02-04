@@ -3,7 +3,7 @@ export default  {
 		{
 			id: 'generator',
 			factory: 'mono',
-			voice: true,
+			type: 'voice',
 			config: {
 				type: {
 					value: 'square'
@@ -13,7 +13,7 @@ export default  {
 		{
 			id: 'filter',
 			factory: 'filter',
-			output: true,
+			type: 'output',
 			config: {
 				frequency: {
 					value: 1

@@ -20,7 +20,7 @@ export default ({slave } = {}) => {
 			for(let note of notes){
 				_slave.noteOn(note.note, note.octave, time);
 				_slave.noteOff(note.note, note.octave, time + note.duration);
-				time+= interval;
+				time += interval;
 			}
 		}
 	};

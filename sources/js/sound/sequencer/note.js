@@ -14,6 +14,6 @@ export default({note, octave, duration})=> {
 	return {
 		note: note,
 		octave: octave,
-		duration: DURATIONS[duration]
+		duration: DURATIONS[duration] || duration
 	};
 }

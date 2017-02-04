@@ -8,7 +8,7 @@ const synth_patch = {
 	nodes: [{
 			id: 'generator',
 			factory: 'mono',
-			voice: true,
+			type: 'voice',
 			config: {
 				type: {
 					value: 'square'
@@ -22,7 +22,7 @@ const synth_patch = {
 		{
 			id: 'filter',
 			factory: 'filter',
-			output: true,
+			type: 'output',
 			config:{
 				frequency:{
 					value: .95,
