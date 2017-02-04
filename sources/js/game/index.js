@@ -1,3 +1,5 @@
+import {EventEmitter} from 'events';
+
 import {completeAssign} from 'common/utils';
 
 import Coordinates from 'graphics/coordinates';
@@ -9,7 +11,8 @@ import Controller from 'game/game-controller';
 import Brick from 'game/brick';
 import Ball from 'game/ball';
 import Vaus from 'game/vaus';
-
+import levels from 'game/levels';
+import gameKeyboardController from 'game/keyboard-controller';
 import {
 	HorizontalWall,
 	HorizontalLeftWall,
@@ -19,15 +22,15 @@ import {
 	VerticalTopLeftWall,
 	VerticalTopRightWall
 } from 'game/wall';
-import levels from 'game/levels';
 
 import Scene from 'graphics/scene';
 
 import ui from 'ui';
 
-import {EventEmitter} from 'events';
-
-import gameKeyboardController from 'game/keyboard-controller';
+ui.screen.setSize({
+	width: 224*2,
+	height: 248*2
+});
 
 function create_ball(scene) {
 	const ball = Ball(Vector.Null);
@@ -77,7 +80,7 @@ export default function Game() {
 	const columns = screen.width/scale;
 	const rows = screen.height/scale;
 
-	const zone = Rect({x: 1, y: 1}, {width: columns - 2, height: rows - 2});
+	const zone = Rect({x: 1, y: 1}, {width: columns - 2, height: rows - 1});
 	const scene = Scene(Coordinates(zone.size, zone.topLeft));
 
 	const state = {
@@ -96,9 +99,7 @@ export default function Game() {
 
 	function loop() {
 		if (!state.end) {
-			if (!state.paused) {
-				game_contoller.update();
-			}
+			game_contoller.update();
 			screen.render();
 			requestAnimationFrame(loop);
 		} else {
@@ -115,7 +116,20 @@ export default function Game() {
 	game_contoller.on('end-of-level', () => {
 		state.end = true;
 	});
+	game_contoller.on('ball-out', () => {
+		keyboard.use(null);
+		game_contoller.pause();
+		setTimeout(() => {
+			keyboard.use(gameKeyboardController);
+			game_contoller.pause();
+		}, 2000);
+	});
+	game_contoller.on('game-over', () => {
+		keyboard.use(null);
+		game_contoller.pause();
+	});
 
+	ui.lifes.setModel(state.vaus).render();
 	screen
 		.setBackgroundColor('#123')
 		.setScale(scale)
@@ -128,7 +142,7 @@ export default function Game() {
 			state.level = level;
 			state.bricks.forEach(brick => scene.remove(brick));
 			state.bricks = create_bricks(level - 1, scene);
-			game_contoller.reset();
+			game_contoller.init();
 			keyboard.use(gameKeyboardController);
 			requestAnimationFrame(loop);
 		}
