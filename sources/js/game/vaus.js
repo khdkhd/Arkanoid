@@ -96,6 +96,7 @@ export function VausModel({x, y}) {
 	return {
 		emitter: new EventEmitter(),
 		padSize: 1,
+		lifes: 3,
 		verlet: VerletModel({
 			width: 3,
 			height: 1
@@ -197,6 +198,19 @@ export function VausController(state) {
 				width: 2 + pad_size,
 				height: 1
 			});
+			return this;
+		},
+		lifes() {
+			return state.lifes;
+		},
+		gainLife() {
+			state.lifes += 1;
+			state.emitter.emit('changed');
+			return this;
+		},
+		looseLife() {
+			state.lifes -= 1;
+			state.emitter.emit('changed');
 			return this;
 		}
 	};

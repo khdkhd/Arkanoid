@@ -42,6 +42,8 @@ export default function GameController(state) {
 	const {ball, vaus, zone} = state;
 	const emitter = new EventEmitter();
 
+	let paused = false;
+
 	// Position helpers
 
 	function ball_neighborhood() {
@@ -98,9 +100,19 @@ export default function GameController(state) {
 		} else if (ball_box.topY <= zone.topY) {
 			// collide with roof
 			return Vector({x: speed.x, y: -speed.y});
-		} else if (ball_box.bottomY >= zone.bottomY) {
+		}
+	}
+
+	function ball_goes_out(ball_box, speed) {
+		if (ball_box.bottomY >= zone.bottomY) {
 			if(state.cheatMode) {
 				return Vector({x: speed.x, y: -speed.y});
+			}
+			if (vaus.lifes() > 0) {
+				emitter.emit('ball-out');
+				vaus.looseLife();
+			} else {
+				emitter.emit('game-over');
 			}
 			return Vector.Null;
 		}
@@ -110,7 +122,7 @@ export default function GameController(state) {
 		ball_collides_with_bricks,
 		ball_collides_with_vaus,
 		ball_collides_with_walls,
-		(ball_box, speed) => speed
+		ball_goes_out
 	);
 
 	const buzz = cond([
@@ -124,7 +136,10 @@ export default function GameController(state) {
 	function update_ball() {
 		if (!ball.velocity().isNull()) {
 			const ball_box = ball.rect().translate(ball.velocity());
-			ball.setVelocity(ball_collides(ball_box, ball.velocity()));
+			const ball_speed = ball_collides(ball_box, ball.velocity());
+			if (!is_nil(ball_speed)) {
+				ball.setVelocity(ball_speed);
+			}
 		} else {
 			reset_ball_position(vaus, ball);
 		}
@@ -156,26 +171,35 @@ export default function GameController(state) {
 		);
 	}
 
-	keyboard.on('direction-changed', direction => {
-		vaus.move(direction);
-	});
-	keyboard.on('fire', () => {
-		if (ball.velocity().isNull()) {
-			ball.setVelocity(Vector({x: 1, y: -1}).toUnit().mul(.2));
-		}
-	});
-	keyboard.on('pause', () => emitter.emit('pause'));
+	keyboard
+		.on('pause', () => emitter.emit('pause'))
+		.on('direction-changed', direction => {
+			vaus.move(direction);
+		})
+		.on('fire', () => {
+			if (ball.velocity().isNull()) {
+				ball.setVelocity(Vector({x: 1, y: -1}).toUnit().mul(.2));
+			}
+		});
 
 	return completeAssign(emitter, {
 		update() {
-			update_ball();
-			update_vaus();
+			if (!state.paused) {
+				update_ball();
+				update_vaus();
+			}
 		},
-		reset() {
-			reset_ball_position();
-			ball.on('hit', target => {
-				collisionBuzzer.buzz(buzz(target));
-			});
+		init() {
+			ball
+				.on('hit', target => {
+					collisionBuzzer.buzz(buzz(target));
+				})
+				.on('out', () => {
+					if (vaus.lifes() > 0) {
+						vaus.useLife();
+					}
+					emitter.emit('lifes', vaus.lifes());
+				});
 			state.bricks.forEach(brick => {
 				brick.on('hit', point => {
 					emitter.emit('update-score', point)
@@ -191,6 +215,19 @@ export default function GameController(state) {
 					}
 				});
 			});
+		},
+		pause() {
+			if (paused) {
+				ball.show();
+				vaus.show();
+			} else {
+				ball.hide();
+				vaus.hide();
+			}
+			paused = !paused;
+		},
+		reset() {
+			reset_ball_position();
 		}
 	})
 }
