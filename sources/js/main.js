@@ -1,5 +1,4 @@
 import Game from 'game/index';
-import ui from 'ui';
 
 const game = Game();
 
