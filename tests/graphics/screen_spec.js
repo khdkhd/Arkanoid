@@ -42,15 +42,15 @@ describe('graphics.Screen(canvas_context)', () => {
 		it('returns a {width, height} object representing the size of the screen', () => {
 			const context = CanvasContextMock();
 			const screen = Screen(context);
-			expect(screen.size).to.deep.equal(context.canvas);
+			expect(screen.size()).to.deep.equal(context.canvas);
 		});
 		it('sets the size of the screen when affected a {width, height} object', () => {
 			const context = CanvasContextMock();
 			const screen = Screen(context);
-			screen.size = {
+			screen.setSize({
 				width: 42,
 				height: 42
-			};
+			});
 			expect(context.canvas.width).to.equal(42);
 			expect(context.canvas.height).to.equal(42);
 		});

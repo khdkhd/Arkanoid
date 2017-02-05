@@ -42,7 +42,7 @@ export default function Screen(canvas_context) {
 			return this;
 		},
 		localRect() {
-			return Rect({x: 0, y: 0}, this.size);
+			return Rect({x: 0, y: 0}, this.size());
 		},
 		rect() {
 			return this.localRect();
