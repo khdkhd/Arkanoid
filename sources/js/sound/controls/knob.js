@@ -8,12 +8,13 @@ import ui from 'sound/controls/ui';
 
 function create_knob_view(state){
 
-	const canvas = document.createElement('canvas');
+
+ 	const canvas = document.createElement('canvas');
 	canvas.innerHTML = 'Your browser does not support canvas!';
 	const screen = Screen(canvas.getContext('2d'));
 	screen.width = 2 * state.outer_radius + state.padding*2;
 	screen.height = 2 * state.outer_radius + state.padding*2;
-	state.parent.appendChild(canvas);
+	state.element.appendChild(canvas);
 
 	function clamp(angle) {
 		return _clamp(angle, state.curve_start, state.curve_end);
@@ -34,7 +35,7 @@ function create_knob_view(state){
 	}
 
 	ui.bind_events({
-		element: state.parent,
+		element: state.element,
 		mousemove: event => {
 			if (state.isActive) {
 				//tweak(event);
@@ -105,7 +106,7 @@ function create_knob_controller(state) {
 	};
 }
 
-export default ({parent})=> {
+export default ({element})=> {
 	let radius = 50;
 	const padding = 5;
 	let pos = {x:radius + padding,y: radius + padding};
@@ -115,7 +116,7 @@ export default ({parent})=> {
 	const curve_length = curve_end - curve_start;
 	const inc_factor = 25;
 	const state = {
-		parent: document.querySelector(parent),
+		element,
 		pos,
 		padding,
 		curve_start,

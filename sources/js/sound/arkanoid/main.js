@@ -4,6 +4,12 @@ import {
 	createMixer,
 } from 'sound';
 
+import is_nil from 'lodash.isnil';
+import create_controls from 'sound/controls';
+
+const view_factory = create_controls();
+const views = [];
+
 const synth_patch = {
 	nodes: [{
 			id: 'generator',
@@ -27,19 +33,13 @@ const synth_patch = {
 				frequency:{
 					value: .95,
 					views: [{
-						factory: 'knob',
-						options:{
-							parent: '#knob-1'
-						}
+						factory: 'knob'
 					}]
 				},
 				Q: {
 					value: 0,
 					views: [{
-						factory: 'knob',
-						options:{
-							parent: '#knob-2'
-						}
+						factory: 'knob'
 					}]
 				},
 				gain: {
@@ -55,22 +55,10 @@ const synth_patch = {
 			factory: 'lfo',
 			config: {
 				frequency: {
-					value: .125,
-					views: [{
-						factory: 'knob',
-						options:{
-							parent: '#knob-3'
-						}
-					}]
+					value: .125
 				},
 				amplitude: {
-					value: 0.9,
-					views: [{
-						factory: 'knob',
-						options:{
-							parent: '#knob-4'
-						}
-					}]
+					value: 0.9
 				},
 				type: {
 					value: 'sine'
@@ -81,7 +69,6 @@ const synth_patch = {
 	connexions: [
 		['generator', 'filter'],
 		['lfo', 'filter']
-		// ['filter', 'master']
 	]
 
 };
@@ -130,7 +117,6 @@ const introduction_partition = [
 
 const audio_context = new AudioContext();
 
-
 const seq = createSequencer({
 	audio_context
 });
@@ -143,7 +129,7 @@ const mixer = createMixer({
 
 synth.patch(synth_patch);
 seq.assign('track_1', synth);
-seq.tracks['track_1'].grid = introduction_partition;
+seq.tracks['track_1'].partition = introduction_partition;
 
 mixer.assign('1', synth);
 mixer.connect({
@@ -152,9 +138,27 @@ mixer.connect({
 mixer.tracks['1'].gain.value = 1;
 seq.start();
 
+const controls = document.querySelectorAll('[data-control]');
+for(let control of controls){
+	let view_name = control.getAttribute('data-control');
+	let path = control.getAttribute('data-param');
+	if(is_nil(path)){
+		continue;
+	}
+	path = path.split('.');
+	const node = synth.nodes[path[0]];
+	const param = node[path[1]];
+	const view = view_factory.bindParameter({
+		factory: view_name,
+		options: {
+			element: control
+		}
+	}, param);
+	views.push(view);
+}
 function loop() {
+	views.forEach(view => view.render());
 	seq.play();
-	synth.render();
 	requestAnimationFrame(loop);
 }
 

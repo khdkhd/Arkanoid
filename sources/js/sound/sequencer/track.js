@@ -28,7 +28,7 @@ export default ({tempo, slave}) => {
 			}
 
 			return {
-				set grid(matrix2d){
+				set partition(matrix2d){
 					grid = matrix2d.map(row =>
 						row.map(create_note));
 				},

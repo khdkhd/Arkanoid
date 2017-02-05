@@ -40,7 +40,7 @@ export default {
 		collizion_buzzer.buzz({note: 'A', octave: 6, duration: .125});
 	},
 	ball_collides_with_wall(){
-		collizion_buzzer.buzz({note: 'C', octave: 3, duration: .125});
+		collizion_buzzer.buzz({note: 'C', octave: 3, duration: .025});
 	},
 	ball_goes_out(){
 		collizion_buzzer.arpegiate(.125, [

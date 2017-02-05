@@ -5,8 +5,6 @@ import mono from 'sound/synth/mono';
 import poly from 'sound/synth/poly';
 import amp from 'sound/synth/amp';
 
-import create_controls from 'sound/controls';
-
 import { get_frequency_of_note } from 'sound/common/utils';
 
 const factory = {
@@ -18,13 +16,10 @@ const factory = {
 	amp
 };
 
-const controls = create_controls();
-
 
 export default ({audio_context}) => {
 
 	const voices = [];
-	const views = [];
 	let output, nodes;
 
 	/**
@@ -37,21 +32,17 @@ export default ({audio_context}) => {
 		desc.config = desc.config || {};
 		for(let [param, config] of Object.entries(desc.config)){
 				node[param].value = config.value;
-				bind_views(node[param], config.views);
+				//bind_views(node[param], config.views);
 		}
 		return node;
-	}
-
-	function bind_views(param, descs = []){
-		descs.forEach(desc => {
-			const view = controls.bindParameter(desc, param);
-			views.push(view);
-		});
 	}
 
 	return {
 		get factory(){
 			return factory;
+		},
+		get nodes(){
+			return nodes;
 		},
 		patch(patch) {
 			nodes = patch.nodes.reduce((nodes, desc) => {
@@ -59,13 +50,10 @@ export default ({audio_context}) => {
 				if(desc.type === 'voice'){
 					voices.push(node);
 				}
-				console.log(desc.type);
 				if(desc.type === 'output'){
-					console.log('desc type is output');
 					output = node;
 				}
 				if(desc.output){
-					console.log('desc type is output from boolean');
 					output = node;
 				}
 				nodes[desc.id] = node;
@@ -86,11 +74,6 @@ export default ({audio_context}) => {
 		noteOff(note, octave, time){
 			for(let voice of voices){
 				voice.noteOff(time);
-			}
-		},
-		render(){
-			for(let view of views) {
-				view.render();
 			}
 		}
 	};

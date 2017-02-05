@@ -24,10 +24,10 @@ function create_fader_view(state){
 	const screen = Screen(canvas.getContext('2d'));
 	screen.width = state.width;
 	screen.height =  state.height;
-	state.parent.appendChild(canvas);
+	state.element.appendChild(canvas);
 
 	ui.bind_events({
-		element: state.parent,
+		element: state.element,
 		mousedown: event => {
 			const x = event.clientX - event.target.offsetLeft;
 			const y = event.clientY - event.target.offsetTop;
@@ -115,14 +115,14 @@ function create_fader_controller(state) {
 	};
 }
 
-export default ({parent})=> {
+export default ({element})=> {
 
 	let width = 50, height = 150;
 	const padding = 5;
 	const pos = {x: padding, y: padding};
 	const state = {
+		element,
 		pos,
-		parent: document.querySelector(parent),
 		padding,
 		width,
 		height,
