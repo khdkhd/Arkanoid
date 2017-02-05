@@ -71,18 +71,22 @@ export default function GameController(state) {
 
 	function ball_collides_with_walls(ball_box, speed) {
 		if (ball_box.leftX <= zone.leftX) {
+			ball.emit('hit', 'wall');
 			// collide with left wall
 			return Vector({x: -speed.x, y: speed.y});
 		} else if (ball_box.rightX >= zone.rightX) {
+			ball.emit('hit', 'wall');
 			// collide with right wall
 			return Vector({x: -speed.x, y: speed.y});
 		} else if (ball_box.topY <= zone.topY) {
 			// collide with roof
+			ball.emit('hit', 'wall');
 			return Vector({x: speed.x, y: -speed.y});
 		} else if (ball_box.bottomY >= zone.bottomY) {
 			if(state.cheatMode) {
 				return Vector({x: speed.x, y: -speed.y});
 			}
+			ball.emit('hit', 'ground');
 			return Vector.Null;
 		}
 	}
@@ -166,6 +170,8 @@ export default function GameController(state) {
 				ball.on('hit', cond([
 						[matches('brick'), soundController.ball_collides_with_bricks],
 						[matches('vaus'), soundController.ball_collides_with_vaus],
+						[matches('wall'), soundController.ball_collides_with_wall],
+						[matches('ground'), soundController.ball_goes_out]
 					]));
 			});
 		}

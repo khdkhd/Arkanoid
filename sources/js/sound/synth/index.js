@@ -28,13 +28,15 @@ export default ({audio_context}) => {
 	let output, nodes;
 
 	/**
-	 * Creates a node from a json object description
+	 * Creates an audio node from a json object description
 	 */
 	function create_node(desc){
-		const node = factory[desc.factory](Object.assign({audio_context}, desc.options));
-		for(let [param, config] of Object.entries(Object.assign({}, desc.config))){
+		const node_factory = factory[desc.factory];
+		const factory_params = Object.assign({audio_context}, desc.options);
+		const node = node_factory(factory_params);
+		desc.config = desc.config || {};
+		for(let [param, config] of Object.entries(desc.config)){
 				node[param].value = config.value;
-				console.log(config.views);
 				bind_views(node[param], config.views);
 		}
 		return node;
@@ -57,7 +59,13 @@ export default ({audio_context}) => {
 				if(desc.type === 'voice'){
 					voices.push(node);
 				}
+				console.log(desc.type);
 				if(desc.type === 'output'){
+					console.log('desc type is output');
+					output = node;
+				}
+				if(desc.output){
+					console.log('desc type is output from boolean');
 					output = node;
 				}
 				nodes[desc.id] = node;

@@ -90,47 +90,29 @@ const synth_patch = {
 
 const introduction_partition = [
 	[{
-			note: 'G',
+			note: 'A',
 			octave: 2,
-			duration: 'WHOLE'
-		}, {}, {
+			duration: 'QUARTER'
+		}, {}, {}, {
+			note: 'A',
+			octave: 2,
+			duration: 'QUARTER'
+		}, {}, {}, {
 			note: 'A',
 			octave: 2,
 			duration: 'EIGHTH'
-		}, {
+		}, {}, {}, {}, {
 			note: 'A',
-			octave: 2,
-			duration: 'EIGHTH'
-		},
-		{
-			note: 'G',
-			octave: 2,
-			duration: 'WHOLE'
-		}, {}, {
-			note: 'G',
-			octave: 2,
-			duration: 'EIGHTH'
-		}, {
-			note: 'D',
-			octave: 5,
-			duration: 'EIGHTH'
-		},
-		{
-			note: 'A',
-			octave: 2,
-			duration: 'WHOLE'
-		}, {}, {
-			note: 'G',
 			octave: 2,
 			duration: 'QUARTER'
 		}, {},
 		{
 			note: 'A',
-			octave: 4,
+			octave: 2,
 			duration: 'WHOLE'
 		}, {}, {
 			note: 'D',
-			octave: 5,
+			octave: 2,
 			duration: 'QUARTER'
 		}, {}
 	],

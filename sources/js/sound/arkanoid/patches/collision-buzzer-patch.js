@@ -25,21 +25,6 @@ export default  {
 					value: 'lowpass'
 				}
 			},
-		},
-		{
-			id: 'lfo',
-			factory: 'lfo',
-			config: {
-				frequency: {
-					value: 0.025
-				},
-				amplitude: {
-					value: 1
-				},
-				type: {
-					value: 'square'
-				}
-			}
 		}
 	],
 	connexions: [

@@ -39,6 +39,9 @@ export default {
 	ball_collides_with_vaus(){
 		collizion_buzzer.buzz({note: 'A', octave: 6, duration: .125});
 	},
+	ball_collides_with_wall(){
+		collizion_buzzer.buzz({note: 'C', octave: 3, duration: .125});
+	},
 	ball_goes_out(){
 		collizion_buzzer.arpegiate(.125, [
 			{note: 'G', octave: 4, duration: .125},
