@@ -41,6 +41,7 @@ export function BallController({verlet}) {
 		reset({x, y}) {
 			verlet.setVelocity(Vector.Null);
 			verlet.setPosition(Vector({x, y}));
+			return this;
 		},
 		get radius() {
 			return radius;
