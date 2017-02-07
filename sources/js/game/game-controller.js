@@ -181,6 +181,7 @@ export default function GameController(state) {
 			[matches('vaus'), soundController.ballCollidesWithVaus]
 		]));
 	emitter.on('ball-out', soundController.ballGoesOut);
+
 	state.scene.add(vaus, ball);
 
 	ui.lifes.setModel(vaus).render();

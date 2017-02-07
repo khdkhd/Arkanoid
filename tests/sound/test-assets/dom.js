@@ -5,16 +5,32 @@ const document = jsdom.jsdom(
 	<html>
 		<head>
 			<meta charset="utf-8">
-			<title>Arkanoid</title>
+			<title></title>
+			<link rel="stylesheet" href="/assets/css/sound.css" charset="utf-8">
 		</head>
 		<body>
-			<canvas id="screen" width="300" height="300">
-				Your browser does not support canvas!
-			</canvas>
+			<div class="ui-panel">
+				<div>
+					<span class="knob" id="knob-1" data-control="knob" data-param="filter.frequency"></span>
+					<span class="knob" id="knob-2" data-control="knob" data-param="filter.Q"></span>
+					<span class="knob" id="knob-3" data-control="knob" data-param="lfo.frequency"></span>
+					<span class="knob" id="knob-4" data-control="knob" data-param="lfo.amplitude"></span>
+				</div>
+	    	<div>
+					<span class="fader" id="fader-1" data-control="fader"></span>
+					<span class="fader" id="fader-2" data-control="fader"></span>
+					<span class="fader" id="fader-3" data-control="fader"></span>
+					<span class="fader" id="fader-4" data-control="fader"></span>
+				</div>
+			</div>
+			<canvas id="screen"></canvas>
+			<script type="text/javascript" src="/assets/js/sound.js"></script>
 		</body>
 	</html>`);
 
-const canvas = document.getElementById('screen');
-canvas.offsetTop = 100;
-canvas.offsetLeft = 100;
+for(let element of document.querySelectorAll('[data-control]')){
+	element.offsetTop = 100;
+	element.offsetLeft = 100;
+}
+
 export default document;

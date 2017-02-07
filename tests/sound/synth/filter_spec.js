@@ -68,24 +68,5 @@ describe('create_filter', () => {
 		expect(filter).to.have.property('input');
 	});
 
-	it('returns an object with an attack property', () => {
-		const filter = create_filter(context);
-		expect(filter).to.have.property('attack');
-	});
-
-	it('returns an object with a decay property', () => {
-		const filter = create_filter(context);
-		expect(filter).to.have.property('decay');
-	});
-
-	it('returns an object with a sustain property', () => {
-		const filter = create_filter(context);
-		expect(filter).to.have.property('sustain');
-	});
-
-	it('returns an object with a release property', () => {
-		const filter = create_filter(context);
-		expect(filter).to.have.property('release');
-	});
 
 });
