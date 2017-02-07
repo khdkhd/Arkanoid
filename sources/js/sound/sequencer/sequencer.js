@@ -10,7 +10,6 @@ export default ({audio_context}) => {
 	const tracks = {};
 	let start_time = 0, time = 0;
 	let precision = 4, tempo = 120;
-	let stop = false;
 
 	return {
 		start() {
@@ -27,7 +26,6 @@ export default ({audio_context}) => {
 			}
 		},
 		stop(){
-			stop = true;
 			start_time = 0;
 			for(let track of Object.values(tracks)){
 				track.rewind();
