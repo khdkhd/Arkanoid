@@ -2,11 +2,17 @@ import {completeAssign} from 'common/utils';
 import {dispatch} from 'common/functional';
 import {bounce} from 'physics/collisions';
 
-import ui from 'ui';
+import Ball from 'game/ball';
+import Vaus from 'game/vaus';
+import createBricks from 'game/brick';
+import gameKeyboardController from 'game/keyboard-controller';
 
 import Vector from 'maths/vector';
 
+
 import matches from 'lodash.matches';
+import ui from 'ui';
+
 import random from 'lodash.random';
 import remove from 'lodash.remove';
 import is_nil from 'lodash.isnil';
@@ -16,13 +22,15 @@ import {EventEmitter} from 'events';
 
 import soundController  from 'sound/arkanoid/sound-controller';
 
-
 const keyboard = ui.keyboard;
 
 export default function GameController(state) {
-	const {ball, vaus, zone} = state;
 	const emitter = new EventEmitter();
+	const zone = state.zone;
+	const ball = Ball(Vector.Null);
+	const vaus = Vaus({x: 1, y: zone.height - 2});
 
+	let bricks = [];
 	let paused = false;
 
 	// Position helpers
@@ -31,11 +39,10 @@ export default function GameController(state) {
 		const pos = ball.position();
 		const col = Math.round(pos.x);
 		const row = Math.round(pos.y);
-		return state.bricks
-			.filter(brick => {
-				const brick_pos = brick.position();
-				return Math.abs(col - brick_pos.x) <= 2 && Math.abs(row - brick_pos.y) <= 1;
-			});
+		return bricks.filter(brick => {
+			const brick_pos = brick.position();
+			return Math.abs(col - brick_pos.x) <= 2 && Math.abs(row - brick_pos.y) <= 1;
+		});
 	}
 
 	function reset_ball_position() {
@@ -44,6 +51,10 @@ export default function GameController(state) {
 			x: ball.size().width/2,
 			y: ball.size().height + vaus_box.height/2
 		}));
+	}
+
+	function reset_vaus_position() {
+		vaus.reset({x: 1, y: zone.height - 2});
 	}
 
 	// Collision helpers
@@ -93,13 +104,7 @@ export default function GameController(state) {
 				ball.emit('hit', 'wall');
 				return Vector({x: speed.x, y: -speed.y});
 			}
-			if (vaus.lifes() > 0) {
-				emitter.emit('ball-out');
-				ball.emit('out');
-				vaus.looseLife();
-			} else {
-				emitter.emit('game-over');
-			}
+			emitter.emit(vaus.lifes() > 0 ? 'ball-out' : 'game-over');
 			return Vector.Null;
 		}
 	}
@@ -147,53 +152,73 @@ export default function GameController(state) {
 	// Game helpers
 
 	function bricks_remaining() {
-		return state.bricks.reduce(
-			(count, brick) => brick.color === 'gold' ? count : count + 1, 0
+		return bricks.reduce(
+			(count, brick) => brick.color === 'gold' ? count : count + 1,
+			0
 		);
 	}
 
+	// Events
+
 	keyboard
+		.on('direction-changed', direction => vaus.move(direction))
 		.on('pause', () => emitter.emit('pause'))
-		.on('direction-changed', direction => {
-			vaus.move(direction);
-		})
 		.on('fire', () => {
 			if (ball.velocity().isNull()) {
 				ball.setVelocity(Vector({x: 1, y: -1}).toUnit().mul(.2));
 			}
 		});
 
+	ball
+		.on('out', () => {
+			if (vaus.lifes() > 0) {
+				vaus.useLife();
+			}
+			emitter.emit('lifes', vaus.lifes());
+		})
+		.on('hit', cond([
+			[matches('brick'), soundController.ballCollidesWithBricks],
+			[matches('vaus'), soundController.ballCollidesWithVaus]
+		]));
+	emitter.on('ball-out', soundController.ballGoesOut);
+	state.scene.add(vaus, ball);
+
+	ui.lifes.setModel(vaus).render();
+
 	return completeAssign(emitter, {
 		update() {
-			if (!state.paused) {
+			if (!paused) {
 				update_ball();
 				update_vaus();
 			}
+			return this;
 		},
-		init() {
-			ball
-				.on('out', () => {
-					soundController.ballGoesOut();
-				})
-				.on('hit', cond([
-						[matches('brick'), soundController.ballCollidesWithBricks],
-						[matches('vaus'), soundController.ballCollidesWithVaus]
-				]));
-			state.bricks.forEach(brick => {
-				brick.on('hit', point => {
-					emitter.emit('update-score', point)
-				});
-				brick.once('destroyed', () => {
-					brick.removeAllListeners('destroyed');
-					brick.removeAllListeners('hit');
-					brick.hide();
-					remove(state.bricks, brick);
-					const remain = bricks_remaining();
-					if (remain === 0) {
-						emitter.emit('end-of-level');
-					}
-				});
+		init(level) {
+			bricks.forEach(brick => {
+				state.scene.remove(brick);
+				brick
+					.removeAllListeners('destroyed')
+					.removeAllListeners('hit')
+					.hide();
 			});
+			bricks = createBricks(level);
+			bricks.forEach(brick => {
+				state.scene.add(brick);
+				brick
+					.on('hit', point => emitter.emit('update-score', point))
+					.once('destroyed', () => {
+						brick
+							.removeAllListeners('destroyed')
+							.removeAllListeners('hit')
+							.hide();
+						remove(bricks, brick);
+						const remain = bricks_remaining();
+						if (remain === 0) {
+							emitter.emit('end-of-level');
+						}
+					});
+			});
+			return this;
 		},
 		pause() {
 			if (paused) {
@@ -204,9 +229,25 @@ export default function GameController(state) {
 				vaus.hide();
 			}
 			paused = !paused;
+			return this;
 		},
-		reset() {
+		start() {
+			reset_vaus_position();
 			reset_ball_position();
+			ball.show();
+			vaus
+				.useLife()
+				.show();
+			keyboard.use(gameKeyboardController);
+			paused = false;
+			return this;
+		},
+		stop() {
+			ball.hide();
+			vaus.hide();
+			keyboard.use(null);
+			paused = true;
+			return this;
 		}
-	})
+	});
 }

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import create_vca from 'sound/synth/vca';
+import create_amp from 'sound/synth/amp';
 import create_audio_context from '../test-assets/audio-context_mock';
 import sinon from 'sinon';
 
@@ -7,7 +7,7 @@ const context = {
 	sandbox: sinon.sandbox.create()
 };
 
-describe('create_vca', () => {
+describe('create_amp', () => {
 
 	beforeEach(function() {
 		context.audio_context =  create_audio_context(context.sandbox);
@@ -18,27 +18,27 @@ describe('create_vca', () => {
 	});
 
 	it('returns an object', () => {
-		const vca = create_vca(context);
+		const vca = create_amp(context);
 		expect(vca).to.be.an('object');
 	});
 
 	it('returns an object with a input property', () => {
-		const vca = create_vca(context);
+		const vca = create_amp(context);
 		expect(vca).to.have.property('input');
 	});
 
 	it('returns an object with a gain property', () => {
-		const vca = create_vca(context);
+		const vca = create_amp(context);
 		expect(vca).to.have.property('gain');
 	});
 
 	it('returns an object with an input property', () => {
-		const vca = create_vca(context);
+		const vca = create_amp(context);
 		expect(vca).to.have.property('input');
 	});
 
 	it('returns an object with a connect method', () => {
-		const vca = create_vca(context);
+		const vca = create_amp(context);
 		expect(vca.connect).to.be.function;
 	});
 

@@ -109,7 +109,7 @@ export function HorizontalWall({x, y}) {
 	return WallView(state);
 }
 
-export function HorizontalLeftWall({x, y}) {
+export function HorizontalTopLeftWall({x, y}) {
 	const state = WallModel({
 		x,
 		y,
@@ -126,7 +126,7 @@ export function HorizontalLeftWall({x, y}) {
 	return WallView(state);
 }
 
-export function HorizontalRightWall({x, y}) {
+export function HorizontalTopRightWall({x, y}) {
 	const state = WallModel({
 		x,
 		y,
@@ -141,4 +141,24 @@ export function HorizontalRightWall({x, y}) {
 		`)
 	});
 	return WallView(state);
+}
+
+export default function createWalls(cols, rows) {
+	const walls = [];
+	// Vertical left and right walls
+	for (let y = 1; y < rows; ++y) {
+		walls.push(VerticalLeftWall({x: 0, y}));
+		walls.push(VerticalRightWall({x: cols, y}));
+	}
+	// Horizontal top walls
+	for (let x = 1; x < cols; ++x) {
+		walls.push(HorizontalWall({x, y: 0}));
+	}
+	// Top Left corner wall
+	walls.push(VerticalTopLeftWall({x: 0, y: 0}));
+	walls.push(HorizontalTopLeftWall({x: 0, y: 0}));
+	// Top right corner wall
+	walls.push(VerticalTopRightWall({x: cols, y: 0}));
+	walls.push(HorizontalTopRightWall({x: cols, y: 0}));
+	return walls;
 }
