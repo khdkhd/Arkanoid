@@ -189,14 +189,7 @@ export default function GameController(state) {
 			}
 		});
 
-	ball
-		.on('hit', target => collisionBuzzer.buzz(buzz(target)))
-		.on('out', () => {
-			if (vaus.lifes() > 0) {
-				vaus.useLife();
-			}
-			emitter.emit('lifes', vaus.lifes());
-		});
+	ball.on('hit', target => collisionBuzzer.buzz(buzz(target)));
 
 	state.scene.add(vaus, ball);
 
