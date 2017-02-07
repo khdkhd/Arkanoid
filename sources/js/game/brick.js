@@ -1,4 +1,5 @@
 import {completeAssign} from 'common/utils';
+import levels from 'game/levels';
 import Rect from 'maths/rect';
 import Vector from 'maths/vector';
 import Coordinates from 'graphics/coordinates';
@@ -155,4 +156,12 @@ export function Brick({x, y}, color, level) {
 	);
 }
 
-export default Brick;
+export default function createBricks(level) {
+	const bricks = [];
+	level = level - 1;
+	for (let brick_data of levels[level]) {
+		const brick = Brick(brick_data.position, brick_data.color, level);
+		bricks.push(brick);
+	}
+	return bricks;
+}

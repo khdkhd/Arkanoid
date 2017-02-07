@@ -193,7 +193,7 @@ export function VausController(state) {
 			return state.padSize;
 		},
 		setPadSize(pad_size) {
-			state.padSize = Math.round(pad_size),
+			state.padSize = Math.round(pad_size);
 			state.verlet.setSize({
 				width: 2 + pad_size,
 				height: 1
@@ -208,11 +208,17 @@ export function VausController(state) {
 			state.emitter.emit('changed');
 			return this;
 		},
-		looseLife() {
+		useLife() {
 			state.lifes -= 1;
 			state.emitter.emit('changed');
 			return this;
-		}
+		},
+		reset({x, y}) {
+			verlet
+				.setVelocity(Vector.Null)
+				.setPosition(Vector({x, y}));
+			return this;
+		},
 	};
 }
 
