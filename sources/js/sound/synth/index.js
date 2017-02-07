@@ -32,7 +32,6 @@ export default ({audio_context}) => {
 		desc.config = desc.config || {};
 		for(let [param, config] of Object.entries(desc.config)){
 				node[param].value = config.value;
-				//bind_views(node[param], config.views);
 		}
 		return node;
 	}

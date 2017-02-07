@@ -9,7 +9,7 @@ import ui from 'sound/controls/ui';
 function create_knob_view(state){
 
 
- 	const canvas = document.createElement('canvas');
+  const canvas = document.createElement('canvas');
 	canvas.innerHTML = 'Your browser does not support canvas!';
 	const screen = Screen(canvas.getContext('2d'));
 	screen.width = 2 * state.outer_radius + state.padding*2;
@@ -24,6 +24,8 @@ function create_knob_view(state){
 		switch(event.type){
 			case 'mousewheel':
 				return Math.sign(event.wheelDelta)*(state.curve_length/state.inc_factor);
+      case 'DOMMouseScroll':
+        return Math.sign(-event.detail)*(state.curve_length/state.inc_factor);
 			case 'mousemove':
 				return Math.sign(-event.movementY)*(state.curve_length/state.inc_factor);
 		}
@@ -36,7 +38,7 @@ function create_knob_view(state){
 
 	ui.bind_events({
 		element: state.element,
-		mousemove: event => {
+		mousemove: () => {
 			if (state.isActive) {
 				//tweak(event);
 			}
@@ -45,9 +47,10 @@ function create_knob_view(state){
 			state.isActive = false;
 		},
 		mousedown: () => {
-			state.isActive = true;
+
 		},
 		mousewheel: event => {
+      state.isActive = true;
 			tweak(event);
 		}
 	});

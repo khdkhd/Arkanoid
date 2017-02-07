@@ -33,16 +33,13 @@ const collizion_buzzer = collision_buzzer({
 });
 
 export default {
-	ball_collides_with_bricks(){
+	ballCollidesWithBricks(){
 		collizion_buzzer.buzz({note: 'A', octave: 3, duration: .125});
 	},
-	ball_collides_with_vaus(){
-		collizion_buzzer.buzz({note: 'A', octave: 6, duration: .125});
+	ballCollidesWithVaus(){
+		collizion_buzzer.buzz({note: 'C', octave: 3, duration: .125});
 	},
-	ball_collides_with_wall(){
-		collizion_buzzer.buzz({note: 'C', octave: 3, duration: .025});
-	},
-	ball_goes_out(){
+	ballGoesOut(){
 		collizion_buzzer.arpegiate(.125, [
 			{note: 'G', octave: 4, duration: .125},
 			{note: 'F', octave: 3, duration: .125},

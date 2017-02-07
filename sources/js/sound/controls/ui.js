@@ -1,5 +1,12 @@
 import is_nil from 'lodash.isnil';
 
+function add_wheel_listener (element, handler){
+	let event_name = 'DOMMouseScroll';
+	if(window.hasOwnProperty('onmousewheel')	){
+		event_name = 'mousewheel';
+	}
+	element.addEventListener(event_name, handler);
+}
 
 export default {
 	bind_events({element, mousedown, mouseup, mousemove, mousewheel} = {}) {
@@ -15,12 +22,8 @@ export default {
 		if(!is_nil(mousedown)){
 			element.addEventListener('mousedown', mousedown);
 		}
-		if(!is_nil(mousedown)){
-			element.addEventListener('mousewheel', mousedown);
-		}
 		if(!is_nil(mousewheel)){
-			element.addEventListener('mousewheel', mousewheel);
-			element.addEventListener('DOMMouseScroll', mousewheel);
+			add_wheel_listener(element, mousewheel);
 		}
 
 		return {
@@ -37,9 +40,11 @@ export default {
 				element.addEventListener('mousedown', handler);
 			},
 			mousewheel(handler) {
+				element.removeEventListener('wheel', mousewheel);
+				element.addEventListener('wheel', handler);
 				element.removeEventListener('mousewheel', mousewheel);
-				element.removeEventListener('DOMMouseScroll', mousewheel);
 				element.addEventListener('mousewheel', handler);
+				element.removeEventListener('DOMMouseScroll', mousewheel);
 				element.addEventListener('DOMMouseScroll', handler);
 			}
 		}

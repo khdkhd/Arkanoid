@@ -30,18 +30,19 @@ export default function Screen(canvas_context) {
 		set height(h) {
 			canvas_context.canvas.height = h/state.scale.y;
 		},
-		get size() {
+		size() {
 			return {
 				width: this.width,
 				height: this.height
 			};
 		},
-		set size({width, height}) {
+		setSize({width, height}) {
 			this.width = width;
 			this.height = height;
+			return this;
 		},
 		localRect() {
-			return Rect({x: 0, y: 0}, this.size);
+			return Rect({x: 0, y: 0}, this.size());
 		},
 		rect() {
 			return this.localRect();

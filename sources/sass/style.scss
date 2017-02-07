@@ -28,3 +28,14 @@ h3 {
 	display: block;
 	margin: 0 auto;
 }
+#lifes {
+	margin: 0 auto;
+	width: 448px;
+	.life {
+		background-color: gray;
+		display: inline-block;
+		margin: 8px;
+		height: 16px;
+		width: 24px;
+	}
+}

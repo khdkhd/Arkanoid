@@ -23,6 +23,8 @@ export default function GameController(state) {
 	const {ball, vaus, zone} = state;
 	const emitter = new EventEmitter();
 
+	let paused = false;
+
 	// Position helpers
 
 	function ball_neighborhood() {
@@ -82,11 +84,22 @@ export default function GameController(state) {
 			// collide with roof
 			ball.emit('hit', 'wall');
 			return Vector({x: speed.x, y: -speed.y});
-		} else if (ball_box.bottomY >= zone.bottomY) {
+		}
+	}
+
+	function ball_goes_out(ball_box, speed) {
+		if (ball_box.bottomY >= zone.bottomY) {
 			if(state.cheatMode) {
+				ball.emit('hit', 'wall');
 				return Vector({x: speed.x, y: -speed.y});
 			}
-			ball.emit('hit', 'ground');
+			if (vaus.lifes() > 0) {
+				emitter.emit('ball-out');
+				ball.emit('out');
+				vaus.looseLife();
+			} else {
+				emitter.emit('game-over');
+			}
 			return Vector.Null;
 		}
 	}
@@ -95,7 +108,7 @@ export default function GameController(state) {
 		ball_collides_with_bricks,
 		ball_collides_with_vaus,
 		ball_collides_with_walls,
-		(ball_box, speed) => speed
+		ball_goes_out
 	);
 
 
@@ -104,7 +117,10 @@ export default function GameController(state) {
 	function update_ball() {
 		if (!ball.velocity().isNull()) {
 			const ball_box = ball.rect().translate(ball.velocity());
-			ball.setVelocity(ball_collides(ball_box, ball.velocity()));
+			const ball_speed = ball_collides(ball_box, ball.velocity());
+			if (!is_nil(ball_speed)) {
+				ball.setVelocity(ball_speed);
+			}
 		} else {
 			reset_ball_position(vaus, ball);
 		}
@@ -136,23 +152,33 @@ export default function GameController(state) {
 		);
 	}
 
-	keyboard.on('direction-changed', direction => {
-		vaus.move(direction);
-	});
-	keyboard.on('fire', () => {
-		if (ball.velocity().isNull()) {
-			ball.setVelocity(Vector({x: 1, y: -1}).toUnit().mul(.2));
-		}
-	});
-	keyboard.on('pause', () => emitter.emit('pause'));
+	keyboard
+		.on('pause', () => emitter.emit('pause'))
+		.on('direction-changed', direction => {
+			vaus.move(direction);
+		})
+		.on('fire', () => {
+			if (ball.velocity().isNull()) {
+				ball.setVelocity(Vector({x: 1, y: -1}).toUnit().mul(.2));
+			}
+		});
 
 	return completeAssign(emitter, {
 		update() {
-			update_ball();
-			update_vaus();
+			if (!state.paused) {
+				update_ball();
+				update_vaus();
+			}
 		},
-		reset() {
-			reset_ball_position();
+		init() {
+			ball
+				.on('out', () => {
+					soundController.ballGoesOut();
+				})
+				.on('hit', cond([
+						[matches('brick'), soundController.ballCollidesWithBricks],
+						[matches('vaus'), soundController.ballCollidesWithVaus]
+				]));
 			state.bricks.forEach(brick => {
 				brick.on('hit', point => {
 					emitter.emit('update-score', point)
@@ -167,13 +193,20 @@ export default function GameController(state) {
 						emitter.emit('end-of-level');
 					}
 				});
-				ball.on('hit', cond([
-						[matches('brick'), soundController.ball_collides_with_bricks],
-						[matches('vaus'), soundController.ball_collides_with_vaus],
-						[matches('wall'), soundController.ball_collides_with_wall],
-						[matches('ground'), soundController.ball_goes_out]
-					]));
 			});
+		},
+		pause() {
+			if (paused) {
+				ball.show();
+				vaus.show();
+			} else {
+				ball.hide();
+				vaus.hide();
+			}
+			paused = !paused;
+		},
+		reset() {
+			reset_ball_position();
 		}
 	})
 }
