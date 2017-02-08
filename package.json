@@ -6,6 +6,7 @@
     "build": "$PWD/tools/scripts/build.sh",
     "dev": "$PWD/tools/scripts/dev.sh",
     "draft-release": "$PWD/tools/scripts/draft-release.sh",
+    "lint": "$PWD/tools/scripts/lint.sh",
     "release": "$PWD/tools/scripts/release.sh",
     "test": "$PWD/tools/scripts/test.sh"
   },

@@ -1,2 +1,3 @@
 export NODE_PATH="$PWD/sources/js":"$PWD"
 export GULP="$PWD/node_modules/.bin/gulp"
+export LINT="$PWD/node_modules/.bin/eslint"
