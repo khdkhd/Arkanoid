@@ -200,19 +200,6 @@ export function VausController(state) {
 			});
 			return this;
 		},
-		lifes() {
-			return state.lifes;
-		},
-		gainLife() {
-			state.lifes += 1;
-			state.emitter.emit('changed');
-			return this;
-		},
-		useLife() {
-			state.lifes -= 1;
-			state.emitter.emit('changed');
-			return this;
-		},
 		reset({x, y}) {
 			verlet
 				.setVelocity(Vector.Null)

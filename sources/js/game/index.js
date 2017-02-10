@@ -5,6 +5,7 @@ import {completeAssign} from 'common/utils';
 import Rect from 'maths/rect';
 
 import Controller from 'game/game-controller';
+import LifeCounter from 'game/life-counter';
 import createWalls from 'game/wall';
 
 import Coordinates from 'graphics/coordinates';
@@ -16,26 +17,6 @@ ui.screen.setSize({
 	width: 224*2,
 	height: 248*2
 });
-
-export function LifeModel(count) {
-	const emitter = new EventEmitter();
-	return Object.assign(emitter, {
-		gain() {
-			count += 1;
-			emitter.emit('changed');
-			return this;
-		},
-		take() {
-			if (count > 0) {
-				count -= 1;
-				emitter.emit('changed');
-			}
-		},
-		count() {
-			return count;
-		}
-	});
-}
 
 export default function Game() {
 	const emitter = new EventEmitter();
@@ -51,7 +32,7 @@ export default function Game() {
 	const state = {
 		cheatMode: false,
 		end: false,
-		lifes: LifeModel(3),
+		lifes: LifeCounter(3),
 		score: 0,
 		scene: scene,
 		zone: scene.localRect()
