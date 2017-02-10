@@ -5,6 +5,7 @@ import {completeAssign} from 'common/utils';
 import Rect from 'maths/rect';
 
 import Controller from 'game/game-controller';
+import LifeCounter from 'game/life-counter';
 import createWalls from 'game/wall';
 
 import Coordinates from 'graphics/coordinates';
@@ -19,7 +20,7 @@ ui.screen.setSize({
 
 export default function Game() {
 	const emitter = new EventEmitter();
-	const screen = ui.screen;
+	const {screen, lifes} = ui;
 
 	const scale = Math.round((screen.width/14)/2);
 	const columns = screen.width/scale;
@@ -31,6 +32,7 @@ export default function Game() {
 	const state = {
 		cheatMode: false,
 		end: false,
+		lifes: LifeCounter(3),
 		score: 0,
 		scene: scene,
 		zone: scene.localRect()
@@ -62,6 +64,7 @@ export default function Game() {
 			setTimeout(game_contoller.start, 2000);
 		});
 
+	lifes.setModel(state.lifes);
 	screen
 		.setBackgroundColor('#123')
 		.setScale(scale)

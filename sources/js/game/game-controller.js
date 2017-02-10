@@ -9,7 +9,6 @@ import gameKeyboardController from 'game/keyboard-controller';
 
 import Vector from 'maths/vector';
 
-
 import matches from 'lodash.matches';
 import ui from 'ui';
 
@@ -104,7 +103,7 @@ export default function GameController(state) {
 				ball.emit('hit', 'wall');
 				return Vector({x: speed.x, y: -speed.y});
 			}
-			emitter.emit(vaus.lifes() > 0 ? 'ball-out' : 'game-over');
+			emitter.emit(state.lifes.count() > 0 ? 'ball-out' : 'game-over');
 			return Vector.Null;
 		}
 	}
@@ -169,22 +168,13 @@ export default function GameController(state) {
 			}
 		});
 
-	ball
-		.on('out', () => {
-			if (vaus.lifes() > 0) {
-				vaus.useLife();
-			}
-			emitter.emit('lifes', vaus.lifes());
-		})
-		.on('hit', cond([
-			[matches('brick'), soundController.ballCollidesWithBricks],
-			[matches('vaus'), soundController.ballCollidesWithVaus]
-		]));
+	ball.on('hit', cond([
+		[matches('brick'), soundController.ballCollidesWithBricks],
+		[matches('vaus'), soundController.ballCollidesWithVaus]
+	]));
 	emitter.on('ball-out', soundController.ballGoesOut);
 
 	state.scene.add(vaus, ball);
-
-	ui.lifes.setModel(vaus).render();
 
 	return completeAssign(emitter, {
 		update() {
@@ -236,9 +226,8 @@ export default function GameController(state) {
 			reset_vaus_position();
 			reset_ball_position();
 			ball.show();
-			vaus
-				.useLife()
-				.show();
+			vaus.show();
+			state.lifes.take();
 			keyboard.use(gameKeyboardController);
 			paused = false;
 			return this;
