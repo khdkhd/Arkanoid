@@ -29,7 +29,7 @@ export default function Game() {
 	const scene = Scene(Coordinates(zone.size, zone.topLeft));
 
 	const state = {
-		cheatMode: false,
+		cheatMode: true,
 		end: false,
 		score: 0,
 		scene: scene,
@@ -71,8 +71,9 @@ export default function Game() {
 	return completeAssign(emitter, {
 		start(level) {
 			state.end = false;
+			state.level = level;
 			game_contoller
-				.init(level)
+				.reset()
 				.start();
 			requestAnimationFrame(loop);
 		}
