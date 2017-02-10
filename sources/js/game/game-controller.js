@@ -245,7 +245,9 @@ export default function GameController(state) {
 		},
 		stop() {
 			ball.hide();
-			vaus.hide();
+			vaus
+				.move(Vector.Null)
+				.hide();
 			keyboard.use(null);
 			paused = true;
 			return this;

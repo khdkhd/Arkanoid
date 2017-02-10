@@ -29,7 +29,7 @@ export default function Game() {
 	const scene = Scene(Coordinates(zone.size, zone.topLeft));
 
 	const state = {
-		cheatMode: true,
+		cheatMode: false,
 		end: false,
 		score: 0,
 		scene: scene,
