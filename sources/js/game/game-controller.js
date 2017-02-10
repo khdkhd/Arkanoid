@@ -191,7 +191,7 @@ export default function GameController(state) {
 			}
 			return this;
 		},
-		init(level) {
+		reset() {
 			bricks.forEach(brick => {
 				state.scene.remove(brick);
 				brick
@@ -199,7 +199,7 @@ export default function GameController(state) {
 					.removeAllListeners('hit')
 					.hide();
 			});
-			bricks = createBricks(level);
+			bricks = createBricks(state.level);
 			bricks.forEach(brick => {
 				state.scene.add(brick);
 				brick
@@ -242,7 +242,9 @@ export default function GameController(state) {
 		},
 		stop() {
 			ball.hide();
-			vaus.hide();
+			vaus
+				.move(Vector.Null)
+				.hide();
 			keyboard.use(null);
 			paused = true;
 			return this;
