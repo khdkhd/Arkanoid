@@ -9,7 +9,6 @@ import gameKeyboardController from 'game/keyboard-controller';
 
 import Vector from 'maths/vector';
 
-
 import matches from 'lodash.matches';
 import ui from 'ui';
 
@@ -183,8 +182,6 @@ export default function GameController(state) {
 	emitter.on('ball-out', soundController.ballGoesOut);
 
 	state.scene.add(vaus, ball);
-
-	ui.lifes.setModel(vaus).render();
 
 	return completeAssign(emitter, {
 		update() {

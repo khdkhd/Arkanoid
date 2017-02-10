@@ -17,9 +17,29 @@ ui.screen.setSize({
 	height: 248*2
 });
 
+export function LifeModel(count) {
+	const emitter = new EventEmitter();
+	return Object.assign(emitter, {
+		gain() {
+			count += 1;
+			emitter.emit('changed');
+			return this;
+		},
+		take() {
+			if (count > 0) {
+				count -= 1;
+				emitter.emit('changed');
+			}
+		},
+		count() {
+			return count;
+		}
+	});
+}
+
 export default function Game() {
 	const emitter = new EventEmitter();
-	const screen = ui.screen;
+	const {screen, lifes} = ui;
 
 	const scale = Math.round((screen.width/14)/2);
 	const columns = screen.width/scale;
@@ -31,6 +51,7 @@ export default function Game() {
 	const state = {
 		cheatMode: false,
 		end: false,
+		lifes: LifeModel(3),
 		score: 0,
 		scene: scene,
 		zone: scene.localRect()
@@ -62,6 +83,7 @@ export default function Game() {
 			setTimeout(game_contoller.start, 2000);
 		});
 
+	lifes.setModel(state.lifes);
 	screen
 		.setBackgroundColor('#123')
 		.setScale(scale)
@@ -71,8 +93,9 @@ export default function Game() {
 	return completeAssign(emitter, {
 		start(level) {
 			state.end = false;
+			state.level = level;
 			game_contoller
-				.init(level)
+				.reset()
 				.start();
 			requestAnimationFrame(loop);
 		}

@@ -65,7 +65,7 @@ export default ({el, model}) => {
 	const render = () => {
 		el.innerHTML = '';
 		if (!is_nil(model)) {
-			times(model.lifes(), () => {
+			times(model.count(), () => {
 				const life = document.createElement('span');
 				life.innerHTML = vaus;
 				life.className = 'life';
