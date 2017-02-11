@@ -226,7 +226,9 @@ export default function GameController(state) {
 			reset_vaus_position();
 			reset_ball_position();
 			ball.show();
-			vaus.show();
+			vaus
+				.move(Vector.Null)
+				.show();
 			state.lifes.take();
 			keyboard.use(gameKeyboardController);
 			paused = false;
