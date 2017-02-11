@@ -1,9 +1,11 @@
 import knob from 'sound/controls/knob';
 import fader from 'sound/controls/fader';
+import grid from 'sound/controls/grid';
 
 const factory = {
   fader,
-  knob
+  knob,
+  grid
 };
 
 export default () => {

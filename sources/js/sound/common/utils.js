@@ -23,7 +23,7 @@ function get_frequency_of_note(note, octave) {
 	return 440 * Math.pow(2, (key_index - 49) / 12);
 }
 
-function create_audio_model({param,  init, range}) {
+function create_audio_model({param,  init, range} = {}) {
 	const emitter = new EventEmitter();
 	if(is_nil(param)){
 		param = create_value_model();
@@ -62,6 +62,7 @@ function create_value_model(){
 		}
 	}
 }
+
 
 export {
 	scale,

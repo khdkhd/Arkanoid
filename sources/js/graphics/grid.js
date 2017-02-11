@@ -2,8 +2,8 @@ import SceneObject from 'graphics/scene-object';
 
 import times from 'lodash.times';
 
-export default function Grid(cols, rows, step, color) {
-	return SceneObject(null, {
+export default function Grid(coordinates, cols, rows, step, color) {
+	return SceneObject(coordinates, {
 		onRender(screen) {
 			const scale = Math.max(screen.absoluteScale.x, screen.absoluteScale.y);
 

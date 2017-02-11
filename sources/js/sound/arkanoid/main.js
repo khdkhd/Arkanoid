@@ -138,24 +138,51 @@ mixer.connect({
 mixer.tracks['1'].gain.value = 1;
 seq.start();
 
-const controls = document.querySelectorAll('[data-control]');
-for(let control of controls){
-	let view_name = control.getAttribute('data-control');
-	let path = control.getAttribute('data-param');
-	if(is_nil(path)){
-		continue;
-	}
-	path = path.split('.');
-	const node = synth.nodes[path[0]];
-	const param = node[path[1]];
-	const view = view_factory.bindParameter({
-		factory: view_name,
-		options: {
-			element: control
+function mount_synth(element){
+	const controls = element.querySelectorAll('[data-control]');
+	for(let control of controls){
+		let view_name = control.getAttribute('data-control');
+		let path = control.getAttribute('data-param');
+		if(is_nil(path)){
+			continue;
 		}
-	}, param);
-	views.push(view);
+		path = path.split('.');
+		const node = synth.nodes[path[0]];
+		const param = node[path[1]];
+		const view = view_factory.bindParameter({
+			factory: view_name,
+			options: {
+				element: control
+			}
+		}, param);
+		views.push(view);
+	}
 }
+
+function mount_sequencer(element){
+	const controls = element.querySelectorAll('[data-control]');
+	for(let control of controls){
+		let view_name = control.getAttribute('data-control');
+		let path = control.getAttribute('data-param');
+		if(is_nil(path)){
+			continue;
+		}
+		const param = seq[path];
+		const view = view_factory.bindParameter({
+			factory: view_name,
+			options: {
+				element: control
+			}
+		}, param);
+		views.push(view);
+	}
+}
+
+const synthElement = document.querySelector('[data-device="synth"]');
+const seqElement = document.querySelector('[data-device="seq"]');
+mount_synth(synthElement);
+mount_sequencer(seqElement);
+
 function loop() {
 	views.forEach(view => view.render());
 	seq.play();
