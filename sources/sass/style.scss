@@ -24,10 +24,6 @@ h3 {
 	color: $h3-color;
 	font-size: 1.25rem;
 }
-#screen {
-	display: block;
-	margin: 0 auto;
-}
 #lifes {
 	margin: 0 auto;
 	width: 448px;
@@ -38,4 +34,15 @@ h3 {
 		margin-left: 16px;
 		margin-top: 8px;
 	}
+}
+#score {
+	color: $score-fg-color;
+	font-family: $score-font-family;
+	font-size: $score-font-size;
+	text-align: center;
+	margin: $score-margin 0;
+}
+#screen {
+	display: block;
+	margin: 0 auto;
 }

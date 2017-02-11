@@ -79,7 +79,7 @@ const bricks_state = {
 	}),
 	'yellow': () => ({
 		hits: 1,
-		point: 120,
+		points: 120,
 		colors: {
 			inner: 'hsl(61, 100%, 62%)',
 			top: 'hsl(61, 100%, 82%)'

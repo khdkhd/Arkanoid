@@ -6,6 +6,7 @@ import Rect from 'maths/rect';
 
 import Controller from 'game/game-controller';
 import LifeCounter from 'game/life-counter';
+import Score from 'game/score';
 import createWalls from 'game/wall';
 
 import Coordinates from 'graphics/coordinates';
@@ -20,7 +21,7 @@ ui.screen.setSize({
 
 export default function Game() {
 	const emitter = new EventEmitter();
-	const {screen, lifes} = ui;
+	const {lifes, score, screen} = ui;
 
 	const scale = Math.round((screen.width/14)/2);
 	const columns = screen.width/scale;
@@ -33,7 +34,7 @@ export default function Game() {
 		cheatMode: false,
 		end: false,
 		lifes: LifeCounter(3),
-		score: 0,
+		score: Score(),
 		scene: scene,
 		zone: scene.localRect()
 	};
@@ -53,9 +54,7 @@ export default function Game() {
 	game_contoller
 		.on('game-over', game_contoller.stop)
 		.on('pause', game_contoller.pause)
-		.on('update-score', points => {
-			state.score += points;
-		})
+		.on('update-score', state.score.gain)
 		.on('end-of-level', () => {
 			state.end = true;
 		})
@@ -65,6 +64,7 @@ export default function Game() {
 		});
 
 	lifes.setModel(state.lifes);
+	score.setModel(state.score);
 	screen
 		.setBackgroundColor('#123')
 		.setScale(scale)
