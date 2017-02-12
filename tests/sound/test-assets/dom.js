@@ -16,7 +16,7 @@ const document = jsdom.jsdom(
 					<span class="knob" id="knob-3" data-control="knob" data-param="lfo.frequency"></span>
 					<span class="knob" id="knob-4" data-control="knob" data-param="lfo.amplitude"></span>
 				</div>
-	    	<div>
+				<div>
 					<span class="fader" id="fader-1" data-control="fader"></span>
 					<span class="fader" id="fader-2" data-control="fader"></span>
 					<span class="fader" id="fader-3" data-control="fader"></span>
@@ -27,10 +27,5 @@ const document = jsdom.jsdom(
 			<script type="text/javascript" src="/assets/js/sound.js"></script>
 		</body>
 	</html>`);
-
-for(let element of document.querySelectorAll('[data-control]')){
-	element.offsetTop = 100;
-	element.offsetLeft = 100;
-}
 
 export default document;
