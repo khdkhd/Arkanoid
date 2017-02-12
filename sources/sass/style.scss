@@ -25,14 +25,16 @@ h3 {
 	font-size: 1.25rem;
 }
 #lifes {
+	list-style-type: none;
 	margin: 0 auto;
+	padding: 0;
 	width: 448px;
 	.life {
 		display: inline-block;
-		height: 14px;
-		width: 42px;
-		margin-left: 16px;
-		margin-top: 8px;
+		width: 36px;
+		&:not(:last-child) {
+			margin-right: 8px;
+		}
 	}
 }
 #score {
