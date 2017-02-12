@@ -1,5 +1,5 @@
 import {completeAssign} from 'common/utils';
-import levels from 'game/levels';
+import levels from 'game/resources/levels';
 import Rect from 'maths/rect';
 import Vector from 'maths/vector';
 import Coordinates from 'graphics/coordinates';

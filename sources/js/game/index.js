@@ -12,6 +12,9 @@ import createWalls from 'game/wall';
 import Coordinates from 'graphics/coordinates';
 import Scene from 'graphics/scene';
 
+import LifesView from 'game/lifes-view';
+import ScoreView from 'game/score-view';
+
 import ui from 'ui';
 
 ui.screen.setSize({
@@ -21,7 +24,9 @@ ui.screen.setSize({
 
 export default function Game() {
 	const emitter = new EventEmitter();
-	const {lifes, score, screen} = ui;
+	const lifes = LifesView({el: ui.lifes});
+	const score = ScoreView({el: ui.score});
+	const screen = ui.screen;
 
 	const scale = Math.round((screen.width/14)/2);
 	const columns = screen.width/scale;
