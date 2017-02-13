@@ -9,7 +9,6 @@ import gameKeyboardController from 'game/keyboard-controller';
 
 import Vector from 'maths/vector';
 
-
 import matches from 'lodash.matches';
 import ui from 'ui';
 
@@ -104,7 +103,7 @@ export default function GameController(state) {
 				ball.emit('hit', 'wall');
 				return Vector({x: speed.x, y: -speed.y});
 			}
-			emitter.emit(vaus.lifes() > 0 ? 'ball-out' : 'game-over');
+			emitter.emit(state.lifes.count() > 0 ? 'ball-out' : 'game-over');
 			return Vector.Null;
 		}
 	}
@@ -169,22 +168,13 @@ export default function GameController(state) {
 			}
 		});
 
-	ball
-		.on('out', () => {
-			if (vaus.lifes() > 0) {
-				vaus.useLife();
-			}
-			emitter.emit('lifes', vaus.lifes());
-		})
-		.on('hit', cond([
-			[matches('brick'), soundController.ballCollidesWithBricks],
-			[matches('vaus'), soundController.ballCollidesWithVaus]
-		]));
+	ball.on('hit', cond([
+		[matches('brick'), soundController.ballCollidesWithBricks],
+		[matches('vaus'), soundController.ballCollidesWithVaus]
+	]));
 	emitter.on('ball-out', soundController.ballGoesOut);
 
 	state.scene.add(vaus, ball);
-
-	ui.lifes.setModel(vaus).render();
 
 	return completeAssign(emitter, {
 		update() {
@@ -194,7 +184,7 @@ export default function GameController(state) {
 			}
 			return this;
 		},
-		init(level) {
+		reset() {
 			bricks.forEach(brick => {
 				state.scene.remove(brick);
 				brick
@@ -202,7 +192,7 @@ export default function GameController(state) {
 					.removeAllListeners('hit')
 					.hide();
 			});
-			bricks = createBricks(level);
+			bricks = createBricks(state.level);
 			bricks.forEach(brick => {
 				state.scene.add(brick);
 				brick
@@ -237,15 +227,18 @@ export default function GameController(state) {
 			reset_ball_position();
 			ball.show();
 			vaus
-				.useLife()
+				.move(Vector.Null)
 				.show();
+			state.lifes.take();
 			keyboard.use(gameKeyboardController);
 			paused = false;
 			return this;
 		},
 		stop() {
 			ball.hide();
-			vaus.hide();
+			vaus
+				.move(Vector.Null)
+				.hide();
 			keyboard.use(null);
 			paused = true;
 			return this;

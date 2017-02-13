@@ -5,10 +5,15 @@ import {completeAssign} from 'common/utils';
 import Rect from 'maths/rect';
 
 import Controller from 'game/game-controller';
+import LifeCounter from 'game/life-counter';
+import Score from 'game/score';
 import createWalls from 'game/wall';
 
 import Coordinates from 'graphics/coordinates';
 import Scene from 'graphics/scene';
+
+import LifesView from 'game/lifes-view';
+import ScoreView from 'game/score-view';
 
 import ui from 'ui';
 
@@ -19,6 +24,8 @@ ui.screen.setSize({
 
 export default function Game() {
 	const emitter = new EventEmitter();
+	const lifes = LifesView({el: ui.lifes});
+	const score = ScoreView({el: ui.score});
 	const screen = ui.screen;
 
 	const scale = Math.round((screen.width/14)/2);
@@ -31,7 +38,8 @@ export default function Game() {
 	const state = {
 		cheatMode: false,
 		end: false,
-		score: 0,
+		lifes: LifeCounter(3),
+		score: Score(),
 		scene: scene,
 		zone: scene.localRect()
 	};
@@ -51,9 +59,7 @@ export default function Game() {
 	game_contoller
 		.on('game-over', game_contoller.stop)
 		.on('pause', game_contoller.pause)
-		.on('update-score', points => {
-			state.score += points;
-		})
+		.on('update-score', state.score.gain)
 		.on('end-of-level', () => {
 			state.end = true;
 		})
@@ -62,6 +68,8 @@ export default function Game() {
 			setTimeout(game_contoller.start, 2000);
 		});
 
+	lifes.setModel(state.lifes);
+	score.setModel(state.score);
 	screen
 		.setBackgroundColor('#123')
 		.setScale(scale)
@@ -71,8 +79,9 @@ export default function Game() {
 	return completeAssign(emitter, {
 		start(level) {
 			state.end = false;
+			state.level = level;
 			game_contoller
-				.init(level)
+				.reset()
 				.start();
 			requestAnimationFrame(loop);
 		}

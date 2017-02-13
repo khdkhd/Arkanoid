@@ -1,5 +1,5 @@
 import {completeAssign} from 'common/utils';
-import levels from 'game/levels';
+import levels from 'game/resources/levels';
 import Rect from 'maths/rect';
 import Vector from 'maths/vector';
 import Coordinates from 'graphics/coordinates';
@@ -79,7 +79,7 @@ const bricks_state = {
 	}),
 	'yellow': () => ({
 		hits: 1,
-		point: 120,
+		points: 120,
 		colors: {
 			inner: 'hsl(61, 100%, 62%)',
 			top: 'hsl(61, 100%, 82%)'

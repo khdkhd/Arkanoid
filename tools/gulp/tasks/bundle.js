@@ -11,6 +11,7 @@ const sourcemaps = require('gulp-sourcemaps');
 const uglify = require('gulp-uglify');
 const watchify = require('watchify');
 
+const transform_SVG = require('tools/browserify/svg');
 const env = require('tools/gulp/env');
 
 const output_dir = path.join(env.outputDirectory, 'assets', 'js');
@@ -19,14 +20,14 @@ const sources_dir = path.join('sources', 'js');
 const browserify_base_options = {
 	debug: true,
 	paths: ['node_modules', sources_dir],
-	transform: [
-		[
-			'babelify', {
-				presets: ['es2015'],
-				plugins: ['transform-runtime']
-			}
-		]
-	]
+	transform: [[
+		'babelify', {
+			presets: ['es2015'],
+			plugins: ['transform-runtime']
+		}
+	], [
+		transform_SVG
+	]]
 };
 
 const bundles = Object.assign(
