@@ -19,6 +19,7 @@ function create_fader_view(state){
 		state.emitter.emit('change', unscale({max: state.inner_rect.topLeft.y, min: state.inner_rect.bottomRight.y}, state.cursor));
 	}
 
+
 	const canvas = document.createElement('canvas');
 	canvas.innerHTML = 'Your browser does not support canvas!';
 	const screen = Screen(canvas.getContext('2d'));
@@ -54,7 +55,7 @@ function create_fader_view(state){
 			screen.save();
 			screen.pen = 1;
 			screen.pen = '#9a8c8c';
-			screen.beginPath();
+			screen.beginPath(); // useless ?
 			screen.drawRect(state.outer_rect);
 			screen.drawPath();
 			screen.brush = '#546e6c';

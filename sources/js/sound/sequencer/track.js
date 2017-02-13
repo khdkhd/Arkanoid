@@ -39,9 +39,6 @@ export default ({tempo, slave, pos}) => {
 			},
 			assign(slave){
 				_slave = slave;
-			},
-			rewind(){
-				pos.value = 0;
 			}
 		};
 	}

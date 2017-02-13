@@ -3,8 +3,6 @@ import { create_audio_model } from 'sound/common/utils';
 
 export default ({audio_context}) => {
 
-
-
 	const pos = create_audio_model();
 	const tempo = create_audio_model({
 		init: () => 120
@@ -13,6 +11,7 @@ export default ({audio_context}) => {
 	let start_time = 0, time = 0;
 	let precision = 4;
 	let length = 16;
+	let stop = true;
 
 	function tick(){
 		return 60/(tempo.value*precision);
@@ -21,9 +20,17 @@ export default ({audio_context}) => {
 	return {
 		start() {
 			start_time = audio_context.currentTime;
-
+			stop = false;
+			time = 0;
+		},
+		stop(){
+			pos.value = 0;
+			stop = true;
 		},
 		play() {
+			if(stop){
+				return;
+			}
 			const current_time = audio_context.currentTime - start_time;
 			if(current_time >= time){
 				pos.value = ++pos.value % length;
@@ -34,11 +41,8 @@ export default ({audio_context}) => {
 				pos.emit('change', pos.value);
 			}
 		},
-		stop(){
-			start_time = 0;
-			for(let track of Object.values(tracks)){
-				track.rewind();
-			}
+		isStarted(){
+			return !stop;
 		},
 		assign(track_id, slave){
 			if(!tracks.hasOwnProperty(track_id)){
