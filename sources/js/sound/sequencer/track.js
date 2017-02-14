@@ -22,7 +22,9 @@ export default ({tempo, slave, pos}) => {
 		if(is_nil(_slave)){
 			return;
 		}
+		console.log('noteOn',note, octave, time);
 		_slave.noteOn(note, octave, time);
+		console.log('noteOff',note, octave, time + duration * 60 / tempo.value);
 		_slave.noteOff(note, octave, time + duration * 60 / tempo.value);
 	}
 

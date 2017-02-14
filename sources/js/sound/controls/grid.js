@@ -39,6 +39,7 @@ function create_grid_view(state){
 		},
 		zIndex: 0
 	});
+
 	const grid = SceneObject(Coordinates(state.inner_rect), {
 		onRender(screen) {
 			screen.pen = '#fff';
@@ -64,6 +65,7 @@ function create_grid_view(state){
 		},
 		zIndex: 1
 	});
+
 	const cursor = SceneObject(Coordinates(state.inner_rect), {
 		onRender(screen) {
 			screen.pen = '#fff';
@@ -99,8 +101,8 @@ function create_grid_controller(state) {
 		const cols = state.divisors;
 		const width = state.inner_rect.width;
 		let step_x = width/cols;
-		if(state.cursor_pos.x + step_x >= width + 5){
-			step_x = -width;
+		if(state.cursor_pos.x + step_x >= width){
+			step_x -= width;
 		}
 		state.cursor_pos = state.cursor_pos.add({
 			x: step_x,

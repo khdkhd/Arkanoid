@@ -13,7 +13,7 @@ export default ({audio_context}) => {
 	let length = 16;
 	let stop = true;
 
-	function tick(){
+	function get_tick(){
 		return 60/(tempo.value*precision);
 	}
 
@@ -33,12 +33,12 @@ export default ({audio_context}) => {
 			}
 			const current_time = audio_context.currentTime - start_time;
 			if(current_time >= time){
+				pos.emit('change', pos.value);
 				pos.value = ++pos.value % length;
 				for(let track of Object.values(tracks)){
 					track.schedule(current_time);
 				}
-				time += tick();
-				pos.emit('change', pos.value);
+				time += get_tick();
 			}
 		},
 		isStarted(){

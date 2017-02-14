@@ -140,17 +140,17 @@ mixer.connect({
 	input: audio_context.destination
 });
 mixer.tracks['1'].gain.value = 1;
-
-ui.bind_events({
-	keypress: {
-		code: keyboard.KEY_SPACE,
-		event: 'play',
-		keyup: cond([[seq.isStarted, seq.stop], [()=> true, seq.start]]),
-		keydown: no_op
-	}
-});
-
-// seq.start();
+//
+// ui.bind_events({
+// 	keypress: {
+// 		code: keyboard.KEY_SPACE,
+// 		event: 'play',
+// 		keyup: cond([[seq.isStarted, seq.stop], [()=> true, seq.start]]),
+// 		keydown: no_op
+// 	}
+// });
+//
+seq.start();
 
 function mount_synth(element){
 	const controls = element.querySelectorAll('[data-control]');
