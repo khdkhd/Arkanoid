@@ -1,9 +1,9 @@
 import Vector from 'maths/vector';
 import Rect from 'maths/rect';
 import EventEmitter from 'events';
-// import _clamp from 'lodash.clamp';
+import is_nil from 'lodash.isnil';
 import { completeAssign as assign } from 'common/utils';
-// import { scale, unscale } from 'sound/common/utils';
+import { get_cursor_position } from 'sound/common/utils';
 
 import Screen from 'graphics/screen';
 import times from 'lodash.times';
@@ -11,7 +11,36 @@ import times from 'lodash.times';
 import Coordinates from 'graphics/coordinates';
 import SceneObject from 'graphics/scene-object';
 import Scene from 'graphics/scene';
+import ui from 'sound/controls/ui';
 
+import create_note from 'sound/sequencer/note';
+
+const notes = [
+	'A',
+	'A#',
+	'B',
+	'C',
+	'C#',
+	'D',
+	'D#',
+	'E',
+	'F',
+	'F#',
+	'G',
+	'G#'
+].reverse();
+
+function get_note_cell(note, pos, state){
+	const y = notes.indexOf(note.note);
+	const width = Math.round(state.inner_rect.width/state.divisors);
+	const height = Math.round(state.inner_rect.height/notes.length);
+	return Object.assign({
+		note,
+		pos,
+		y
+	},
+	Rect({x: pos*width + 1, y:y*height + 1},{width: width - 2, height: height - 2}));
+}
 
 function create_grid_view(state){
 
@@ -23,15 +52,54 @@ function create_grid_view(state){
 	screen.height =  state.height;
 	state.element.appendChild(canvas);
 
+
+
+	function get_bounding_cell(cells, {x,y}){
+		return cells.find(cell => cell.contains({x,y}));
+	}
+
+	function push(cell){
+		state.cells.push(cell);
+		state.partition[cell.x].push(create_note({
+			note: cell.note,
+			octave: 2,
+			duration: 'QUARTER'
+		}));
+	}
+
+	function create_cell({x,y}){
+		const width = Math.round(state.inner_rect.width/state.divisors);
+		const height = Math.round(state.inner_rect.height/notes.length);
+		const _x = Math.floor(x/width);
+		const _y = Math.floor(y/width);
+		return Object.assign({
+			note: notes[_y],
+			pos: _x,
+			y: _y
+		},
+		Rect({x: _x*width + 1, y:_y*height + 1},{width: width - 2, height: height - 2}));
+	}
+
+	ui.bind_events({
+		element: state.element,
+		mousedown: event => {
+			const pos = get_cursor_position(canvas, event);
+			const cell = get_bounding_cell(state.cells, pos);
+			if(is_nil(cell)){
+				return push(create_cell(pos));
+			}
+			state.cells = state.cells.filter(_cell => _cell !== cell);
+		},
+	});
+
 	const scene = Scene(Coordinates(screen.localRect()));
 
-	const background = SceneObject(Coordinates(state.outer_rect), {
+	const background = SceneObject(Coordinates(state.inner_rect), {
 		onRender(screen) {
 			screen.save();
 			screen.pen = 1;
 			screen.pen = '#9a8c8c';
 			screen.brush = '#9a8c8c';
-			screen.fillRect(state.outer_rect);
 			screen.brush = '#546e6c';
 			screen.pen = '#546e6c';
 			screen.fillRect(state.inner_rect);
@@ -43,11 +111,11 @@ function create_grid_view(state){
 	const grid = SceneObject(Coordinates(state.inner_rect), {
 		onRender(screen) {
 			screen.pen = '#fff';
-			const cols = state.divisors, rows = 16;
+			const cols = state.divisors, rows = notes.length;
 			const width = state.inner_rect.width;
 			const height = state.inner_rect.height;
-			const step_x = width/cols;
-			const step_y = height/rows;
+			const step_x = Math.round(width/cols);
+			const step_y = Math.round(height/rows);
 			screen.save();
 			screen.translate(state.inner_rect.topLeft);
 			times(cols, () => {
@@ -62,6 +130,10 @@ function create_grid_view(state){
 				screen.drawLine({x: 0, y: 0}, {x: width, y: 0});
 			});
 			screen.restore();
+			screen.save();
+			screen.brush = 'hsla(200, 63%, 51%, 0.5)';
+			state.cells.forEach(cell => screen.fillRect(cell));
+			screen.save();
 		},
 		zIndex: 1
 	});
@@ -69,9 +141,9 @@ function create_grid_view(state){
 	const cursor = SceneObject(Coordinates(state.inner_rect), {
 		onRender(screen) {
 			screen.pen = '#fff';
-			screen.brush = 'hsla(356, 63%, 51%, 0.5)';
+			screen.brush = 'hsla(0, 6%, 57%, 0.42)';
 			const cols = state.divisors;
-			const width = state.inner_rect.width/cols;
+			const width = Math.round(state.inner_rect.width/cols);
 			const height = state.inner_rect.height;
 			screen.save();
 			screen.fillRect(Rect(state.cursor_pos,{
@@ -84,7 +156,7 @@ function create_grid_view(state){
 	});
 
 	screen.add(scene.add(background).add(grid).add(cursor));
-
+	screen.translate({x:.5,y:.5});
 
   return {
     render(){
@@ -92,22 +164,18 @@ function create_grid_view(state){
 			screen.render();
     }
   }
-
 }
 
 function create_grid_controller(state) {
 
-	function update(){
+	function update(value){
 		const cols = state.divisors;
 		const width = state.inner_rect.width;
-		let step_x = width/cols;
-		if(state.cursor_pos.x + step_x >= width){
-			step_x -= width;
-		}
-		state.cursor_pos = state.cursor_pos.add({
-			x: step_x,
+		let step_x = Math.round(width/cols);
+		state.cursor_pos = {
+			x: value * step_x,
 			y: 0
-		});
+		};
 
 	}
 
@@ -123,6 +191,14 @@ function create_grid_controller(state) {
 			});
 			update(audio_param.value);
 		},
+		set partition(partition){
+			state.partition = partition;
+			state.partition.forEach((notes, pos) => {
+				for(let note of notes){
+					state.cells.push(get_note_cell(note, pos, state));
+				}
+			});
+		},
 		get param(){
 			return state.param;
 		}
@@ -131,10 +207,10 @@ function create_grid_controller(state) {
 
 export default ({element})=> {
 
-	let width = 1200, height = 800;
+	let width = 800, height = 600;
 	const padding = 5;
 	const pos = Vector({x: 0, y: 0});
-	const cursor_pos = pos.add(Vector({x:padding,y: padding}));
+	const cursor_pos = Vector({x: 0, y: 0});
 	const divisors = 16;
 	const state = {
 		element,
@@ -144,21 +220,12 @@ export default ({element})=> {
 		padding,
 		width,
 		height,
-		outer_rect: Rect(
+		cells: [],
+		inner_rect : Rect(
 			pos,
 			{
 				width,
 				height
-			}
-		),
-		inner_rect : Rect(
-			pos.add({
-				x: padding,
-				y: padding
-			}),
-			{
-				width: width - padding*2,
-				height: height - padding*2
 			}
 		),
 		param: {

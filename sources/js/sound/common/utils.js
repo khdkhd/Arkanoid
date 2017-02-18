@@ -63,11 +63,18 @@ function create_value_model(){
 	}
 }
 
+function get_cursor_position(canvas, event) {
+	let rect = canvas.getBoundingClientRect();
+	let x = event.clientX - rect.left;
+	let y = event.clientY - rect.top;
+	return {x,y};
+}
 
 export {
 	scale,
 	unscale,
 	get_frequency_of_note,
+	get_cursor_position,
 	create_audio_model,
-	create_value_model,
+	create_value_model
 };

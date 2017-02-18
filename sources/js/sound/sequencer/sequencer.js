@@ -33,8 +33,8 @@ export default ({audio_context}) => {
 			}
 			const current_time = audio_context.currentTime - start_time;
 			if(current_time >= time){
-				pos.emit('change', pos.value);
 				pos.value = ++pos.value % length;
+				pos.emit('change', pos.value);
 				for(let track of Object.values(tracks)){
 					track.schedule(current_time);
 				}

@@ -80,42 +80,32 @@ const synth_patch = {
 
 
 const introduction_partition = [
-	[{
+		[{
 			note: 'A',
 			octave: 2,
 			duration: 'QUARTER'
-		}, {}, {}, {
+		}], [], [], [{
 			note: 'A',
 			octave: 2,
 			duration: 'QUARTER'
-		}, {}, {}, {
+		}], [], [], [{
 			note: 'A',
 			octave: 2,
 			duration: 'EIGHTH'
-		}, {}, {}, {}, {
+		}], [], [], [], [{
 			note: 'A',
 			octave: 2,
 			duration: 'QUARTER'
-		}, {},
-		{
+		}], [],
+		[{
 			note: 'A',
 			octave: 2,
 			duration: 'WHOLE'
-		}, {}, {
+		}], [], [{
 			note: 'D',
 			octave: 2,
 			duration: 'QUARTER'
-		}, {}
-	],
-	[{
-			note: 'B',
-			octave: 2,
-			duration: 'EIGHTH'
-		}, {}, {}, {},
-		{}, {}, {}, {},
-		{}, {}, {}, {},
-		{}, {}, {}, {}
-	]
+		}], []
 ];
 
 
@@ -140,7 +130,7 @@ mixer.connect({
 	input: audio_context.destination
 });
 mixer.tracks['1'].gain.value = 1;
-//
+
 // ui.bind_events({
 // 	keypress: {
 // 		code: keyboard.KEY_SPACE,
@@ -149,7 +139,7 @@ mixer.tracks['1'].gain.value = 1;
 // 		keydown: no_op
 // 	}
 // });
-//
+
 seq.start();
 
 function mount_synth(element){
@@ -188,6 +178,7 @@ function mount_sequencer(element){
 				element: control
 			}
 		}, param);
+		view.partition = seq.tracks['track_1'].partition;
 		views.push(view);
 	}
 }
