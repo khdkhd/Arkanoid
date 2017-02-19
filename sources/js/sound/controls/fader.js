@@ -54,7 +54,8 @@ function create_fader_view(state){
 			screen.clear();
 			screen.save();
 			screen.pen = 1;
-			screen.pen = '#9a8c8c';
+			screen.pen = '#2f1f2f';
+			screen.brush = '#2f1f2f';
 			screen.beginPath(); // useless ?
 			screen.drawRect(state.outer_rect);
 			screen.drawPath();
@@ -65,8 +66,8 @@ function create_fader_view(state){
 			screen.drawPath();
 			screen.restore();
 			screen.save();
-			screen.brush = '#a5cbc8';
-			screen.pen = '#a5cbc8';
+			screen.brush = '#700a2b';
+			screen.pen = '#700a2b';
 			screen.beginPath();
 			screen.fillRect({
 				topLeft: {

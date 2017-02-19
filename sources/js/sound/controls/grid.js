@@ -60,11 +60,18 @@ function create_grid_view(state){
 
 	function push(cell){
 		state.cells.push(cell);
-		state.partition[cell.x].push(create_note({
+		state.partition[cell.pos].push(create_note({
 			note: cell.note,
 			octave: 2,
 			duration: 'QUARTER'
 		}));
+	}
+
+	function pop(cell){
+		state.cells = state.cells.filter(_cell => _cell !== cell);
+		let target = state.partition[cell.pos];
+		let note_index = target.indexOf(cell.note);
+		target.splice(note_index, 1);
 	}
 
 	function create_cell({x,y}){
@@ -88,7 +95,7 @@ function create_grid_view(state){
 			if(is_nil(cell)){
 				return push(create_cell(pos));
 			}
-			state.cells = state.cells.filter(_cell => _cell !== cell);
+			return pop(cell);
 		},
 	});
 
@@ -100,7 +107,7 @@ function create_grid_view(state){
 			screen.pen = 1;
 			screen.pen = '#9a8c8c';
 			screen.brush = '#9a8c8c';
-			screen.brush = '#546e6c';
+			screen.brush = '#2f1f2f';
 			screen.pen = '#546e6c';
 			screen.fillRect(state.inner_rect);
 			screen.restore();
@@ -131,7 +138,7 @@ function create_grid_view(state){
 			});
 			screen.restore();
 			screen.save();
-			screen.brush = 'hsla(200, 63%, 51%, 0.5)';
+			screen.brush = '#700a2b';
 			state.cells.forEach(cell => screen.fillRect(cell));
 			screen.save();
 		},

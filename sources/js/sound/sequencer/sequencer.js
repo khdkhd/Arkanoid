@@ -45,9 +45,7 @@ export default ({audio_context}) => {
 			return !stop;
 		},
 		assign(track_id, slave){
-			if(!tracks.hasOwnProperty(track_id)){
-				tracks[track_id] = create_track({tempo, slave, length, pos});
-			}
+			tracks[track_id] = create_track({tempo, slave, length, pos});
 		},
 		get tempo(){
 			return tempo;

@@ -8,9 +8,7 @@ export default ({tempo, slave, pos}) => {
 
 	function playNotes(notes){
 		notes.forEach(note=>{
-			if(note.note){
 				playNote(note);
-			}
 		});
 	}
 
@@ -32,9 +30,6 @@ export default ({tempo, slave, pos}) => {
 			},
 			schedule(time){
 				playNotes(grid[pos.value].map(step => Object.assign({time:time},step)));
-			},
-			loop(){
-
 			},
 			assign(slave){
 				_slave = slave;
