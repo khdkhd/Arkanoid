@@ -61,7 +61,7 @@ function create_knob_view(state){
 			screen.brush = '#2f1f2f';
 			screen.save();
 			screen.pen =1;
-			screen.pen = '#999';
+			screen.pen = '#fff';
 			screen.beginPath();
 			screen.arc(state.pos, state.outer_radius, 0, 2*Math.PI);
 			screen.drawPath();
@@ -69,7 +69,7 @@ function create_knob_view(state){
 			screen.arc(state.pos, state.inner_radius, 0, 2*Math.PI);
 			screen.drawPath();
 			screen.pen = state.cursor_width;
-			screen.pen = '#504150';
+			screen.pen = '#aba1ab';
 			screen.beginPath();
 			screen.arc(state.pos, state.cursor_radius, state.curve_start, state.curve_end);
 			screen.drawPath();

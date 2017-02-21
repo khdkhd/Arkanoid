@@ -34,12 +34,13 @@ function get_note_cell(note, pos, state){
 	const y = notes.indexOf(note.note);
 	const width = Math.round(state.inner_rect.width/state.divisors);
 	const height = Math.round(state.inner_rect.height/notes.length);
+	const x_factor = note.duration * 4;
 	return Object.assign({
 		note,
 		pos,
 		y
 	},
-	Rect({x: pos*width + 1, y:y*height + 1},{width: width - 2, height: height - 2}));
+	Rect({x: pos*width + 1, y:y*height + 1},{width: width * x_factor - 2, height: height - 2}));
 }
 
 function create_grid_view(state){
@@ -60,11 +61,7 @@ function create_grid_view(state){
 
 	function push(cell){
 		state.cells.push(cell);
-		state.partition[cell.pos].push(create_note({
-			note: cell.note,
-			octave: 2,
-			duration: 'QUARTER'
-		}));
+		state.partition[cell.pos].push(cell.note);
 	}
 
 	function pop(cell){
@@ -80,7 +77,11 @@ function create_grid_view(state){
 		const _x = Math.floor(x/width);
 		const _y = Math.floor(y/width);
 		return Object.assign({
-			note: notes[_y],
+			note: create_note({
+				note: notes[_y],
+				octave: state.octave,
+				duration: 'QUARTER'
+			}),
 			pos: _x,
 			y: _y
 		},
@@ -105,11 +106,10 @@ function create_grid_view(state){
 		onRender(screen) {
 			screen.save();
 			screen.pen = 1;
-			screen.pen = '#9a8c8c';
-			screen.brush = '#9a8c8c';
 			screen.brush = '#2f1f2f';
-			screen.pen = '#546e6c';
+			screen.pen = '#fff';
 			screen.fillRect(state.inner_rect);
+			screen.drawRect(state.inner_rect);
 			screen.restore();
 		},
 		zIndex: 0
@@ -219,10 +219,12 @@ export default ({element})=> {
 	const pos = Vector({x: 0, y: 0});
 	const cursor_pos = Vector({x: 0, y: 0});
 	const divisors = 16;
+	const octave = 4;
 	const state = {
 		element,
 		pos,
 		divisors,
+		octave,
 		cursor_pos,
 		padding,
 		width,

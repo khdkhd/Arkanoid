@@ -1,6 +1,6 @@
 import is_nil from 'lodash.isnil';
 
-const DURATIONS = {
+export const DURATIONS = {
 	WHOLE	: 1,
 	HALF 	: 1/2,
 	QUARTER: 1/4,
@@ -12,8 +12,14 @@ export default({note, octave, duration})=> {
 		return {};
 	}
 	return {
-		note: note,
-		octave: octave,
-		duration: DURATIONS[duration] || duration
+		get note(){
+			return note;
+		},
+		get octave(){
+			return octave;
+		},
+		get duration(){
+			return DURATIONS[duration] || duration;
+		}
 	};
 }

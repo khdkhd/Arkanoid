@@ -29,6 +29,7 @@ export default({audio_context}) => {
 			_osc.type = _type;
 			_osc.start(time);
 			_osc.connect(gain);
+
 		},
 		noteOff(time){
 			_osc.stop(time);

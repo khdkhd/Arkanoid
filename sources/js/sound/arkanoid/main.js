@@ -21,7 +21,7 @@ const synth_patch = {
 			type: 'voice',
 			config: {
 				type: {
-					value: 'square'
+					value: 'sine'
 				}
 			}
 		},
@@ -79,34 +79,34 @@ const synth_patch = {
 
 
 
-const introduction_partition = [
-		[{
-			note: 'A',
-			octave: 2,
-			duration: 'QUARTER'
-		}], [], [], [{
-			note: 'A',
-			octave: 2,
-			duration: 'QUARTER'
-		}], [], [], [{
-			note: 'A',
-			octave: 2,
-			duration: 'EIGHTH'
-		}], [], [], [], [{
-			note: 'A',
-			octave: 2,
-			duration: 'QUARTER'
-		}], [],
-		[{
-			note: 'A',
-			octave: 2,
-			duration: 'WHOLE'
-		}], [], [{
-			note: 'D',
-			octave: 2,
-			duration: 'QUARTER'
-		}], []
-];
+// const introduction_partition = [
+// 		[{
+// 			note: 'A',
+// 			octave: 2,
+// 			duration: 'QUARTER'
+// 		}], [], [], [{
+// 			note: 'A',
+// 			octave: 2,
+// 			duration: 'QUARTER'
+// 		}], [], [], [{
+// 			note: 'A',
+// 			octave: 2,
+// 			duration: 'QUARTER'
+// 		}], [], [], [], [{
+// 			note: 'A',
+// 			octave: 2,
+// 			duration: 'QUARTER'
+// 		}], [],
+// 		[{
+// 			note: 'A',
+// 			octave: 2,
+// 			duration: 'WHOLE'
+// 		}], [], [{
+// 			note: 'D',
+// 			octave: 2,
+// 			duration: 'QUARTER'
+// 		}], []
+// ];
 
 
 const audio_context = new AudioContext();
@@ -123,24 +123,23 @@ const mixer = createMixer({
 
 synth.patch(synth_patch);
 seq.assign('track_1', synth);
-seq.tracks['track_1'].partition = introduction_partition;
-
+// seq.tracks['track_1'].partition = introduction_partition;
 mixer.assign('1', synth);
 mixer.connect({
 	input: audio_context.destination
 });
 mixer.tracks['1'].gain.value = 1;
 
-// ui.bind_events({
-// 	keypress: {
-// 		code: keyboard.KEY_SPACE,
-// 		event: 'play',
-// 		keyup: cond([[seq.isStarted, seq.stop], [()=> true, seq.start]]),
-// 		keydown: no_op
-// 	}
-// });
+ui.bind_events({
+	keypress: {
+		code: keyboard.KEY_SPACE,
+		event: 'play',
+		keyup: cond([[seq.isStarted, seq.stop], [()=> true, seq.start]]),
+		keydown: no_op
+	}
+});
 
-seq.start();
+//seq.start();
 
 function mount_synth(element){
 	const controls = element.querySelectorAll('[data-control]');

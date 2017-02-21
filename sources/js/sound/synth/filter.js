@@ -3,8 +3,8 @@ import { create_audio_model } from 'sound/common/utils';
 export default({audio_context})=> {
 
 		const frequency_range = {
-			min: 0,
-			max: 12250
+			min: 33,
+			max: 8250
 		};
 		const gain_range = {
 			min: 0,

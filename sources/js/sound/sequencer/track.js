@@ -1,10 +1,11 @@
 import create_note from 'sound/sequencer/note';
 import is_nil from 'lodash.isnil';
+import times from 'lodash.times';
 
 export default ({tempo, slave, pos}) => {
 
 	let _slave = slave;
-	let grid = [[{}]];
+	let grid = times(16, () => []);
 
 	function playNotes(notes){
 		notes.forEach(note=>{
@@ -29,7 +30,7 @@ export default ({tempo, slave, pos}) => {
 				return grid;
 			},
 			schedule(time){
-				playNotes(grid[pos.value].map(step => Object.assign({time:time},step)));
+				playNotes(grid[pos.value].map(step => Object.assign({time}, step)));
 			},
 			assign(slave){
 				_slave = slave;

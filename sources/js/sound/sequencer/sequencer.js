@@ -17,31 +17,37 @@ export default ({audio_context}) => {
 		return 60/(tempo.value*precision);
 	}
 
+	function schedule(callback){
+		const current_time = audio_context.currentTime - start_time;
+		if(current_time >= time){
+			callback(current_time);
+			time += get_tick();
+		}
+	}
+
+	start_time = audio_context.currentTime;
+
 	return {
 		start() {
-			start_time = audio_context.currentTime;
-			stop = false;
-			time = 0;
+			stop = false
 		},
 		stop(){
 			pos.value = 0;
+			pos.emit('change', pos.value);
 			stop = true;
 		},
 		play() {
-			if(stop){
-				return;
-			}
-			const current_time = audio_context.currentTime - start_time;
-			if(current_time >= time){
-				pos.value = ++pos.value % length;
-				pos.emit('change', pos.value);
-				for(let track of Object.values(tracks)){
-					track.schedule(current_time);
+			schedule(current_time => {
+				if(!stop){
+					pos.value = ++pos.value % length;
+					pos.emit('change', pos.value);
+					for(let track of Object.values(tracks)){
+						track.schedule(current_time);
+					}
 				}
-				time += get_tick();
-			}
+			});
 		},
-		isStarted(){
+		isStarted() {
 			return !stop;
 		},
 		assign(track_id, slave){
