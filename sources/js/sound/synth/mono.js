@@ -19,6 +19,10 @@ export default({audio_context}) => {
 		}
 	});
 
+	const _param = create_audio_model({
+		param: gain.gain
+	});
+
 	return {
 		connect({input}) {
 			gain.connect(input);
@@ -27,18 +31,26 @@ export default({audio_context}) => {
 			_osc = audio_context.createOscillator();
 			_osc.frequency.value = freq;
 			_osc.type = _type;
-			_osc.start(time);
 			_osc.connect(gain);
-
+			_param.emit('noteon', time);
+			_osc.start(time);
 		},
 		noteOff(time){
-			_osc.stop(time);
+			if(!_param.isControlled){
+				return _osc.stop(time);
+			}
+			_param.emit('noteoff', {
+				time,
+				onComplete(time){
+					_osc.stop(time);
+				}
+			});
 		},
 		get type(){
 			return type;
 		},
 		get param(){
-			return gain.gain;
+			return _param;
 		}
 	};
 }

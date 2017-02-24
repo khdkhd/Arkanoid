@@ -25,19 +25,26 @@ function get_frequency_of_note(note, octave) {
 
 function create_audio_model({param,  init, range} = {}) {
 	const emitter = new EventEmitter();
+	let isControlled = false;
 	if(is_nil(param)){
 		param = create_value_model();
 	}
 	if(!is_nil(init)){
 		param.value = init();
 	}
-	return assign(emitter,{
+	return assign(emitter, {
 		set value(value){
 			param.value = scale(range, value);
 			emitter.emit('change', param.value);
 		},
 		get value(){
 			return unscale(range, param.value);
+		},
+		get isControlled(){
+			return isControlled;
+		},
+		set isControlled(value){
+			isControlled = value;
 		},
 		setValueAtTime(value, time) {
 			param.setValueAtTime(value, time)

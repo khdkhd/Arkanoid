@@ -3,16 +3,6 @@ import { create_audio_model } from 'sound/common/utils';
 
 export default ({audio_context}) => {
 
-	const pos = create_audio_model();
-	const tempo = create_audio_model({
-		init: () => 120
-	});
-	const tracks = {};
-	let start_time = 0, time = 0;
-	let precision = 4;
-	let length = 16;
-	let stop = true;
-
 	function get_tick(){
 		return 60/(tempo.value*precision);
 	}
@@ -25,14 +15,25 @@ export default ({audio_context}) => {
 		}
 	}
 
-	start_time = audio_context.currentTime;
+	const pos = create_audio_model({
+		init: () => -1
+	});
+	const tempo = create_audio_model({
+		init: () => 120
+	});
+	const tracks = {};
+	let precision = 4;
+	let length = 16;
+	let stop = true;
+	let time = 0;
+	let start_time = audio_context.currentTime;
 
 	return {
 		start() {
 			stop = false
 		},
 		stop(){
-			pos.value = 0;
+			pos.value = -1;
 			pos.emit('change', pos.value);
 			stop = true;
 		},

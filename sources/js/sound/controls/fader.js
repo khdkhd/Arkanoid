@@ -15,8 +15,20 @@ function create_fader_view(state){
 	}
 
 	function fade(event) {
-		state.cursor = clamp(state.cursor + event.movementY, state);
+		switch(event.type){
+			case 'mousewheel':
+				state.cursor = clamp(state.cursor - event.wheelDelta/10, state);
+				break;
+			case 'DOMMouseScroll':
+				state.cursor = clamp(state.cursor + event.detail, state);
+				break;
+			case 'mousemove':
+				state.cursor = clamp(state.cursor + event.movementY, state);
+				break;
+		}
 		state.emitter.emit('change', unscale({max: state.inner_rect.topLeft.y, min: state.inner_rect.bottomRight.y}, state.cursor));
+		// state.cursor = clamp(state.cursor + event.movementY, state);
+		// state.emitter.emit('change', unscale({max: state.inner_rect.topLeft.y, min: state.inner_rect.bottomRight.y}, state.cursor));
 	}
 
 
@@ -27,40 +39,60 @@ function create_fader_view(state){
 	screen.height =  state.height;
 	state.element.appendChild(canvas);
 
+	// ui.bind_events({
+	// 	element: state.element,
+	// 	mousedown: event => {
+	// 		const x = event.clientX - event.target.offsetLeft;
+	// 		const y = event.clientY - event.target.offsetTop;
+	// 		if (state.bbox.contains({x , y})) {
+	// 			state.isActive = true;
+	// 		}
+	// 	},
+	// 	mousemove: event => {
+	// 		if (state.isActive) {
+	// 			fade(event);
+	// 		}
+	// 	},
+	// 	mouseup: () => {
+	// 		if (state.isActive) {
+	// 			state.isActive = false;
+	// 		}
+	// 	}
+	// });
+
 	ui.bind_events({
 		element: state.element,
-		mousedown: event => {
-			const x = event.clientX - event.target.offsetLeft;
-			const y = event.clientY - event.target.offsetTop;
-			if (state.bbox.contains({x , y})) {
-				state.isActive = true;
-			}
-		},
-		mousemove: event => {
+		mousemove: () => {
 			if (state.isActive) {
-				fade(event);
+				//tweak(event);
 			}
 		},
 		mouseup: () => {
-			if (state.isActive) {
-				state.isActive = false;
-			}
+			state.isActive = false;
+		},
+		mousedown: () => {
+
+		},
+		mousewheel: event => {
+			state.isActive = true;
+			fade(event);
 		}
 	});
 
+
 	return  {
 		render(){
-			screen.brush= '#fff';
+			screen.brush= '#2f1f2f';
 			screen.clear();
 			screen.save();
 			screen.pen = 1;
-			screen.pen = '#2f1f2f';
+			screen.pen = '#aba1ab';
 			screen.brush = '#2f1f2f';
 			screen.beginPath(); // useless ?
 			screen.drawRect(state.outer_rect);
 			screen.drawPath();
-			screen.brush = '#546e6c';
-			screen.pen = '#546e6c';
+			screen.brush = '#aba1ab';
+			screen.pen = '#aba1ab';
 			screen.beginPath();
 			screen.fillRect(state.inner_rect);
 			screen.drawPath();
@@ -96,7 +128,7 @@ function create_fader_view(state){
 function create_fader_controller(state) {
 
 	function update(value){
-		state.cursor = scale({min: state.inner_rect.topLeft.y, max: state.inner_rect.bottomRight.y}, value);
+		state.cursor = scale({max: state.inner_rect.topLeft.y, min: state.inner_rect.bottomRight.y}, value);
 	}
 
 	state.emitter.on('change', value => state.param.value = value);
@@ -119,9 +151,9 @@ function create_fader_controller(state) {
 
 export default ({element})=> {
 
-	let width = 50, height = 150;
 	const padding = 5;
 	const pos = {x: padding, y: padding};
+	let width = 50, height = 225;
 	const state = {
 		element,
 		pos,
@@ -135,16 +167,16 @@ export default ({element})=> {
 				y: pos.y
 			},
 			topRight: {
-				x: pos.x + width - padding,
+				x: pos.x + width - padding*2,
 				y: pos.y
 			},
 			bottomRight: {
-				x: pos.x + width -padding,
-				y: pos.y + height-padding
+				x: pos.x + width -padding*2,
+				y: pos.y + height-padding*2
 			},
 			bottomLeft: {
 				x: pos.x,
-				y: pos.y + height-padding
+				y: pos.y + height-padding*2
 			},
 		},
 		inner_rect: {
@@ -153,16 +185,16 @@ export default ({element})=> {
 				y: pos.y + padding
 			},
 			topRight: {
-				x: pos.x + width - padding*2,
+				x: pos.x + width - padding*3,
 				y: pos.y + padding
 			},
 			bottomRight: {
-				x: pos.x + width - padding*2,
-				y: pos.y + height - padding*2
+				x: pos.x + width - padding*3,
+				y: pos.y + height - padding*3
 			},
 			bottomLeft: {
 				x: pos.x + padding,
-				y: pos.y + height - padding*2
+				y: pos.y + height - padding*3
 			}
 		},
 		bbox: Rect(Vector(pos), {width, height}),

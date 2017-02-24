@@ -2,10 +2,10 @@ import create_note from 'sound/sequencer/note';
 import is_nil from 'lodash.isnil';
 import times from 'lodash.times';
 
-export default ({tempo, slave, pos}) => {
+export default ({tempo, slave, length, pos}) => {
 
 	let _slave = slave;
-	let grid = times(16, () => []);
+	let grid = times(length, () => []);
 
 	function playNotes(notes){
 		notes.forEach(note=>{

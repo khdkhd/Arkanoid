@@ -4,7 +4,7 @@ export default({audio_context})=> {
 
 		const frequency_range = {
 			min: 33,
-			max: 8250
+			max: 4500
 		};
 		const gain_range = {
 			min: 0,
@@ -12,7 +12,7 @@ export default({audio_context})=> {
 		};
 		const Q_range = {
 			min: 0,
-			max: 25
+			max: 10
 		};
 
 		const filter = audio_context.createBiquadFilter();

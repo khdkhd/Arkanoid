@@ -21,13 +21,27 @@ const synth_patch = {
 			type: 'voice',
 			config: {
 				type: {
-					value: 'sine'
+					value: 'square'
 				}
 			}
 		},
 		{
 			id: 'enveloppe',
-			factory: 'enveloppe'
+			factory: 'enveloppe',
+			config: {
+				attack: {
+					value: 0
+				},
+				decay: {
+					value: .25
+				},
+				sustain: {
+					value: .5
+				},
+				release: {
+					value: 0
+				}
+			}
 		},
 		{
 			id: 'filter',
@@ -72,7 +86,8 @@ const synth_patch = {
 	],
 	connexions: [
 		['generator', 'filter'],
-		['lfo', 'filter']
+		['lfo', 'filter'],
+		['enveloppe', 'generator']
 	]
 
 };

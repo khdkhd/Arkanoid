@@ -8,18 +8,20 @@
 <body>
 	<div class="ui-panel">
 		<div data-device="synth">
+			<div  style="display:inline-block;">
 			<div>
 				<span class="knob" id="knob-1" data-control="knob" data-param="filter.frequency"></span>
 				<span class="knob" id="knob-2" data-control="knob" data-param="filter.Q"></span>
+			</div>
+			<div>
 				<span class="knob" id="knob-3" data-control="knob" data-param="lfo.frequency"></span>
 				<span class="knob" id="knob-4" data-control="knob" data-param="lfo.amplitude"></span>
 			</div>
-			<div>
-				<span class="fader" id="fader-1" data-control="fader"></span>
-				<span class="fader" id="fader-2" data-control="fader"></span>
-				<span class="fader" id="fader-3" data-control="fader"></span>
-				<span class="fader" id="fader-4" data-control="fader"></span>
-			</div>
+		</div>
+			<span class="fader" id="fader-1" data-control="fader" data-param="enveloppe.attack"></span>
+			<span class="fader" id="fader-2" data-control="fader" data-param="enveloppe.decay"></span>
+			<span class="fader" id="fader-3" data-control="fader" data-param="enveloppe.sustain"></span>
+			<span class="fader" id="fader-4" data-control="fader" data-param="enveloppe.release"></span>
 		</div>
 		<div data-device="seq">
 			<span class="grid" id="grid" data-control="grid" data-param="pos"></span>

@@ -106,7 +106,7 @@ function create_grid_view(state){
 		onRender(screen) {
 			screen.save();
 			screen.pen = 1;
-			screen.brush = '#2f1f2f';
+			screen.brush = '#3c0a3c';
 			screen.pen = '#fff';
 			screen.fillRect(state.inner_rect);
 			screen.drawRect(state.inner_rect);
@@ -219,7 +219,7 @@ export default ({element})=> {
 	const pos = Vector({x: 0, y: 0});
 	const cursor_pos = Vector({x: 0, y: 0});
 	const divisors = 16;
-	const octave = 4;
+	const octave = 2;
 	const state = {
 		element,
 		pos,
