@@ -1,5 +1,7 @@
 @import "settings";
 @import "arkanoid-fonts";
+@import "dialog";
+@import "overlay";
 
 html {
 	font-family: $font-family;
@@ -24,27 +26,31 @@ h3 {
 	color: $h3-color;
 	font-size: 1.25rem;
 }
-#lifes {
-	list-style-type: none;
+#content-wrapper {
+	position: relative;
 	margin: 0 auto;
-	padding: 0;
 	width: 448px;
-	.life {
-		display: inline-block;
-		width: 36px;
-		&:not(:last-child) {
-			margin-right: 8px;
+	#screen {
+		display: block;
+		margin: 0;
+	}
+	#score {
+		color: $score-fg-color;
+		font-family: $score-font-family;
+		font-size: $score-font-size;
+		margin: $score-margin 0;
+		text-align: center;
+	}
+	#lifes {
+		list-style-type: none;
+		margin: 0;
+		padding: 0;
+		.life {
+			display: inline-block;
+			width: 36px;
+			&:not(:last-child) {
+				margin-right: 8px;
+			}
 		}
 	}
-}
-#score {
-	color: $score-fg-color;
-	font-family: $score-font-family;
-	font-size: $score-font-size;
-	text-align: center;
-	margin: $score-margin 0;
-}
-#screen {
-	display: block;
-	margin: 0 auto;
 }
