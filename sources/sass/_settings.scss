@@ -5,9 +5,9 @@ $h1-color: $body-fg-color;
 $h2-color: lighten($body-bg-color, 25);
 $h3-color: #bb2727;
 
-$font-family: sans-serif;
+$font-family: 'Press Start 2P', cursive;
 
-$score-font-family: 'Press Start 2P', cursive;
+$score-font-family: inherit;
 $score-fg-color: inherit;
 $score-font-size: 18pt;
 $score-margin: 9pt;
@@ -15,22 +15,27 @@ $score-margin: 9pt;
 $overlay-bg-color: rgba(0, 0, 0, 0.666);
 $overlay-z-index: 1;
 
-$dialog-margin: 16px;
-$dialog-min-width: 320px;
-$dialog-padding: 16px;
-$dialog-z-index: $overlay-z-index + 1;
-
 $dialog-bg-color: #123;
 $dialog-border-color: lighten($dialog-bg-color, 15);
+$dialog-border-thickness: 2px;
 $dialog-fg-color: lighten($dialog-bg-color, 20);
+$dialog-font-familly: inherit;
+$dialog-font-size: .75rem;
+$dialog-min-width: 320px;
+$dialog-padding: .5rem;
+$dialog-z-index: $overlay-z-index + 1;
 
 $dialog-input-padding: 6px;
 $dialog-input-border-color: darken($dialog-bg-color, 5);
 $dialog-input-bg-color: lighten($dialog-bg-color, 15);
 $dialog-input-fg-color: darken($dialog-bg-color, 5);
 
+$dialog-button-font-familly: inherit;
+$dialog-button-font-size: inherit;
 $dialog-button-bg-color: darken($dialog-bg-color, 5);
 $dialog-button-hover-bg-color: lighten($dialog-bg-color, 15);
+$dialog-button-active-bg-color: lighten($dialog-bg-color, 30);
+$dialog-button-active-border-color: lighten($dialog-bg-color, 30);
 
 $dialog-button-fg-color: $dialog-fg-color;
 $dialog-button-hover-fg-color: darken($dialog-bg-color, 5);

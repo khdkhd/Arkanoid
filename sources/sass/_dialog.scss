@@ -1,78 +1,58 @@
 @import "settings";
-
-#modal-overlay {
-	background-color: $overlay-bg-color;
-	position: fixed;
-	left: 0;
-	top: 0;
-	height: 100%;
-	width: 100%;
-	z-index: $overlay-z-index;
-}
-
 .dialog {
 	background-color: $dialog-bg-color;
-	border: 1px solid $dialog-border-color;
-	box-sizing: padding-box;
+	border: solid $dialog-border-thickness $dialog-border-color;
 	color: $dialog-fg-color;
+	font-family: $dialog-font-familly;
+	font-size: $dialog-font-size;
 	min-width: $dialog-min-width;
-	position: absolute;
 	padding: $dialog-padding;
+	position: absolute;
 	z-index: $dialog-z-index;
-	& > *:not(:last-child) {
-		margin-bottom: $dialog-margin;
-	}
-	.content-wrapper {
-		input[type="text"] {
-			background-color: $dialog-input-bg-color;
-			border: 1px solid $dialog-input-border-color;
-			box-sizing: border-box;
-			color: $dialog-input-fg-color;
-			font-size: 16px;
-			padding: $dialog-input-padding;
-			width: 100%;
-			&::placeholder {
-				color: $dialog-input-fg-color;
-			}
-		}
-	}
-	.buttons-wrapper {
-		list-style-type: none;
+	.dialog-button-box {
+		border-top: 1px solid $dialog-border-color;
+		padding: .5rem 0 0;
 		text-align: center;
-		padding: 0;
-		margin: 0;
-		li {
-			display: inline-block;
-			min-width: $dialog-button-min-width;
-			margin: $dialog-button-margin;
-			button {
-				border: 1px solid $dialog-button-border-color;
-				background-color: $dialog-button-bg-color;
-				color: $dialog-button-fg-color;
-				cursor: pointer;
-				font-family: sans-serif;
-				font-size: 16px;
-				font-weight: bold;
-				width: 100%;
-				height: 100%;
-				padding: $dialog-button-padding;
+		&[data-align='left'] {
+			text-align: left;
+		}
+		&[data-align='right'] {
+			text-align: right;
+		}
+		button {
+			display: inline;
+			border: 1px solid $dialog-button-border-color;
+			background-color: $dialog-button-bg-color;
+			color: $dialog-button-fg-color;
+			cursor: pointer;
+			font-family: $dialog-button-font-familly;
+			font-size: $dialog-button-font-size;
+			font-weight: bold;
+			min-width: 5rem;
+			padding: $dialog-button-padding;
+			margin: 0 .25rem;
+			&:focus {
+				outline: 0;
+			}
+			&:hover {
+				background-color: $dialog-button-hover-bg-color;
+				color: $dialog-button-hover-fg-color;
+				&:active {
+					background-color: $dialog-button-active-bg-color;
+					border-color: $dialog-button-active-border-color;
+				}
 				&::before {
 					color: inherit;
-					font-family: FontAwesome;
-					margin-right: .5ex;
 				}
-				&[data-role="cancel"]::before {
-					content: '\f00d';
+			}
+			&[data-role="cancel"] {
+				&::after {
+					content: 'Cancel';
 				}
-				&[data-role="ok"]::before {
-					content: '\f00c';
-				}
-				&:hover {
-					background-color: $dialog-button-hover-bg-color;
-					color: $dialog-button-hover-fg-color;
-					&::before {
-						color: inherit;
-					}
+			}
+			&[data-role="ok"] {
+				&::after {
+					content: 'Ok';
 				}
 			}
 		}
