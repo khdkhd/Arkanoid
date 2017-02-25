@@ -16,7 +16,7 @@ export function SceneController({children}) {
 			for (let child of objects) {
 				remove(children, child);
 				children.push(child);
-				children.sort((a, b) => a.zIndex - b.zIndex);
+				children.sort((a, b) => a.zIndex() - b.zIndex());
 				if (child.scene() !== this) {
 					child.setScene(this);
 				}

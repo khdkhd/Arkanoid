@@ -8,7 +8,7 @@ import Rect from 'maths/rect';
 
 export default function Screen(canvas_context) {
 	const state = {
-		backgroundColor: 'rgba(0, 0, 0, 0)',
+		backgroundColor: 'rgba(0, 0, 0, 1)',
 		children: [],
 		absoluteScale: {x: 1, y: 1},
 		scale: {x: 1, y: 1},
