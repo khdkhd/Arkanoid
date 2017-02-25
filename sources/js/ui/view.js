@@ -25,7 +25,11 @@ export function createElement({el, attributes, classNames, id, tagName}) {
 export function createEventsManager(state, render) {
 	const events_handlers = Object.entries(state.events).map(([event, handler]) => ([
 		event,
-		ev => handler(ev, state.el, state.model)
+		ev => {
+			if (handler(ev, state.el, state.model)) {
+				render();
+			}
+		}
 	]));
 	return {
 		connect() {
