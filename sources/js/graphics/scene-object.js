@@ -72,8 +72,8 @@ export default (coordinates, options = {}) => {
 			if (visible) {
 				screen.save();
 				screen.setScale(scale);
-				screen.clipRect(coordinates.rect());
 				screen.translate(coordinates.position());
+				screen.clipRect(coordinates.localRect());
 				onRender.call(this, screen, scene, coordinates.localRect());
 				screen.restore();
 			}
