@@ -1,10 +1,11 @@
-import Button from 'ui/button';
+import {PushButton} from 'ui/button';
 import Modal from 'ui/modal';
 import View from 'ui/view';
 
 import EventEmitter from 'events';
 
 import identity from 'lodash.identity';
+import is_nil from 'lodash.isnil';
 import is_string from 'lodash.isstring';
 
 export const DialogButtonRoles = {
@@ -23,7 +24,7 @@ const ButtonLabels = {
 
 export function DialogButtonBox(roles) {
 	const buttons = roles.map(role => {
-		return Button(is_string(role)
+		return PushButton(is_string(role)
 			? {role, label: ButtonLabels[role]}
 			: role
 		);
@@ -48,16 +49,17 @@ export function DialogButtonBox(roles) {
 	}));
 }
 
-export default ({
-	el,
+export default function Dialog({
+	el = null,
 	childView,
+	classNames = [],
 	buttons = [DialogButtonRoles.AcceptRole, DialogButtonRoles.RejectRole],
 	aboutToClose = identity,
-} = {}) => {
-	const parent_view_el = el;
+} = {}) {
+	const parent_view_el = is_nil(el) ? document.querySelector('body') : el;
 	const dialog_button_box = DialogButtonBox(buttons);
 	const dialog = View({
-		classNames: ['dialog'],
+		classNames: ['dialog'].concat(classNames),
 		onBeforeDestroy() {
 			dialog_button_box.destroy();
 		},

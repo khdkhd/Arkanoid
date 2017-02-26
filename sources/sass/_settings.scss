@@ -44,3 +44,11 @@ $dialog-button-margin: 4px;
 $dialog-button-min-width: 96px;
 $dialog-button-padding: 6px;
 $dialog-button-border-color: darken($dialog-bg-color, 5);
+
+$dialog-prompt-input-bg-color: lighten($dialog-bg-color, 25);
+$dialog-prompt-input-fg-color: $dialog-bg-color;
+$dialog-prompt-border-color: $dialog-border-color;
+$dialog-prompt-font-familly: $dialog-font-familly;
+$dialog-prompt-font-size: $dialog-font-size;
+$dialog-prompt-height: 1.5rem;
+$dialog-prompt-margin: 1rem;

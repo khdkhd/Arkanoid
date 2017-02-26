@@ -1,4 +1,13 @@
 @import "settings";
+
+$dialog-prompt-input-bg-color: lighten($dialog-bg-color, 25);
+$dialog-prompt-input-fg-color: $dialog-bg-color;
+$dialog-prompt-border-color: $dialog-border-color;
+$dialog-prompt-font-familly: $dialog-font-familly;
+$dialog-prompt-font-size: $dialog-font-size;
+$dialog-prompt-height: 1.5rem;
+$dialog-prompt-margin: 1rem;
+
 .dialog {
 	background-color: $dialog-bg-color;
 	border: solid $dialog-border-thickness $dialog-border-color;
@@ -21,39 +30,32 @@
 		}
 		button {
 			display: inline;
-			border: 1px solid $dialog-button-border-color;
-			background-color: $dialog-button-bg-color;
-			color: $dialog-button-fg-color;
-			cursor: pointer;
-			font-family: $dialog-button-font-familly;
-			font-size: $dialog-button-font-size;
-			font-weight: bold;
 			min-width: 5rem;
-			padding: $dialog-button-padding;
-			margin: 0 .25rem;
-			&:focus {
-				outline: 0;
+		}
+	}
+	&.prompt {
+		input[type="text"] {
+			background-color: $dialog-prompt-input-bg-color;
+			box-sizing: border-box;
+			border: 2px solid $dialog-prompt-border-color;
+			color: $dialog-prompt-input-fg-color;
+			font-family: $dialog-prompt-font-familly;
+			font-size: $dialog-prompt-font-size;
+			height: $dialog-prompt-height;
+			width: 100%;
+			margin: 0;
+			margin-bottom: $dialog-prompt-margin;
+			&::-webkit-input-placeholder {
+				color: $dialog-bg-color;
 			}
-			&:hover {
-				background-color: $dialog-button-hover-bg-color;
-				color: $dialog-button-hover-fg-color;
-				&:active {
-					background-color: $dialog-button-active-bg-color;
-					border-color: $dialog-button-active-border-color;
-				}
-				&::before {
-					color: inherit;
-				}
+			&::-moz-placeholder {
+				color: $dialog-bg-color;
 			}
-			&[data-role="cancel"] {
-				&::after {
-					content: 'Cancel';
-				}
+			&:-ms-input-placeholder {
+				color: $dialog-bg-color;
 			}
-			&[data-role="ok"] {
-				&::after {
-					content: 'Ok';
-				}
+			&:-moz-placeholder {
+				color: $dialog-bg-color;
 			}
 		}
 	}
