@@ -12,6 +12,8 @@ const uglify = require('gulp-uglify');
 const watchify = require('watchify');
 
 const transform_SVG = require('tools/browserify/svg');
+const transform_TMPL = require('tools/browserify/template');
+
 const env = require('tools/gulp/env');
 
 const output_dir = path.join(env.outputDirectory, 'assets', 'js');
@@ -27,6 +29,8 @@ const browserify_base_options = {
 		}
 	], [
 		transform_SVG
+	], [
+		transform_TMPL
 	]]
 };
 
