@@ -2,8 +2,6 @@ import {PushButton} from 'ui/button';
 import Modal from 'ui/modal';
 import View from 'ui/view';
 
-import EventEmitter from 'events';
-
 import identity from 'lodash.identity';
 import is_nil from 'lodash.isnil';
 import is_string from 'lodash.isstring';
@@ -29,24 +27,22 @@ export function DialogButtonBox(roles) {
 			: role
 		);
 	});
-	const emitter = new EventEmitter();
-
-	for (let button of buttons) {
-		button.on('click', role => emitter.emit('click', role));
-	}
-
-	return Object.assign(emitter, View({
+	const buttonBox = View({
 		classNames: ['dialog-button-box'],
 		tagName: 'div',
-		onBeforeDestroy() {
-			emitter.removeAllListeners();
-		},
-		onRender(el) {
+		onRender(view) {
+			const el = view.el();
 			for (let button of buttons) {
 				el.appendChild(button.render().el());
 			}
 		}
-	}));
+	});
+
+	for (let button of buttons) {
+		button.on('click', role => buttonBox.emit('click', role));
+	}
+
+	return buttonBox;
 }
 
 export default function Dialog({
@@ -63,7 +59,8 @@ export default function Dialog({
 		onBeforeDestroy() {
 			dialog_button_box.destroy();
 		},
-		onRender(el) {
+		onRender(view) {
+			const el = view.el();
 			el.appendChild(childView.render().el());
 			el.appendChild(dialog_button_box.render().el());
 		}

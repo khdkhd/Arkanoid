@@ -3,9 +3,9 @@ import BricksPalette from 'editor/bricks-palette';
 import LevelEditorView from 'editor/level-editor-view';
 import LevelModel from 'editor/level-model';
 
-import Confirm from 'ui/dialog-confirm';
-import Notice from 'ui/dialog-notice';
-import Prompt from 'ui/dialog-prompt';
+import Confirm from 'ui/dialog/confirm';
+import Notice from 'ui/dialog/notice';
+import Prompt from 'ui/dialog/prompt';
 
 import cond from 'lodash.cond';
 import is_nil from 'lodash.isnil';

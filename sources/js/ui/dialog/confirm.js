@@ -1,16 +1,14 @@
 import View from 'ui/view';
 import {default as Dialog, DialogButtonRoles} from 'ui/dialog';
+import template from 'ui/dialog/confirm.tmpl';
 
 export default function Confirm({
 	el = null,
 	question = ''
 } = {}) {
 	const childView = View({
-		onRender(el) {
-			const p = document.createElement('p');
-			p.innerHTML = question;
-			el.appendChild(p);
-		},
+		serializeData: () => ({question}),
+		template
 	});
 	return Dialog({
 		aboutToClose(role) {

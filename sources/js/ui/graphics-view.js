@@ -12,25 +12,25 @@ export function MouseEventsHandler({
 	throttleWait = 64
 } = {}) {
 	const mousemove = throttle(
-		(ev, el, model) => onMouseMove(ev, el, model),
+		(view, ev) => onMouseMove(view, ev),
 		throttleWait
 	);
 	return {
-		click(ev, el, model) {
-			return onClick(ev, el, model);
+		click(view, ev) {
+			return onClick(view, ev);
 		},
-		mouseenter(ev, el, model) {
-			return onMouseEnter(ev, el, model);
+		mouseenter(view, ev) {
+			return onMouseEnter(view, ev);
 		},
-		mouseleave(ev, el, model) {
+		mouseleave(view, ev) {
 			mousemove.cancel();
-			return onMouseLeave(ev, el, model);
+			return onMouseLeave(view, ev);
 		},
 		mousemove
 	};
 }
 
-export default ({canvas, events = {}} = {}) => {
+export default function GraphicsView({canvas, events = {}} = {}) {
 	const screen = Screen(canvas.getContext('2d'));
 	return Object.assign({
 		screen() {

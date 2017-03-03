@@ -9,15 +9,23 @@ export function Overlay() {
 
 export default ({el, childView} = {}) => {
 	const overlay = Overlay();
+	const view = View({
+		el,
+		onBeforeRender: noop,
+		onRender() {
+			const childview_el = childView.render().el();
+			el.appendChild(overlay.render().el());
+			el.appendChild(childview_el);
+			center(el.getBoundingClientRect(), childview_el);
+		}
+	});
 	return {
 		start() {
-			el.appendChild(overlay.render().el());
-			el.appendChild(childView.render().el());
-			center(el.getBoundingClientRect(), childView.el());
+			view.render();
 		},
 		stop() {
-			childView.destroy();
 			overlay.destroy();
+			childView.destroy();
 		}
 	}
 }

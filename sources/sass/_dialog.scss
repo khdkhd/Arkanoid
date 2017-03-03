@@ -45,6 +45,9 @@ $dialog-prompt-margin: 1rem;
 			width: 100%;
 			margin: 0;
 			margin-bottom: $dialog-prompt-margin;
+			&:focus {
+				outline: 0;
+			}
 			&::-webkit-input-placeholder {
 				color: $dialog-bg-color;
 			}

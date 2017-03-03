@@ -44,7 +44,8 @@ export default function LevelEditorView(levelModel) {
 	const view = GraphicsView({
 		canvas: document.querySelector('#screen'),
 		events: MouseEventsHandler({
-			onClick(ev, el) {
+			onClick(view, ev) {
+				const el = view.el();
 				const pos = event_coordinate(el, ev);
 				if (levelScene.localRect().contains(pos)) {
 					if (levelModel.containsBrickAt(pos)) {
@@ -62,20 +63,21 @@ export default function LevelEditorView(levelModel) {
 						levelScene.add(brick);
 						levelModel.add(brick);
 					}
+					view.render();
 				}
-				return true;
 			},
-			onMouseEnter() {
+			onMouseEnter(view) {
 				mouseDropMark.show();
-				return true;
+				view.render();
 			},
-			onMouseLeave() {
+			onMouseLeave(view) {
 				mouseDropMark.hide();
-				return true;
+				view.render();
 			},
-			onMouseMove(ev, el) {
+			onMouseMove(view, ev) {
+				const el = view.el();
 				mouseDropMark.setPosition(event_coordinate(el, ev));
-				return true;
+				view.render();
 			}
 		})
 	});

@@ -1,6 +1,9 @@
+import is_function from 'lodash.isfunction';
 import is_nil from 'lodash.isnil';
 import noop from 'lodash.noop';
 import uniq from 'lodash.uniq';
+
+import EventEmitter from 'events';
 
 export function defaultOnBeforeRender(el) {
 	el.innerHTML = '';
@@ -8,6 +11,13 @@ export function defaultOnBeforeRender(el) {
 
 export function defaultOnDestroy(el) {
 	el.remove();
+}
+
+export function defaultSerializeData(model) {
+	if (is_nil(model)) {
+		return {};
+	}
+	return model.toJSON();
 }
 
 export function createElement({el, attributes, classNames, id, tagName}) {
@@ -22,79 +32,119 @@ export function createElement({el, attributes, classNames, id, tagName}) {
 	return el;
 }
 
-export function createEventsManager(state, render) {
-	const events_handlers = Object.entries(state.events).map(([event, handler]) => ([
-		event,
-		ev => {
-			if (handler(ev, state.el, state.model)) {
-				render();
+export function createEventHandler(eventName, descriptor, view) {
+	const state = Object.assign({
+		preventDefault: true,
+		stopPropagation: true,
+		selector: null
+	}, !is_function(descriptor) ? descriptor : {
+		handler: descriptor,
+		eventName
+	});
+	return {
+		callback(ev) {
+			if (state.preventDefault) {
+				ev.preventDefault();
 			}
-		}
-	]));
+			if (state.stopPropagation) {
+				ev.stopPropagation();
+			}
+			state.handler(view, ev);
+		},
+		eventName,
+		selector: state.selector
+	};
+}
+
+export function createEventsManager(view, events) {
+	const handlers = Object.entries(events).map(([eventName, descriptor]) => {
+		return createEventHandler(eventName, descriptor, view);
+	});
+	const modelEventHandler = () => view.render();
+	let connected = false;
 	return {
 		connect() {
-			if (!state.connected) {
-				state.connected = true;
-				for (let [event, handler] of events_handlers) {
-					state.el.addEventListener(event, handler);
-				}
-				if (!is_nil(state.model)) {
-					state.model.on('changed', render);
-				}
+			if (connected) return ;
+			for (let {callback, eventName, selector} of handlers) {
+				view
+					.$el(selector)
+					.forEach(el => el.addEventListener(eventName, callback));
 			}
+			const model = view.model();
+			if (!is_nil(model)) {
+				model.on('changed', modelEventHandler);
+			}
+			connected = true;
 		},
 		disconnect() {
-			state.connected = false;
-			for (let [event, handler] of events_handlers) {
-				state.el.removeEventListener(event, handler);
+			if (!connected) return;
+			for (let {callback, eventName, selector} of handlers) {
+				view
+					.$el(selector)
+					.forEach(el => el.removeEventListener(eventName, callback));
 			}
-			if (!is_nil(state.model)) {
-				state.model.removeListener('changed', render);
+			const model = view.model();
+			if (!is_nil(model)) {
+				model.removeListener('changed', modelEventHandler);
 			}
+			connected = false;
 		}
 	};
 }
 
 export default ({
-	el = null,
-	classNames = [],
-	id = '',
-	tagName = 'div',
 	attributes = {},
+	classNames = [],
+	el = null,
 	events = {},
+	id = '',
 	model = null,
 	onBeforeDestroy = noop,
 	onBeforeRender = defaultOnBeforeRender,
-	onRender = noop
+	onRender = noop,
+	serializeData = defaultSerializeData,
+	tagName = 'div',
+	template = null
 } = {}) => {
+	const view = new EventEmitter();
 	const state = {
-		connected: false,
-		el: createElement({el, attributes, classNames, id, tagName}),
-		events,
-		model
+		el,
+		eventsManager: createEventsManager(view, events),
+		model,
+		template
 	};
 	const render = () => {
-		const {el, model} = state;
-		onBeforeRender(el, model);
-		onRender(el, model);
+		state.el = createElement({el: state.el, attributes, classNames, id, tagName});
+		state.eventsManager.disconnect();
+		onBeforeRender(view);
+		if (!is_nil(state.template)) {
+			state.el.innerHTML = template(serializeData(state.model));
+		}
+		onRender(view);
+		state.eventsManager.connect();
 	};
-	const {connect, disconnect} = createEventsManager(state, render);
-	return ({
+	Object.assign(view, {
 		destroy() {
-			disconnect();
-			onBeforeDestroy(el, model);
+			onBeforeDestroy(view);
+			view.removeAllListeners();
+			state.eventsManager.disconnect();
 			state.el.remove();
 		},
 		el() {
 			return state.el;
 		},
+		$el(selector) {
+			const el = state.el;
+			if (is_nil(selector)) {
+				return [el];
+			}
+			return el.querySelectorAll(selector);
+		},
 		model() {
 			return state.model;
 		},
 		setModel(model) {
-			disconnect();
 			state.model = model;
-			connect();
 			render();
 			return this;
 		},
@@ -103,12 +153,13 @@ export default ({
 			return this;
 		},
 		connect() {
-			connect();
+			state.eventsManager.connect();
 			return this;
 		},
 		disconnect() {
-			disconnect();
+			state.eventsManager.disconnect();
 			return this;
 		}
-	}).connect();
+	});
+	return view;
 }
