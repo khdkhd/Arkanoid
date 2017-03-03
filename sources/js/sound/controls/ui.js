@@ -4,6 +4,8 @@ import {
 	default as keyboard
 } from 'ui/keyboard';
 
+const keyhandlers = [];
+
 function add_wheel_listener(element, handler) {
 	let event_name = 'DOMMouseScroll';
 	if (window.hasOwnProperty('onmousewheel')) {
@@ -43,34 +45,14 @@ export default {
 			add_wheel_listener(element, event => handle(event, mousewheel));
 		}
 		if (!is_nil(keypress)) {
-			keyboard.use([KeyHandler({
+			keyhandlers.push(KeyHandler({
 				code: keypress.code,
 				event: keypress.event,
 				on_keydown: keypress.keydown,
 				on_keyup: keypress.keyup
-			})]);
+			}));
+			keyboard.use(keyhandlers);
 		}
-		// return {
-		// 	mousemove(handler) {
-		// 		element.removeEventListener('mousemove', mousemove);
-		// 		element.addEventListener('mousemove', handler);
-		// 	},
-		// 	mouseup(handler) {
-		// 		element.removeEventListener('mouseup', mouseup);
-		// 		element.addEventListener('mouseup', handler);
-		// 	},
-		// 	mousedown(handler) {
-		// 		element.removeEventListener('mousedown', mousedown);
-		// 		element.addEventListener('mousedown', handler);
-		// 	},
-		// 	mousewheel(handler) {
-		// 		element.removeEventListener('wheel', mousewheel);
-		// 		element.addEventListener('wheel', handler);
-		// 		element.removeEventListener('mousewheel', mousewheel);
-		// 		element.addEventListener('mousewheel', handler);
-		// 		element.removeEventListener('DOMMouseScroll', mousewheel);
-		// 		element.addEventListener('DOMMouseScroll', handler);
-		// 	}
-		// }
+
 	}
 }

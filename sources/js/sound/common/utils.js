@@ -52,6 +52,9 @@ function create_audio_model({param,  init, range} = {}) {
 		linearRampToValueAtTime(value, time) {
 			param.linearRampToValueAtTime(value, time);
 		},
+		exponentialRampToValueAtTime(value, time){
+			param.exponentialRampToValueAtTime(value, time);
+		},
 		cancelScheduledValues(time){
 			param.cancelScheduledValues(time);
 		},

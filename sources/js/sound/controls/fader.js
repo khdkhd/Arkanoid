@@ -39,27 +39,6 @@ function create_fader_view(state){
 	screen.height =  state.height;
 	state.element.appendChild(canvas);
 
-	// ui.bind_events({
-	// 	element: state.element,
-	// 	mousedown: event => {
-	// 		const x = event.clientX - event.target.offsetLeft;
-	// 		const y = event.clientY - event.target.offsetTop;
-	// 		if (state.bbox.contains({x , y})) {
-	// 			state.isActive = true;
-	// 		}
-	// 	},
-	// 	mousemove: event => {
-	// 		if (state.isActive) {
-	// 			fade(event);
-	// 		}
-	// 	},
-	// 	mouseup: () => {
-	// 		if (state.isActive) {
-	// 			state.isActive = false;
-	// 		}
-	// 	}
-	// });
-
 	ui.bind_events({
 		element: state.element,
 		mousemove: () => {

@@ -52,7 +52,7 @@ export default ({audio_context}) => {
 			return !stop;
 		},
 		assign(track_id, slave){
-			tracks[track_id] = create_track({tempo, slave, length, pos});
+			tracks[track_id] = create_track({track_id, tempo, slave, length, pos});
 		},
 		get tempo(){
 			return tempo;

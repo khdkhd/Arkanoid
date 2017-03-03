@@ -6,10 +6,10 @@ export default({audio_context}) => {
 	const _gain = audio_context.createGain();
 
 	const gain = create_audio_model({
-		param: _gain,
+		param: _gain.gain,
 		init: constant(0),
 		range: {
-			min: -1,
+			min: 0,
 			max: 1
 		}
 	});

@@ -3,13 +3,14 @@ import {
 	createSynth,
 	createMixer,
 } from 'sound';
-
+import GridManager from 'sound/sequencer/view/grid-manager';
 import is_nil from 'lodash.isnil';
 import cond from 'lodash.cond';
 import no_op from 'lodash.noop';
 import create_controls from 'sound/controls';
 import ui from 'sound/controls/ui';
 import {	default as keyboard } from 'ui/keyboard';
+import Kick from 'sound/synth/kick';
 
 const view_factory = create_controls();
 const views = [];
@@ -21,7 +22,7 @@ const synth_patch = {
 			type: 'voice',
 			config: {
 				type: {
-					value: 'square'
+					value: 'sawtooth'
 				}
 			}
 		},
@@ -87,7 +88,7 @@ const synth_patch = {
 	connexions: [
 		['generator', 'filter'],
 		['lfo', 'filter'],
-		['enveloppe', 'generator']
+		// ['enveloppe', 'generator']
 	]
 
 };
@@ -136,14 +137,19 @@ const mixer = createMixer({
 	audio_context
 });
 
+const kick = Kick({audio_context});
+
 synth.patch(synth_patch);
-seq.assign('track_1', synth);
+seq.assign('1', synth);
+seq.assign('2', kick);
 // seq.tracks['track_1'].partition = introduction_partition;
 mixer.assign('1', synth);
+mixer.assign('2', kick);
 mixer.connect({
 	input: audio_context.destination
 });
 mixer.tracks['1'].gain.value = 1;
+mixer.tracks['2'].gain.value = 1;
 
 ui.bind_events({
 	keypress: {
@@ -153,6 +159,8 @@ ui.bind_events({
 		keydown: no_op
 	}
 });
+
+
 
 //seq.start();
 
@@ -177,7 +185,7 @@ function mount_synth(element){
 	}
 }
 
-function mount_sequencer(element){
+function mount_mixer(element){
 	const controls = element.querySelectorAll('[data-control]');
 	for(let control of controls){
 		let view_name = control.getAttribute('data-control');
@@ -185,22 +193,67 @@ function mount_sequencer(element){
 		if(is_nil(path)){
 			continue;
 		}
-		const param = seq[path];
+		path = path.split('.');
+		const track = mixer.tracks[path[0]];
+		const param = track[path[1]];
 		const view = view_factory.bindParameter({
 			factory: view_name,
 			options: {
 				element: control
 			}
 		}, param);
-		view.partition = seq.tracks['track_1'].partition;
 		views.push(view);
+	}
+}
+
+let grid;
+
+function mount_sequencer(element){
+	const controls = element.querySelectorAll('[data-control]');
+	for(let control of controls){
+		let path = control.getAttribute('data-param');
+		if(is_nil(path)){
+			continue;
+		}
+		if('grid' === control.getAttribute('data-control')){
+			grid = GridManager({element: control, width: 800, height: 600});
+			for(let track of Object.values(seq.tracks)){
+				grid.addTrack(track);
+			}
+			grid.selectTrack(seq.tracks['1']);
+			views.push(grid);
+		}
 	}
 }
 
 const synthElement = document.querySelector('[data-device="synth"]');
 const seqElement = document.querySelector('[data-device="seq"]');
+const mixerElement = document.querySelector('[data-device="mixer"]');
 mount_synth(synthElement);
 mount_sequencer(seqElement);
+mount_mixer(mixerElement);
+
+ui.bind_events({
+	keypress: {
+		code: keyboard.KEY_1,
+		event: 'trackchange',
+		keyup(){
+			grid.selectTrack(seq.tracks['1']);
+		},
+		keydown: no_op
+	}
+});
+
+ui.bind_events({
+	keypress: {
+		code: keyboard.KEY_2,
+		event: 'trackchange',
+		keyup(){
+			grid.selectTrack(seq.tracks['2']);
+		},
+		keydown: no_op
+	}
+});
 
 function loop() {
 	views.forEach(view => view.render());

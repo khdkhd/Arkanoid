@@ -7,7 +7,7 @@
 </head>
 <body>
 	<div class="ui-panel">
-		<div data-device="synth">
+		<div data-device="synth"   style="display:inline-block;">
 			<div  style="display:inline-block;">
 			<div>
 				<span class="knob" id="knob-1" data-control="knob" data-param="filter.frequency"></span>
@@ -18,14 +18,22 @@
 				<span class="knob" id="knob-4" data-control="knob" data-param="lfo.amplitude"></span>
 			</div>
 		</div>
+		<div style="display:inline-block;">
 			<span class="fader" id="fader-1" data-control="fader" data-param="enveloppe.attack"></span>
 			<span class="fader" id="fader-2" data-control="fader" data-param="enveloppe.decay"></span>
 			<span class="fader" id="fader-3" data-control="fader" data-param="enveloppe.sustain"></span>
 			<span class="fader" id="fader-4" data-control="fader" data-param="enveloppe.release"></span>
 		</div>
+
+		</div>
+		<div data-device="mixer"  style="display:inline-block;">
+			<span class="fader" id="mixer-fader-1" data-control="fader" data-param="1.gain"></span>
+			<span class="fader" id="mixer-fader-2" data-control="fader" data-param="2.gain"></span>
+		</div>
 		<div data-device="seq">
 			<span class="grid" id="grid" data-control="grid" data-param="pos"></span>
 		</div>
+
 	</div>
 	<script type="text/javascript" src="/assets/js/sound.js"></script>
 </body>

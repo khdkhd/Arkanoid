@@ -1,17 +1,17 @@
 import amp from 'sound/synth/amp';
 
 export default({audio_context}) => {
-	const gain = amp({audio_context});
+const amplifier = amp({audio_context});
 
 	return {
 		connect({input}) {
-			gain.connect({input});
+			amplifier.connect({input});
 		},
 		assign(instrument) {
-			instrument.connect({input:gain});
+			instrument.connect({input: amplifier});
 		},
 		get gain(){
-			return gain.gain;
+			return amplifier.gain;
 		}
 	};
 }
