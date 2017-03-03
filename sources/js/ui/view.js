@@ -5,12 +5,8 @@ import uniq from 'lodash.uniq';
 
 import EventEmitter from 'events';
 
-export function defaultOnBeforeRender(el) {
-	el.innerHTML = '';
-}
-
-export function defaultOnDestroy(el) {
-	el.remove();
+export function defaultOnBeforeRender(view) {
+	view.el().innerHTML = '';
 }
 
 export function defaultSerializeData(model) {
