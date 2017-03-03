@@ -161,7 +161,7 @@ export default function createBricks(level) {
 	let stage = 0;
 	if (is_number(level)) {
 		stage = level - 1;
-		level = levels[level];
+		level = levels[stage];
 	}
 	return level.map(brick => Brick(brick.position, brick.color, stage));
 }
