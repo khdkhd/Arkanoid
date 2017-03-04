@@ -1,21 +1,17 @@
-import Screen from 'graphics/screen';
-import grid from 'sound/sequencer/view/grid';
+import grid from 'sound/controls/grid';
 import { get_cursor_position } from 'sound/common/utils';
 import ui from 'sound/controls/ui';
 import is_nil from 'lodash.isnil';
 
-export default ({element, width, height}) => {
+export default ({element, screen}) => {
 
+  screen.width = Math.round(screen.width/32)*32;
+  screen.height = Math.round(screen.height/12)*12 ;
+  const canvas = element.querySelector('canvas');
   const grids = {};
   let current_grid;
-
-  const canvas = document.createElement('canvas');
-  canvas.innerHTML = 'Your browser does not support canvas!';
-  const screen = Screen(canvas.getContext('2d'));
-  screen.width = width;
-  screen.height =  height;
-  element.appendChild(canvas);
-
+  const width = screen.width;
+  const height = screen.height;
 
   ui.bind_events({
     element,

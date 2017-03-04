@@ -9,31 +9,32 @@
 	<div class="ui-panel">
 		<div data-device="synth"   style="display:inline-block;">
 			<div  style="display:inline-block;">
-			<div>
-				<span class="knob" id="knob-1" data-control="knob" data-param="filter.frequency"></span>
-				<span class="knob" id="knob-2" data-control="knob" data-param="filter.Q"></span>
+				<div>
+					<span class="knob" id="knob-1" data-control="knob" data-param="filter.frequency" width="110" height="110"></span>
+					<span class="knob" id="knob-2" data-control="knob" data-param="filter.Q" width="110" height="110"></span>
+				</div>
+				<div>
+					<span class="knob" id="knob-3" data-control="knob" data-param="lfo.frequency" width="110" height="110"></span>
+					<span class="knob" id="knob-4" data-control="knob" data-param="lfo.amp" width="110" height="110"></span>
+				</div>
 			</div>
-			<div>
-				<span class="knob" id="knob-3" data-control="knob" data-param="lfo.frequency"></span>
-				<span class="knob" id="knob-4" data-control="knob" data-param="lfo.amplitude"></span>
+				<div  style="display:inline-block;">
+					<span class="fader" id="env-fader-1" data-control="fader" data-param="enveloppe.attack" width="50" height="225"></span>
+					<span class="fader" id="env-fader-2" data-control="fader" data-param="enveloppe.decay" width="50" height="225"></span>
+					<span class="fader" id="env-fader-3" data-control="fader" data-param="enveloppe.sustain" width="50" height="225"></span>
+					<span class="fader" id="env-fader-4" data-control="fader" data-param="enveloppe.release" width="50" height="225"></span>
+				</div>
 			</div>
-		</div>
-		<div style="display:inline-block;">
-			<span class="fader" id="fader-1" data-control="fader" data-param="enveloppe.attack"></span>
-			<span class="fader" id="fader-2" data-control="fader" data-param="enveloppe.decay"></span>
-			<span class="fader" id="fader-3" data-control="fader" data-param="enveloppe.sustain"></span>
-			<span class="fader" id="fader-4" data-control="fader" data-param="enveloppe.release"></span>
-		</div>
+			<div data-device="mixer"  style="display:inline-block;">
+				<span class="fader" id="mixer-fader-1" data-control="fader" data-param="tracks.1.gain"></span>
+				<span class="fader" id="mixer-fader-2" data-control="fader" data-param="tracks.2.gain"></span>
+			</div>
+			<div data-device="seq">
+				<span class="keyboard" id="keyboard" data-control="keyboard" width="50" height="600"></span>
+				<span class="grid" id="grid" data-control="grid" data-param="pos" width="1600" height="600"></span>
+			</div>
 
 		</div>
-		<div data-device="mixer"  style="display:inline-block;">
-			<span class="fader" id="mixer-fader-1" data-control="fader" data-param="1.gain"></span>
-			<span class="fader" id="mixer-fader-2" data-control="fader" data-param="2.gain"></span>
-		</div>
-		<div data-device="seq">
-			<span class="grid" id="grid" data-control="grid" data-param="pos"></span>
-		</div>
-
 	</div>
 	<script type="text/javascript" src="/assets/js/sound.js"></script>
 </body>

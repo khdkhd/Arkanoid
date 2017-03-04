@@ -3,8 +3,6 @@ import {
 	createSynth,
 	createMixer,
 } from 'sound';
-import GridManager from 'sound/sequencer/view/grid-manager';
-import is_nil from 'lodash.isnil';
 import cond from 'lodash.cond';
 import no_op from 'lodash.noop';
 import create_controls from 'sound/controls';
@@ -17,117 +15,85 @@ const views = [];
 
 const synth_patch = {
 	nodes: [{
-			id: 'generator',
-			factory: 'mono',
-			type: 'voice',
-			config: {
-				type: {
-					value: 'sawtooth'
-				}
+		id: 'generator',
+		factory: 'mono',
+		type: 'voice',
+		config: {
+			type: {
+				value: 'sawtooth'
 			}
-		},
-		{
-			id: 'enveloppe',
-			factory: 'enveloppe',
-			config: {
-				attack: {
-					value: 0
-				},
-				decay: {
-					value: .25
-				},
-				sustain: {
-					value: .5
-				},
-				release: {
-					value: 0
-				}
-			}
-		},
-		{
-			id: 'filter',
-			factory: 'filter',
-			type: 'output',
-			config:{
-				frequency:{
-					value: .95,
-					views: [{
-						factory: 'knob'
-					}]
-				},
-				Q: {
-					value: 0,
-					views: [{
-						factory: 'knob'
-					}]
-				},
-				gain: {
-					value: .95
-				},
-				type: {
-					value: 'lowpass'
-				}
+		}
+	},
+	{
+		id: 'enveloppe',
+		factory: 'enveloppe',
+		config: {
+			attack: {
+				value: 0
 			},
-		},
-		{
-			id: 'lfo',
-			factory: 'lfo',
-			config: {
-				frequency: {
-					value: .125
-				},
-				amplitude: {
-					value: 0.9
-				},
-				type: {
-					value: 'sine'
-				}
+			decay: {
+				value: .25
+			},
+			sustain: {
+				value: .5
+			},
+			release: {
+				value: 0
+			}
+		}
+	},
+	{
+		id: 'filter',
+		factory: 'filter',
+		type: 'output',
+		config:{
+			frequency:{
+				value: .95,
+				views: [{
+					factory: 'knob'
+				}]
+			},
+			Q: {
+				value: 0,
+				views: [{
+					factory: 'knob'
+				}]
+			},
+			gain: {
+				value: .95
+			},
+			type: {
+				value: 'lowpass'
 			}
 		},
-	],
-	connexions: [
-		['generator', 'filter'],
-		['lfo', 'filter'],
-		// ['enveloppe', 'generator']
-	]
+	},
+	{
+		id: 'lfo',
+		factory: 'lfo',
+		config: {
+			frequency: {
+				value: .125
+			},
+			amplitude: {
+				value: 0.9
+			},
+			type: {
+				value: 'sine'
+			}
+		}
+	},
+],
+connexions: [
+	['generator', 'filter'],
+	['lfo', 'filter'],
+	['enveloppe', 'generator']
+]
 
 };
 
-
-
-// const introduction_partition = [
-// 		[{
-// 			note: 'A',
-// 			octave: 2,
-// 			duration: 'QUARTER'
-// 		}], [], [], [{
-// 			note: 'A',
-// 			octave: 2,
-// 			duration: 'QUARTER'
-// 		}], [], [], [{
-// 			note: 'A',
-// 			octave: 2,
-// 			duration: 'QUARTER'
-// 		}], [], [], [], [{
-// 			note: 'A',
-// 			octave: 2,
-// 			duration: 'QUARTER'
-// 		}], [],
-// 		[{
-// 			note: 'A',
-// 			octave: 2,
-// 			duration: 'WHOLE'
-// 		}], [], [{
-// 			note: 'D',
-// 			octave: 2,
-// 			duration: 'QUARTER'
-// 		}], []
-// ];
-
-
 const audio_context = new AudioContext();
 
-const seq = createSequencer({
+const sequencer = createSequencer({
 	audio_context
 });
 const synth = createSynth({
@@ -140,9 +106,9 @@ const mixer = createMixer({
 const kick = Kick({audio_context});
 
 synth.patch(synth_patch);
-seq.assign('1', synth);
-seq.assign('2', kick);
-// seq.tracks['track_1'].partition = introduction_partition;
+sequencer.assign('1', synth);
+sequencer.assign('2', kick);
+// sequencer.tracks['track_1'].partition = introduction_partition;
 mixer.assign('1', synth);
 mixer.assign('2', kick);
 mixer.connect({
@@ -155,7 +121,7 @@ ui.bind_events({
 	keypress: {
 		code: keyboard.KEY_SPACE,
 		event: 'play',
-		keyup: cond([[seq.isStarted, seq.stop], [()=> true, seq.start]]),
+		keyup: cond([[sequencer.isStarted, sequencer.stop], [()=> true, sequencer.start]]),
 		keydown: no_op
 	}
 });
@@ -164,63 +130,38 @@ ui.bind_events({
 
 //seq.start();
 
-function mount_synth(element){
+function mount_synth(element, synth){
+	console.log(synth);
 	const controls = element.querySelectorAll('[data-control]');
 	for(let control of controls){
-		let view_name = control.getAttribute('data-control');
-		let path = control.getAttribute('data-param');
-		if(is_nil(path)){
-			continue;
-		}
-		path = path.split('.');
-		const node = synth.nodes[path[0]];
-		const param = node[path[1]];
-		const view = view_factory.bindParameter({
-			factory: view_name,
-			options: {
-				element: control
-			}
-		}, param);
+		const view = view_factory.mount(control, synth);
 		views.push(view);
 	}
 }
 
-function mount_mixer(element){
+function mount_mixer(element, mixer){
 	const controls = element.querySelectorAll('[data-control]');
 	for(let control of controls){
-		let view_name = control.getAttribute('data-control');
-		let path = control.getAttribute('data-param');
-		if(is_nil(path)){
-			continue;
-		}
-		path = path.split('.');
-		const track = mixer.tracks[path[0]];
-		const param = track[path[1]];
-		const view = view_factory.bindParameter({
-			factory: view_name,
-			options: {
-				element: control
-			}
-		}, param);
+		const view = view_factory.mount(control, mixer);
 		views.push(view);
 	}
 }
 
 let grid;
 
-function mount_sequencer(element){
+function mount_sequencer(element, sequencer){
 	const controls = element.querySelectorAll('[data-control]');
 	for(let control of controls){
-		let path = control.getAttribute('data-param');
-		if(is_nil(path)){
-			continue;
+		if('keyboard' === control.getAttribute('data-control')){
+			const keyboard = view_factory.mount(control, sequencer);
+			views.push(keyboard);
 		}
 		if('grid' === control.getAttribute('data-control')){
-			grid = GridManager({element: control, width: 800, height: 600});
-			for(let track of Object.values(seq.tracks)){
+			const grid = view_factory.mount(control, sequencer);
+			for(let track of Object.values(sequencer.tracks)){
 				grid.addTrack(track);
 			}
-			grid.selectTrack(seq.tracks['1']);
+			grid.selectTrack(sequencer.tracks['1']);
 			views.push(grid);
 		}
 	}
@@ -229,16 +170,16 @@ function mount_sequencer(element){
 const synthElement = document.querySelector('[data-device="synth"]');
 const seqElement = document.querySelector('[data-device="seq"]');
 const mixerElement = document.querySelector('[data-device="mixer"]');
-mount_synth(synthElement);
-mount_sequencer(seqElement);
-mount_mixer(mixerElement);
+mount_synth(synthElement, synth.nodes);
+mount_sequencer(seqElement, sequencer);
+mount_mixer(mixerElement, mixer);
 
 ui.bind_events({
 	keypress: {
 		code: keyboard.KEY_1,
 		event: 'trackchange',
 		keyup(){
-			grid.selectTrack(seq.tracks['1']);
+			grid.selectTrack(sequencer.tracks['1']);
 		},
 		keydown: no_op
 	}
@@ -249,7 +190,7 @@ ui.bind_events({
 		code: keyboard.KEY_2,
 		event: 'trackchange',
 		keyup(){
-			grid.selectTrack(seq.tracks['2']);
+			grid.selectTrack(sequencer.tracks['2']);
 		},
 		keydown: no_op
 	}
@@ -257,7 +198,7 @@ ui.bind_events({
 
 function loop() {
 	views.forEach(view => view.render());
-	seq.play();
+	sequencer.play();
 	requestAnimationFrame(loop);
 }
 

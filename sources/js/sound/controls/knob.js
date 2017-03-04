@@ -3,18 +3,11 @@ import Rect from 'maths/rect';
 import EventEmitter from 'events';
 import _clamp from 'lodash.clamp';
 import { completeAssign as assign } from 'common/utils';
-import Screen from 'graphics/screen';
 import ui from 'sound/controls/ui';
 
 function create_knob_view(state){
 
-
-  const canvas = document.createElement('canvas');
-	canvas.innerHTML = 'Your browser does not support canvas!';
-	const screen = Screen(canvas.getContext('2d'));
-	screen.width = 2 * state.outer_radius + state.padding*2;
-	screen.height = 2 * state.outer_radius + state.padding*2;
-	state.element.appendChild(canvas);
+  const screen = state.screen;
 
 	function clamp(angle) {
 		return _clamp(angle, state.curve_start, state.curve_end);
@@ -109,10 +102,13 @@ function create_knob_controller(state) {
 	};
 }
 
-export default ({element})=> {
-	let radius = 50;
-	const padding = 5;
-	let pos = {x:radius + padding,y: radius + padding};
+export default ({element, screen})=> {
+  const padding = 5;
+	let radius = screen.width/2 - padding;
+	let pos = {
+		x: radius + padding,
+		y: radius + padding
+	};
 	const offset = 0;
 	const curve_start = -Math.PI/2 + offset;
 	const curve_end = 2*Math.PI - Math.PI/2 - offset;
@@ -120,6 +116,7 @@ export default ({element})=> {
 	const inc_factor = 25;
 	const state = {
 		element,
+    screen,
 		pos,
 		padding,
 		curve_start,

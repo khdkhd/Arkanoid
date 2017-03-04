@@ -5,10 +5,11 @@ import _clamp from 'lodash.clamp';
 import { completeAssign as assign } from 'common/utils';
 import { scale, unscale } from 'sound/common/utils';
 import ui from 'sound/controls/ui';
-import Screen from 'graphics/screen';
 
 
 function create_fader_view(state){
+
+	const screen = state.screen;
 
 	function clamp(pos, state){
 		return _clamp(pos, state.inner_rect.topLeft.y, state.inner_rect.bottomRight.y);
@@ -31,13 +32,6 @@ function create_fader_view(state){
 		// state.emitter.emit('change', unscale({max: state.inner_rect.topLeft.y, min: state.inner_rect.bottomRight.y}, state.cursor));
 	}
 
-
-	const canvas = document.createElement('canvas');
-	canvas.innerHTML = 'Your browser does not support canvas!';
-	const screen = Screen(canvas.getContext('2d'));
-	screen.width = state.width;
-	screen.height =  state.height;
-	state.element.appendChild(canvas);
 
 	ui.bind_events({
 		element: state.element,
@@ -128,13 +122,14 @@ function create_fader_controller(state) {
 	};
 }
 
-export default ({element})=> {
+export default ({element, screen})=> {
 
 	const padding = 5;
 	const pos = {x: padding, y: padding};
-	let width = 50, height = 225;
+	let width = screen.width, height = screen.height;
 	const state = {
 		element,
+		screen,
 		pos,
 		padding,
 		width,

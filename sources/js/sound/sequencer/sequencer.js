@@ -23,7 +23,7 @@ export default ({audio_context}) => {
 	});
 	const tracks = {};
 	let precision = 4;
-	let length = 16;
+	let length = 32;
 	let stop = true;
 	let time = 0;
 	let start_time = audio_context.currentTime;
