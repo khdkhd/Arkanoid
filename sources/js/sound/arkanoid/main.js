@@ -9,6 +9,7 @@ import create_controls from 'sound/controls';
 import ui from 'sound/controls/ui';
 import {	default as keyboard } from 'ui/keyboard';
 import Kick from 'sound/synth/kick';
+import Snare from 'sound/synth/snare';
 
 const view_factory = create_controls();
 const views = [];
@@ -104,13 +105,16 @@ const mixer = createMixer({
 });
 
 const kick = Kick({audio_context});
+const snare = Snare({audio_context});
 
 synth.patch(synth_patch);
 sequencer.assign('1', synth);
 sequencer.assign('2', kick);
+sequencer.assign('3', snare);
 // sequencer.tracks['track_1'].partition = introduction_partition;
 mixer.assign('1', synth);
 mixer.assign('2', kick);
+mixer.assign('3', snare);
 mixer.connect({
 	input: audio_context.destination
 });
@@ -131,7 +135,6 @@ ui.bind_events({
 //seq.start();
 
 function mount_synth(element, synth){
-	console.log(synth);
 	const controls = element.querySelectorAll('[data-control]');
 	for(let control of controls){
 		const view = view_factory.mount(control, synth);
@@ -176,6 +179,16 @@ function mount_sequencer(element, sequencer){
 					event: 'trackchange',
 					keyup(){
 						grid.selectTrack(sequencer.tracks['2']);
+					},
+					keydown: no_op
+				}
+			});
+			ui.bind_events({
+				keypress: {
+					code: keyboard.KEY_3,
+					event: 'trackchange',
+					keyup(){
+						grid.selectTrack(sequencer.tracks['3']);
 					},
 					keydown: no_op
 				}
