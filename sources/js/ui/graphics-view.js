@@ -30,7 +30,7 @@ export function MouseEventsHandler({
 	};
 }
 
-export default function GraphicsView({canvas, events = {}} = {}) {
+export default function GraphicsView({canvas, model = null, events = {}} = {}) {
 	const screen = Screen(canvas.getContext('2d'));
 	return Object.assign({
 		screen() {
@@ -39,6 +39,7 @@ export default function GraphicsView({canvas, events = {}} = {}) {
 	}, View({
 		el: canvas,
 		events,
+		model,
 		onBeforeRender: noop,
 		onRender() {
 			screen.clear();

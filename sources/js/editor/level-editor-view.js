@@ -36,13 +36,20 @@ function event_coordinate(el, ev) {
 
 export default function LevelEditorView(levelModel) {
 	let brickColor;
-	const levelScene = Scene(Coordinates({
+	const editorSize = {
 		width:  columns - 2,
 		height: rows - 1
-	}, {x: 1, y: 1}), {backgroundColor: editor_bg_color});
+	};
+	const editorScene = Scene(Coordinates(editorSize, {x: 1, y: 1}), {
+		backgroundColor: editor_bg_color
+	});
+	const levelScene  = Scene(Coordinates(editorSize, {x: 0, y: 0}), {
+		backgroundColor: 'rgba(0, 0, 0, 0)'
+	});
 	const mouseDropMark = MouseDropMark();
 	const view = GraphicsView({
 		canvas: document.querySelector('#screen'),
+		model: levelModel,
 		events: MouseEventsHandler({
 			onClick(view, ev) {
 				const el = view.el();
@@ -63,7 +70,6 @@ export default function LevelEditorView(levelModel) {
 						levelScene.add(brick);
 						levelModel.add(brick);
 					}
-					view.render();
 				}
 			},
 			onMouseEnter(view) {
@@ -88,24 +94,22 @@ export default function LevelEditorView(levelModel) {
 		.setScale(scale)
 		.add(...createWalls(columns - 1, rows))
 		.add(
-			levelScene
+			editorScene
 				.add(
 					Grid( columns - 2,    rows - 1,     1, editor_grid1_color),
 					Grid((columns - 2)/2, (rows - 1)/2, 2, editor_grid2_color),
+					levelScene,
 					mouseDropMark
 				)
 		);
 	return Object.assign(view, {
+		reset(level) {
+			const bricks = createBricks(level);
+			levelScene.reset(bricks);
+			levelModel.reset(bricks);
+		},
 		setColor(color) {
 			brickColor = color;
-		},
-		reset(level) {
-			for (let brick of levelModel) {
-				levelScene.remove(brick);
-			}
-			const bricks = createBricks(level);
-			levelScene.add(...bricks);
-			levelModel.reset(bricks);
 		}
 	});
 }

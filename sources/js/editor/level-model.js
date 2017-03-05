@@ -1,19 +1,17 @@
 import Vector from 'maths/vector';
-
-import {EventEmitter} from 'events';
+import Model from 'model';
 
 import is_array from 'lodash.isarray';
 import over_some from 'lodash.oversome';
-import pull from 'lodash.pull';
 import remove from 'lodash.remove';
+import without from 'lodash.without';
 
 function BrickPositionMatcher(position) {
 	return brick => brick.position().equal(position);
 }
 
-export default () => {
-	const emitter = new EventEmitter();
-	let bricks = [];
+export default function LevelModel() {
+	const model = Model({attributes: {bricks: []}});
 	const match = ({x, y}) => {
 		const pos = Vector({x, y});
 		return over_some(
@@ -22,48 +20,36 @@ export default () => {
 			BrickPositionMatcher(pos.add({x:  1, y: 0}))
 		);
 	};
-	return Object.assign(emitter, {
-		add(some_bricks) {
-			for (let brick of is_array(some_bricks) ? some_bricks : [some_bricks]) {
-				bricks.push(brick);
-			}
-			emitter.emit('changed');
+	return Object.assign(model, {
+		add(bricks) {
+			model.set('bricks', model.get('bricks').concat(bricks));
 			return this;
 		},
 		brickAt({x, y}) {
-			return bricks.find(BrickPositionMatcher({x, y}));
+			return model.get('bricks').find(BrickPositionMatcher({x, y}));
 		},
 		containsBrickAt({x, y}) {
-			return bricks.some(match({x, y}));
+			return model.get('bricks').some(match({x, y}));
 		},
-		remove(some_bricks) {
-			for (let brick of is_array(some_bricks) ? some_bricks : [some_bricks]) {
-				pull(bricks, brick);
+		remove(bricks) {
+			bricks = is_array(bricks) ? bricks : [bricks];
+			if (bricks.length > 0) {
+				model.set('bricks', without(model.get('bricks'), ...bricks));
 			}
-			emitter.emit('changed');
 			return this;
 		},
 		removeAt({x, y}) {
+			const bricks = model.get('bricks');
 			remove(bricks, match({x, y}));
-			emitter.emit('changed');
+			model.set('bricks', bricks);
 			return this;
 		},
-		reset(some_bricks) {
-			bricks = some_bricks;
-			emitter.emit('changed');
+		reset(bricks) {
+			model.set('bricks', bricks);
 			return this;
-		},
-		toJSON() {
-			return JSON.stringify(bricks.map(brick => {
-				const {x, y} = brick.position();
-				return {
-					color: brick.color,
-					position: {x, y}
-				};
-			}));
 		},
 		[Symbol.iterator]: function() {
-			return bricks[Symbol.iterator]();
+			return model.get('bricks')[Symbol.iterator]();
 		}
 	});
 }
