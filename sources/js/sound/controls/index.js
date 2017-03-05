@@ -27,14 +27,9 @@ export default () => {
       let view_id = element.getAttribute('data-control');
       let param_path = element.getAttribute('data-param');
       const view = factory[view_id]({element, screen});
-      let param = null;
-      (param_path || '')
-        .split('.')
-        .forEach(key => {
-          console.log(key);
-          console.log(params);
-          param = params[key]
-        });
+      let param = params;
+      (param_path || '').split('.')
+        .forEach(key=> param = param ? param[key]: params[key]);
       if(!is_nil(param)){
         view.param = param;
       }

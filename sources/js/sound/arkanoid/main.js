@@ -147,8 +147,6 @@ function mount_mixer(element, mixer){
 	}
 }
 
-let grid;
-
 function mount_sequencer(element, sequencer){
 	const controls = element.querySelectorAll('[data-control]');
 	for(let control of controls){
@@ -161,7 +159,27 @@ function mount_sequencer(element, sequencer){
 			for(let track of Object.values(sequencer.tracks)){
 				grid.addTrack(track);
 			}
-			grid.selectTrack(sequencer.tracks['1']);
+			grid.selectTrack(sequencer.tracks['2']);
+			ui.bind_events({
+				keypress: {
+					code: keyboard.KEY_1,
+					event: 'trackchange',
+					keyup(){
+						grid.selectTrack(sequencer.tracks['1']);
+					},
+					keydown: no_op
+				}
+			});
+			ui.bind_events({
+				keypress: {
+					code: keyboard.KEY_2,
+					event: 'trackchange',
+					keyup(){
+						grid.selectTrack(sequencer.tracks['2']);
+					},
+					keydown: no_op
+				}
+			});
 			views.push(grid);
 		}
 	}
@@ -174,27 +192,7 @@ mount_synth(synthElement, synth.nodes);
 mount_sequencer(seqElement, sequencer);
 mount_mixer(mixerElement, mixer);
 
-ui.bind_events({
-	keypress: {
-		code: keyboard.KEY_1,
-		event: 'trackchange',
-		keyup(){
-			grid.selectTrack(sequencer.tracks['1']);
-		},
-		keydown: no_op
-	}
-});
 
-ui.bind_events({
-	keypress: {
-		code: keyboard.KEY_2,
-		event: 'trackchange',
-		keyup(){
-			grid.selectTrack(sequencer.tracks['2']);
-		},
-		keydown: no_op
-	}
-});
 
 function loop() {
 	views.forEach(view => view.render());

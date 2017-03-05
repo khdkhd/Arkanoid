@@ -60,7 +60,7 @@ function create_grid_view(state){
 		onRender(screen) {
 			screen.save();
 			screen.pen = 1;
-			screen.brush = '#3c0a3c';
+			screen.brush = '#bdbdbd';
 			screen.pen = '#fff';
 			screen.fillRect(state.rect);
 			screen.drawRect(state.rect);
@@ -71,21 +71,23 @@ function create_grid_view(state){
 
 	const grid = SceneObject(grid_coordinates, {
 		onRender(screen) {
-			screen.pen = '#fff';
 			screen.save();
-			times(cols, () => {
+			times(cols-1, i => {
+				screen.pen = (i + 1)%4 === 0 ? '#5c142c' : '#061030';
 				screen.translate({x: col_width, y: 0});
 				screen.drawLine({x: 0, y: 0}, {x: 0, y: height});
 			});
 			screen.restore();
 			screen.save();
+			screen.pen = '#061030';
 			times(notes.length, () => {
+
 				screen.translate({x: 0, y: row_height});
 				screen.drawLine({x: 0, y: 0}, {x: width, y: 0});
 			});
 			screen.restore();
 			screen.save();
-			screen.brush = '#700a2b';
+			screen.brush = '#5c142c';
 			state.cells.forEach(cell => screen.fillRect(cell));
 			screen.save();
 		},
@@ -146,7 +148,7 @@ function create_grid_controller(state) {
 	}
 
 	function update_position(value){
-		const cols = state.divisors+1;
+		const cols = state.divisors;
 		const width = state.rect.width;
 		let step_x = Math.round(width/cols);
 		state.cursor_pos = {

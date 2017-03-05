@@ -44,7 +44,7 @@ function create_keyboard_view(state){
 		onRender(screen) {
 			screen.save();
 			screen.pen = 1;
-			screen.pen = '#000';
+			screen.pen = '#2e2a2a';
 			const note_rect = Rect(
 				{
 					x: 0,
