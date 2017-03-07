@@ -9,12 +9,11 @@ import Rect from 'maths/rect';
 export default function Screen(canvas_context) {
 	const state = {
 		backgroundColor: 'rgba(0, 0, 0, 1)',
-		children: [],
 		absoluteScale: {x: 1, y: 1},
 		scale: {x: 1, y: 1},
-		scale_stack: []
+		scaleStack: [],
+		sceneObjects: []
 	};
-
 	return completeAssign(SceneController(state), {
 		///////////////////////////////////////////////////////////////////////
 		/// Screen metrics
@@ -172,12 +171,12 @@ export default function Screen(canvas_context) {
 		/// Context save/restore
 		save() {
 			const {scale, absoluteScale} = state;
-			state.scale_stack.push({scale, absoluteScale});
+			state.scaleStack.push({scale, absoluteScale});
 			canvas_context.save();
 			return this;
 		},
 		restore() {
-			const {scale, absoluteScale} = state.scale_stack.pop();
+			const {scale, absoluteScale} = state.scaleStack.pop();
 			state.scale = scale;
 			state.absoluteScale = absoluteScale;
 			canvas_context.restore();
@@ -223,17 +222,17 @@ export default function Screen(canvas_context) {
 		render() {
 			this.brush = state.backgroundColor;
 			this.clear();
-			for (let child of state.children) {
+			for (let child of state.sceneObjects) {
 				child.render(this);
 			}
 			return this;
 		},
+		scene() {
+			return null;
+		},
 		setBackgroundColor(color) {
 			state.backgroundColor = color;
 			return this;
-		},
-		scene() {
-			return null;
 		}
 	});
 }

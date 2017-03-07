@@ -6,78 +6,22 @@
 		<link rel="stylesheet" href="/assets/css/style.css" charset="utf-8">
 		<link rel="stylesheet" href="/assets/css/editor.css" charset="utf-8">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Press+Start+2P">
 	</head>
 	<body>
-		<h1>Arkanoid</h1>
-		<div id="editor">
-			<div id="palette">
-				<form>
-					<ul id="bricks">
-						<li class="item">
-							<input id="gray" name="brick" type="radio" checked>
-							<label for="gray"></label>
-						</li>
-						<li class="item">
-							<input id="gold" name="brick" type="radio">
-							<label for="gold"></label>
-						</li>
-						<li class="item">
-							<input id="white" name="brick" type="radio">
-							<label for="white"></label>
-						</li>
-						<li class="item">
-							<input id="orange" name="brick" type="radio">
-							<label for="orange"></label>
-						</li>
-						<li class="item">
-							<input id="cyan" name="brick" type="radio">
-							<label for="cyan"></label>
-						</li>
-						<li class="item">
-							<input id="green" name="brick" type="radio">
-							<label for="green"></label>
-						</li>
-						<li class="item">
-							<input id="red" name="brick" type="radio">
-							<label for="red"></label>
-						</li>
-						<li class="item">
-							<input id="blue" name="brick" type="radio">
-							<label for="blue"></label>
-						</li>
-						<li class="item">
-							<input id="purple" name="brick" type="radio">
-							<label for="purple"></label>
-						</li>
-						<li class="item">
-							<input id="yellow" name="brick" type="radio">
-							<label for="yellow"></label>
-						</li>
-					</ul>
-					<ul id="modes">
-						<li class="item">
-							<input id="add" name="mode" type="radio" checked>
-							<label for="add"></label>
-						</li>
-						<li class="item">
-							<input id="remove" name="mode" type="radio">
-							<label for="remove"></label>
-						</li>
-					</ul>
-					<ul id="actions">
-						<li class="item">
-							<button id="export" data-action="export"></button>
-						</li>
-						<li class="item">
-							<button id="import" data-action="import"></button>
-						</li>
-					</ul>
-				</form>
+			<div id="content-wrapper">
+				<div id="score">0</div>
+				<div id="palette">
+					<form>
+						<ul id="bricks"></ul>
+						<ul id="actions"></ul>
+					</form>
+				</div>
+				<canvas id="screen" width="300" height="300">
+					Your browser does not support canvas!
+				</canvas>
+				<ul id="lifes"></ul>
 			</div>
-			<canvas id="screen" width="300" height="300">
-				Your browser does not support canvas!
-			</canvas>
-		</div>
 		<script type="text/javascript" src="/assets/js/editor.js"></script>
 	</body>
 </html>

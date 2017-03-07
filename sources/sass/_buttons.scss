@@ -1,0 +1,26 @@
+@import "settings";
+button {
+	border: 1px solid $dialog-button-border-color;
+	background-color: $dialog-button-bg-color;
+	color: $dialog-button-fg-color;
+	cursor: pointer;
+	font-family: $dialog-button-font-familly;
+	font-size: $dialog-button-font-size;
+	font-weight: bold;
+	padding: $dialog-button-padding;
+	margin: 0 .25rem;
+	&:focus {
+		outline: 0;
+	}
+	&:hover {
+		background-color: $dialog-button-hover-bg-color;
+		color: $dialog-button-hover-fg-color;
+		&:active {
+			background-color: $dialog-button-active-bg-color;
+			border-color: $dialog-button-active-border-color;
+		}
+		&::before {
+			color: inherit;
+		}
+	}
+}

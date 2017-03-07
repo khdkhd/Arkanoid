@@ -6,26 +6,35 @@ import remove from 'lodash.remove';
 export function SceneModel(options) {
 	return Object.assign({
 		backgroundColor: 'rgba(0, 0, 0, 0)',
-		children:[]
+		sceneObjects: []
 	}, options);
 }
 
-export function SceneController({children}) {
+export function SceneController(state) {
 	return {
-		add(...objects) {
-			for (let child of objects) {
-				remove(children, child);
-				children.push(child);
-				children.sort((a, b) => a.zIndex() - b.zIndex());
-				if (child.scene() !== this) {
-					child.setScene(this);
+		add(...sceneObjects) {
+			for (let sceneObject of sceneObjects) {
+				remove(state.sceneObjects, sceneObject);
+				state.sceneObjects.push(sceneObject);
+				state.sceneObjects.sort((a, b) => a.zIndex() - b.zIndex());
+				if (sceneObject.scene() !== this) {
+					sceneObject.setScene(this);
 				}
 			}
 			return this;
 		},
-		remove(child) {
-			remove(children, child);
-			child.setScene(null);
+		remove(...sceneObjects) {
+			for (let sceneObject of sceneObjects) {
+				remove(state.sceneObjects, sceneObject);
+				sceneObject.setScene(null);
+			}
+			return this;
+		},
+		reset(sceneObjects = []) {
+			for (let sceneObject of state.sceneObjects) {
+				sceneObject.setScene(null);
+			}
+			state.sceneObjects = sceneObjects.slice(0); // fast array clone
 			return this;
 		},
 	};
@@ -37,8 +46,8 @@ export function SceneView(coordinates, state) {
 		onRender(screen, scene, rect) {
 			screen.brush = state.backgroundColor;
 			screen.fillRect(rect);
-			for (let child of state.children) {
-				child.render(screen);
+			for (let sceneObject of state.sceneObjects) {
+				sceneObject.render(screen);
 			}
 		}
 	}));

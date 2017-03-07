@@ -1,11 +1,16 @@
 import SceneObject from 'graphics/scene-object';
+import Coordinates from 'graphics/coordinates';
 
 import times from 'lodash.times';
 
 export default function Grid(cols, rows, step, color) {
-	return SceneObject(null, {
+	const coordinates = Coordinates({
+		width: cols*step,
+		height: rows*step
+	}, {x: 0, y: 0});
+	return SceneObject(coordinates, {
 		onRender(screen) {
-			const scale = Math.max(screen.absoluteScale.x, screen.absoluteScale.y);
+			const scale = screen.absoluteScale().x;
 
 			screen.pen = {
 				strokeStyle: color,
@@ -32,11 +37,6 @@ export default function Grid(cols, rows, step, color) {
 				screen.restore();
 
 			screen.restore();
-		},
-		position: {x: 0, y: 0},
-		size: {
-			width: cols*step,
-			height: rows*step
 		},
 		zIndex: -Infinity
 	});

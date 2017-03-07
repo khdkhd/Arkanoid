@@ -18,17 +18,18 @@ $brick-colors: (
 	@each $name, $value in $brick-colors {
 		&[for="#{$name}"] {
 			background-color: $value;
+			&:hover {
+				background-color: darken($value, 15);
+				border: 2px solid $palette-border-color;
+				box-sizing: border-box;
+			}
 		}
 	}
 }
 
-#editor {
-	margin: 0 auto;
-	width: 600px;
-}
-
 #palette {
-	float: left;
+	position: absolute;
+	left: -96px;
 	border: 4px solid $palette-border-color;
 	color: white;
 	margin: 0 auto;
@@ -39,6 +40,7 @@ $brick-colors: (
 		margin: 4px auto;
 		padding: 0;
 		li {
+			margin: 2px;
 			display: inline-block;
 			height: 24px;
 			width: 32px;
@@ -46,7 +48,6 @@ $brick-colors: (
 	}
 	#bricks {
 		li {
-			margin: 0;
 			input[type="radio"]:not(:checked),
 			input[type="radio"]:checked {
 				position: absolute;
@@ -67,55 +68,20 @@ $brick-colors: (
 			}
 		}
 	}
-	#modes {
-		li {
-			border: 1px solid $palette-border-color;
-			box-sizing: border-box;
-			input[type="radio"]:not(:checked),
-			input[type="radio"]:checked {
-				position: absolute;
-				left: -9999px;
-			}
-			input[type="radio"]:not(:checked) + label,
-			input[type="radio"]:checked + label {
-				position: relative;
-				cursor: pointer;
-				display: block;
-				width: 100%;
-				height: 100%;
-				&::before {
-					font-family: FontAwesome;
-				}
-				&[for="add"]::before {
-					content: '\f040';
-				}
-				&[for="remove"]::before {
-					content: '\f12d';
-				}
-			}
-			input[type="radio"]:checked + label {
-				background-color: $palette-border-color;
-			}
-		}
-	}
 	#actions {
 		li {
 			button {
-				background-color: transparent;
 				border: 1px solid $palette-border-color;
-				box-sizing: border-box;
-				color: white;
 				cursor: pointer;
 				font-family: FontAwesome;
-				font-size: 16px;
 				margin: 0;
 				padding: 0;
 				width: 100%;
 				height: 100%;
-				&[data-action="export"]::before {
+				&[data-role="export"]::before {
 					content: '\f019';
 				}
-				&[data-action="import"]::before {
+				&[data-role="import"]::before {
 					content: '\f093';
 				}
 			}
