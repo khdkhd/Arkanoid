@@ -50,35 +50,35 @@ describe('graphics.Scene(coordinates, {[backgroundColor][, scale][, visible][, z
 	});
 	describe('#add(...objects)', () => {
 		it('adds the givens objects to the scene', () => {
-			const children = [];
-			const scene = SceneController({children});
+			const sceneObjects = [];
+			const scene = SceneController({sceneObjects});
 			const obj1 = SceneObject(Coordinates(size, position));
 			const obj2 = SceneObject(Coordinates(size, position));
 			scene.add(obj1, obj2);
-			expect(children).to.have.lengthOf(2);
-			expect(children).to.include(obj1);
-			expect(children).to.include(obj2);
+			expect(sceneObjects).to.have.lengthOf(2);
+			expect(sceneObjects).to.include(obj1);
+			expect(sceneObjects).to.include(obj2);
 			expect(obj1.scene()).to.equal(scene);
 			expect(obj2.scene()).to.equal(scene);
 		});
 		it('returns itself', () => {
-			const scene = SceneController({children: []});
+			const scene = SceneController({sceneObjects: []});
 			expect(scene.add(SceneObject(Coordinates(size, position)))).to.equal(scene);
 		});
 	});
 	describe('#remove(object)', () => {
 		it('removes the object from the scene', () => {
-			const children = [];
-			const scene = SceneController({children});
+			const sceneObjects = [];
+			const scene = SceneController({sceneObjects});
 			const obj = SceneObject(Coordinates(size, position));
 			scene.add(obj);
 			scene.remove(obj);
-			expect(children).to.be.empty;
+			expect(sceneObjects).to.be.empty;
 			expect(obj.scene()).to.be.null;
 		});
 		it('returns itself', () => {
-			const children = [];
-			const scene = SceneController({children});
+			const sceneObjects = [];
+			const scene = SceneController({sceneObjects});
 			expect(scene.add(SceneObject(Coordinates(size, position)))).to.equal(scene);
 		});
 	});
