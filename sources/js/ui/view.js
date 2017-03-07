@@ -1,3 +1,4 @@
+import constant from 'lodash.constant';
 import is_function from 'lodash.isfunction';
 import is_nil from 'lodash.isnil';
 import noop from 'lodash.noop';
@@ -52,11 +53,15 @@ export function createEventHandler(eventName, descriptor, view) {
 	};
 }
 
-export function createEventsManager(view, events) {
+export function createEventsManager(view, events, modelEventFilter) {
 	const handlers = Object.entries(events).map(([eventName, descriptor]) => {
 		return createEventHandler(eventName, descriptor, view);
 	});
-	const modelEventHandler = () => view.render();
+	const modelEventHandler = (event_name, attribute) => {
+		if (modelEventFilter(event_name, attribute)) {
+			view.render();
+		}
+	}
 	let connected = false;
 	return {
 		connect() {
@@ -95,6 +100,7 @@ export default ({
 	events = {},
 	id = '',
 	model = null,
+	modelEventFilter = constant(true),
 	onBeforeDestroy = noop,
 	onBeforeRender = defaultOnBeforeRender,
 	onRender = noop,
@@ -105,7 +111,7 @@ export default ({
 	const view = new EventEmitter();
 	const state = {
 		el,
-		eventsManager: createEventsManager(view, events),
+		eventsManager: createEventsManager(view, events, modelEventFilter),
 		model,
 		template
 	};
