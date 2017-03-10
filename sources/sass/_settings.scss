@@ -7,6 +7,16 @@ $h3-color: #bb2727;
 
 $font-family: 'Press Start 2P', cursive;
 
+$changelog-header-bottom-margin: 2rem;
+$changelog-header-bottom-margin: 2rem;
+$changelog-header-title-font-size: 1.5rem;
+
+$changelog-header-date-fg-color: lighten($h2-color, 25);
+$changelog-header-date-font-size: .5rem;
+
+$changelog-release-font-size: .75rem;
+$changelog-release-item-bottom-margin: .5rem;
+
 $score-font-family: inherit;
 $score-fg-color: inherit;
 $score-font-size: 18pt;

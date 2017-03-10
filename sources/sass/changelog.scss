@@ -6,6 +6,24 @@
 	width: 600px;
 	overflow: auto;
 	.release {
+		font-size: $changelog-release-font-size;
 		margin: 4rem 1rem;
+		header {
+			margin-bottom: $changelog-header-bottom-margin;
+			h2 {
+				font-size: $changelog-header-title-font-size;
+				margin: 0;
+			}
+			small {
+				color: $changelog-header-date-fg-color;
+				font-size: $changelog-header-date-font-size;
+			}
+		}
+		h3 {
+			font-size: 1rem;
+		}
+		ul > li {
+			margin-bottom: $changelog-release-item-bottom-margin;
+		}
 	}
 }
