@@ -1,89 +1,30 @@
-import {EventEmitter} from 'events';
-
-import {completeAssign} from 'common/utils';
-
-import Rect from 'maths/rect';
-
-import Controller from 'game/game-controller';
-import LifeCounter from 'game/life-counter';
-import Score from 'game/score';
-import createWalls from 'game/wall';
-
-import Coordinates from 'graphics/coordinates';
-import Scene from 'graphics/scene';
-
-import LifesView from 'game/lifes-view';
+import GameModel from 'game/game-model';
+import GameView from 'game/game-view';
+import GameController from 'game/game-controller';
+import LifeView from 'game/lifes-view';
 import ScoreView from 'game/score-view';
 
-import ui from 'ui';
-
-ui.screen.setSize({
-	width: 224*2,
-	height: 248*2
-});
+import View from 'ui/view';
 
 export default function Game() {
-	const emitter = new EventEmitter();
-	const lifes = LifesView({el: ui.lifes});
-	const score = ScoreView({el: ui.score});
-	const screen = ui.screen;
+	const model = GameModel();
+	const gameView = GameView({model});
+	const gameController = GameController({model, gameView});
+	const scoreView = ScoreView({model});
+	const lifeView = LifeView({model});
 
-	const scale = Math.round((screen.width/14)/2);
-	const columns = screen.width/scale;
-	const rows = screen.height/scale;
-
-	const zone = Rect({x: 1, y: 1}, {width: columns - 2, height: rows - 1});
-	const scene = Scene(Coordinates(zone.size, zone.topLeft));
-
-	const state = {
-		cheatMode: false,
-		end: false,
-		lifes: LifeCounter(3),
-		score: Score(),
-		scene: scene,
-		zone: scene.localRect()
-	};
-
-	const game_contoller = Controller(state);
-
-	function loop() {
-		if (!state.end) {
-			game_contoller.update();
-			screen.render();
-			requestAnimationFrame(loop);
-		} else {
-			emitter.emit('end', state.level);
+	const ui = View({
+		el: document.querySelector('#content-wrapper'),
+		onRender(view) {
+			view.el().appendChild(scoreView.render().el());
+			view.el().appendChild(gameView.render().el());
+			view.el().appendChild(lifeView.render().el());
 		}
-	}
+	});
 
-	game_contoller
-		.on('game-over', game_contoller.stop)
-		.on('pause', game_contoller.pause)
-		.on('update-score', state.score.gain)
-		.on('end-of-level', () => {
-			state.end = true;
-		})
-		.on('ball-out', () => {
-			game_contoller.stop();
-			setTimeout(game_contoller.start, 2000);
-		});
-
-	lifes.setModel(state.lifes);
-	score.setModel(state.score);
-	screen
-		.setBackgroundColor('#123')
-		.setScale(scale)
-		.add(...createWalls(columns - 1, rows))
-		.add(scene);
-
-	return completeAssign(emitter, {
-		start(level) {
-			state.end = false;
-			state.level = level;
-			game_contoller
-				.reset()
-				.start();
-			requestAnimationFrame(loop);
-		}
+	return Object.assign(ui, {
+		start(stage) {
+			gameController.run(stage);
+		},
 	});
 }

@@ -8,6 +8,8 @@ export default function Coordinates(size, {x = 0, y = 0} = {}) {
 		position: constant(Vector({x, y})),
 		localRect: constant(Rect({x: 0, y: 0}, size)),
 		rect: constant(Rect({x, y}, size)),
-		size: constant(size)
+		size: constant(size),
+		width: constant(size.width),
+		height: constant(size.height)
 	};
 }

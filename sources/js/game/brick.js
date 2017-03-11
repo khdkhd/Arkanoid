@@ -1,5 +1,4 @@
 import {completeAssign} from 'common/utils';
-import levels from 'game/resources/levels';
 import Rect from 'maths/rect';
 import Vector from 'maths/vector';
 import Coordinates from 'graphics/coordinates';
@@ -8,7 +7,6 @@ import SceneObject from 'graphics/scene-object';
 import {EventEmitter} from 'events';
 
 import is_nil from 'lodash.isnil';
-import is_number from 'lodash.isnumber';
 
 const BOTTOM_OUTER_RECT = Rect(Vector.Null, {width: 2, height: 1});
 const TOP_OUTER_RECT = Rect(Vector.Null, {width: 1.8, height: .8});
@@ -157,11 +155,6 @@ export function Brick({x, y}, color, level) {
 	);
 }
 
-export default function createBricks(level) {
-	let stage = 0;
-	if (is_number(level)) {
-		stage = level - 1;
-		level = levels[stage];
-	}
+export default function createBricks(level, stage = 0) {
 	return level.map(brick => Brick(brick.position, brick.color, stage));
 }
