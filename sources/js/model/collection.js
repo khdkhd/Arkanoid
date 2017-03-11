@@ -4,67 +4,97 @@ import {Model as DefaultModel} from 'model';
 function EventForwarder(model, state) {
 	return {
 		changed(attr) {
-			state.emitter.emit('changed', attr, model);
+			state.emitter.emit('model-changed', attr, model);
 		},
 		reset() {
-			state.emitter.emit('reset', model);
+			state.emitter.emit('model-reset', model);
 		}
 	};
 }
 
 export default function Collection({
+	models = [],
 	Model = DefaultModel
 } = {}) {
 	const state = {
 		emitter: new EventEmitter(),
 		models: Map()
 	};
-	const bind = model => {
+
+	function bind(model) {
 		const handler = EventForwarder(model, state);
 		model
 			.on('changed', handler.changed)
 			.on('reset', handler.reset);
 		return [model, handler];
-	};
-	const unbind = (model, handler) => {
+	}
+
+	function unbind(model, handler) {
 		model
 			.removeListener('changed', handler.changed)
 			.removeListener('reset', handler.reset);
-	};
+	}
+
+	function add(models) {
+		return models.filter(model => {
+			if (!state.models.has(model)) {
+				const [, handler] = bind(model);
+				state.models.set(model, handler);
+				return true;
+			}
+			return false;
+		});
+	}
+
+	function remove(models) {
+		return (models).filter(model => {
+			if (state.models.has(model)) {
+				const handler = state.models.get(model);
+				unbind(model, handler);
+				state.models.delete(model);
+				return true;
+			}
+			return false;
+		});
+	}
+
+	function clear() {
+		for (let [model, handler] of state.models) {
+			unbind(model, handler);
+			state.delete(model);
+		}
+	}
+
 	return Object.assign(state.emitter, {
 		add(...models) {
-			for (let model of models) {
-				if (!state.models.has(model)) {
-					const [, handler] = bind(model);
-					state.models.set(model, handler);
-					state.emitter.emit('add', model);
-				}
+			const added = add(models);
+			if (added.length > 0) {
+				state.emitter.emit('add', added);
 			}
 			return this;
 		},
 		clear() {
-			for (let [model, handler] of state.models) {
-				unbind(model, handler);
-				state.delete(model);
-			}
+			clear();
 			state.emitter.emit('clear');
 			return this;
 		},
 		create(...args) {
-			const [model, handler] = bind(Model(...args));
-			state.models.set(model, handler);
+			const model = Model(...args);
+			add([model]);
 			state.emitter.emit('add', model);
 			return this;
 		},
 		remove(...models) {
-			for (let model of models) {
-				if (state.models.has(model)) {
-					const handler = state.models.get(model);
-					unbind(model, handler);
-					state.models.delete(model);
-					state.emitter.emit('remove', model);
-				}
+			const removed = remove(models);
+			if (removed.length > 0) {
+				state.emitter.emit('remove', removed);
 			}
+			return this;
+		},
+		reset(models) {
+			clear();
+			add(models);
+			state.emitter.emits('reset');
 			return this;
 		},
 		get length() {
@@ -75,19 +105,22 @@ export default function Collection({
 			state.models.keys().forEach(iteratee);
 		},
 		filter(predicate) {
-			return state.models.filter(predicate);
+			return state.models.keys().filter(predicate);
 		},
 		every(predicate) {
-			return state.models.every(predicate);
+			return state.models.keys().every(predicate);
 		},
 		map(iteratee) {
 			return state.models.keys().map(iteratee);
 		},
 		reduce(iteratee, initial_value) {
-			return state.models.reduce(iteratee, initial_value);
+			return state.models.keys().reduce(iteratee, initial_value);
 		},
 		some(predicate) {
-			return state.models.some(predicate);
+			return state.models.keys().some(predicate);
+		},
+		serialize() {
+			return state.models.keys().map(model => model.serialize());
 		}
-	});
+	}).add(...models);
 }

@@ -18,9 +18,17 @@ export default function Model({attributes}) {
 	return Object.assign(model, {
 		/**
 		 * Returns the attribute of this model as a plain object.
+		 * @deprecated
 		 * @return {Object} - This model's attributes.
 		 */
 		attributes() {
+			return Object.assign({}, state.attributes);
+		},
+		/**
+		 * Returns the attribute of this model as a plain object.
+		 * @return {Object} - This model's attributes.
+		 */
+		serialize() {
 			return Object.assign({}, state.attributes);
 		},
 		/**
