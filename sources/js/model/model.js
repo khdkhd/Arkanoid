@@ -1,6 +1,7 @@
 import EventEmitter from 'events';
 
 import is_string from 'lodash.isstring';
+import noop from 'lodash.noop';
 
 /**
  * @module model
@@ -10,7 +11,10 @@ import is_string from 'lodash.isstring';
  * Create a model given some initial attributes value.
  * @param {[type]} attributes [description]
  */
-export default function Model({attributes}) {
+export default function Model({
+	attributes,
+	onBeforeDestroy = noop,
+} = {}) {
 	const model = new EventEmitter();
 	const state = {
 		attributes: Object.assign({}, attributes)
@@ -18,7 +22,6 @@ export default function Model({attributes}) {
 	return Object.assign(model, {
 		/**
 		 * Returns the attribute of this model as a plain object.
-		 * @deprecated
 		 * @return {Object} - This model's attributes.
 		 */
 		attributes() {
@@ -30,6 +33,11 @@ export default function Model({attributes}) {
 		 */
 		serialize() {
 			return Object.assign({}, state.attributes);
+		},
+		destroy() {
+			onBeforeDestroy(model);
+			model.emit('destroyed');
+			return this;
 		},
 		/**
 		 * Returns the value of the given attribute value of this model.

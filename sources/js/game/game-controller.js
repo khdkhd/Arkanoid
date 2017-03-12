@@ -2,6 +2,7 @@ import {dispatch} from 'common/functional';
 
 import Ball from 'game/ball';
 import Vaus from 'game/vaus';
+import Level  from 'game/level';
 import CreateWalls from 'game/wall';
 import Coordinates from 'graphics/Coordinates';
 import gameKeyboardController from 'game/keyboard-controller';
@@ -16,14 +17,12 @@ import soundController  from 'sound/arkanoid/sound-controller';
 
 import keyboard from 'ui/keyboard';
 
-
 import cond from 'lodash.cond';
 import is_nil from 'lodash.isnil';
 import matches from 'lodash.matches';
 import random from 'lodash.random';
-import remove from 'lodash.remove';
 
-export default function GameController({model, gameView}) {
+export default function GameController({gameModel, gameView}) {
 	const scene = gameView.scene();
 	const screen = gameView.screen();
 	const gameScene = Scene(Coordinates({
@@ -31,37 +30,19 @@ export default function GameController({model, gameView}) {
 		height: scene.height() - 1
 	}, {x: 1, y: 1}));
 	const gameZone = gameScene.localRect();
-
+	const brickScene = Scene(Coordinates(gameZone.size), Vector.Null);
+	const level = Level();
 	const ball = Ball(Vector.Null);
 	const vaus = Vaus({x: 1, y: gameScene.height() - 2});
 
-	let bricks = [];
 	let paused = false;
 	let running = false;
 
 	//////////////////////////////////////////////////////////////////////////
-
-	function ball_neighborhood() {
-		const pos = ball.position();
-		const col = Math.round(pos.x);
-		const row = Math.round(pos.y);
-		return bricks.filter(brick => {
-			const brick_pos = brick.position();
-			return Math.abs(col - brick_pos.x) <= 2 && Math.abs(row - brick_pos.y) <= 1;
-		});
-	}
-
-	function bricks_remaining() {
-		return bricks.reduce(
-			(count, brick) => brick.color === 'gold' ? count : count + 1,
-			0
-		);
-	}
-
 	// Collision helpers
 
 	function ball_collides_with_bricks(ball_box, speed) {
-		for (let brick of ball_neighborhood(ball)) {
+		for (let brick of level.neighborhood(ball.position())) {
 			const brick_box = brick.rect();
 			const v = bounce(ball_box, speed, brick_box, .001);
 			if (!is_nil(v)) {
@@ -101,7 +82,7 @@ export default function GameController({model, gameView}) {
 
 	function ball_goes_out(ball_box, speed) {
 		if (ball_box.bottomY >= gameZone.bottomY) {
-			if(model.cheatMode()) {
+			if(gameModel.cheatMode()) {
 				ball.emit('hit', 'wall');
 				return Vector({x: speed.x, y: -speed.y});
 			} else {
@@ -119,6 +100,7 @@ export default function GameController({model, gameView}) {
 	);
 
 	//////////////////////////////////////////////////////////////////////////
+	// Position helpers
 
 	function reset_ball_position() {
 		const vaus_box = vaus.rect();
@@ -132,7 +114,7 @@ export default function GameController({model, gameView}) {
 		vaus.reset({x: 1, y: gameZone.height - 2});
 	}
 
-	function updateBall() {
+	function update_ball() {
 		if (!ball.velocity().isNull()) {
 			const ball_box = ball.rect().translate(ball.velocity());
 			const ball_speed = ball_collides(ball_box, ball.velocity());
@@ -145,7 +127,7 @@ export default function GameController({model, gameView}) {
 		ball.update();
 	}
 
-	function updateVaus() {
+	function update_vaus() {
 		const {leftX: vaus_left_x, rightX: vaus_right_x} = vaus.rect();
 		const {leftX: zone_left_x, rightX: zone_right_x} = gameScene.localRect();
 
@@ -164,34 +146,13 @@ export default function GameController({model, gameView}) {
 
 	function update() {
 		if (!paused) {
-			updateBall();
-			updateVaus();
+			update_ball();
+			update_vaus();
 		}
 	}
 
-	function reset(stage) {
-		bricks.forEach(brick => {
-			brick
-				.removeAllListeners('destroyed')
-				.removeAllListeners('hit')
-				.hide();
-		});
-		bricks = model.bricks(stage);
-		bricks.forEach(brick => {
-			brick
-				.on('hit', model.updateScore)
-				.once('destroyed', () => {
-					brick.removeAllListeners().hide();
-					remove(bricks, brick);
-					const remain = bricks_remaining();
-					if (remain === 0) {
-						// TODO
-						// emitter.emit('end-of-level');
-					}
-				});
-		});
-		gameScene.reset().add(...bricks, ball, vaus);
-	}
+	//////////////////////////////////////////////////////////////////////////
+	// Game state helpers
 
 	function loop() {
 		if (running) {
@@ -199,6 +160,11 @@ export default function GameController({model, gameView}) {
 			screen.render();
 			requestAnimationFrame(loop);
 		}
+	}
+
+	function reset(stage) {
+		level.reset(gameModel.bricks(stage));
+		brickScene.reset().add(...level);
 	}
 
 	function togglePause() {
@@ -215,7 +181,7 @@ export default function GameController({model, gameView}) {
 	function start() {
 		keyboard.use(null);
 		togglePause();
-		if (model.lifeCount() > 0) {
+		if (gameModel.lifeCount() > 0) {
 			if (!running) {
 				running = true;
 				loop();
@@ -223,13 +189,23 @@ export default function GameController({model, gameView}) {
 			setTimeout(() => {
 				reset_vaus_position();
 				togglePause();
-				model.takeLife();
+				gameModel.takeLife();
 				keyboard.use(gameKeyboardController);
 			}, 2000);
 		} else {
 			running = false;
 		}
 	}
+
+	ball
+		.on('hit', cond([
+			[matches('brick'), soundController.ballCollidesWithBricks],
+			[matches('vaus'), soundController.ballCollidesWithVaus],
+			[matches('ground'), () => {
+				soundController.ballGoesOut();
+				start();
+			}]
+		]));
 
 	keyboard
 		.on('direction-changed', direction => {
@@ -241,15 +217,18 @@ export default function GameController({model, gameView}) {
 				ball.setVelocity(Vector({x: 1, y: -1}).toUnit().mul(.2));
 			}
 		});
-	ball
-		.on('hit', cond([
-			[matches('brick'), soundController.ballCollidesWithBricks],
-			[matches('vaus'), soundController.ballCollidesWithVaus],
-			[matches('ground'), () => {
-				soundController.ballGoesOut();
-				start();
-			}]
-		]));
+	level
+		.on('model-changed', (brick) => {
+			gameModel.updateScore(brick.points());
+		})
+		.on('model-destroyed', brick => {
+			brick.hide();
+		})
+		.on('completed', () => {
+			gameModel.emit('stage-completed');
+		});
+
+	gameScene.add(brickScene, ball, vaus);
 	scene.add(...CreateWalls(scene.width() - 1, scene.height()), gameScene);
 
 	return {

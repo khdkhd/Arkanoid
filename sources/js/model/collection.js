@@ -1,13 +1,17 @@
 import EventEmitter from 'events';
 import {Model as DefaultModel} from 'model';
 
-function EventForwarder(model, state) {
+export function EventForwarder(model, collection) {
 	return {
 		changed(attr) {
-			state.emitter.emit('model-changed', attr, model);
+			collection.emit('model-changed', model, attr);
+		},
+		destroyed() {
+			collection.remove(model);
+			collection.emit('model-destroyed', model);
 		},
 		reset() {
-			state.emitter.emit('model-reset', model);
+			collection.emit('model-reset', model);
 		}
 	};
 }
@@ -16,23 +20,23 @@ export default function Collection({
 	models = [],
 	Model = DefaultModel
 } = {}) {
+	const collection = new EventEmitter();
 	const state = {
-		emitter: new EventEmitter(),
-		models: Map()
+		models: new Map()
 	};
 
 	function bind(model) {
-		const handler = EventForwarder(model, state);
-		model
-			.on('changed', handler.changed)
-			.on('reset', handler.reset);
+		const handler = EventForwarder(model, collection);
+		for (let event_name of ['changed', 'destroyed', 'reset']) {
+			model.on(event_name, handler[event_name]);
+		}
 		return [model, handler];
 	}
 
 	function unbind(model, handler) {
-		model
-			.removeListener('changed', handler.changed)
-			.removeListener('reset', handler.reset);
+		for (let event_name of ['changed', 'destroyed', 'reset']) {
+			model.removeListener(event_name, handler[event_name]);
+		}
 	}
 
 	function add(models) {
@@ -65,36 +69,36 @@ export default function Collection({
 		}
 	}
 
-	return Object.assign(state.emitter, {
+	return Object.assign(collection, {
 		add(...models) {
 			const added = add(models);
 			if (added.length > 0) {
-				state.emitter.emit('add', added);
+				collection.emit('add', added);
 			}
 			return this;
 		},
 		clear() {
 			clear();
-			state.emitter.emit('clear');
+			collection.emit('clear');
 			return this;
 		},
 		create(...args) {
 			const model = Model(...args);
 			add([model]);
-			state.emitter.emit('add', model);
+			collection.emit('add', model);
 			return this;
 		},
 		remove(...models) {
 			const removed = remove(models);
 			if (removed.length > 0) {
-				state.emitter.emit('remove', removed);
+				collection.emit('remove', removed);
 			}
 			return this;
 		},
 		reset(models) {
 			clear();
 			add(models);
-			state.emitter.emits('reset');
+			collection.emit('reset');
 			return this;
 		},
 		get length() {
@@ -105,22 +109,50 @@ export default function Collection({
 			state.models.keys().forEach(iteratee);
 		},
 		filter(predicate) {
-			return state.models.keys().filter(predicate);
+			const res = [];
+			for (let item of state.models.keys()) {
+				if (predicate(item, collection)) {
+					res.push(item);
+				}
+			}
+			return res;
 		},
 		every(predicate) {
-			return state.models.keys().every(predicate);
+			for (let item of state.models.keys()) {
+				if (!predicate(item, collection)) {
+					return false;
+				}
+			}
+			return true;
 		},
 		map(iteratee) {
-			return state.models.keys().map(iteratee);
+			const res = [];
+			for (let item of state.models.keys()) {
+				res.push(iteratee(item, collection));
+			}
+			return res;
 		},
 		reduce(iteratee, initial_value) {
-			return state.models.keys().reduce(iteratee, initial_value);
+			let accumulator = initial_value;
+			for (let item of state.models.keys()) {
+				accumulator = iteratee(accumulator, item, collection);
+			}
+			return accumulator;
 		},
 		some(predicate) {
-			return state.models.keys().some(predicate);
+			for (let item of state.models.keys()) {
+				if (predicate(item, collection)) {
+					return true;
+				}
+			}
+			return false;
 		},
 		serialize() {
-			return state.models.keys().map(model => model.serialize());
+			const res = [];
+			for (let item of state.models.keys()) {
+				res.push(item.serialize());
+			}
+			return res;
 		}
 	}).add(...models);
 }

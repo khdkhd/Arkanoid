@@ -35,16 +35,15 @@ export default function GameModel() {
 			return model.get('lifes');
 		},
 		gainLife() {
-			return model.set(
-				'lifes',
-				model.get('lifes') + 1
-			);
+			return model.set('lifes', model.get('lifes') + 1);
 		},
 		takeLife() {
-			return model.set(
-				'lifes',
-				Math.max(model.get('lifes') - 1, 0)
-			);
+			const lifes = Math.max(model.get('lifes') - 1, 0);
+			model.set('lifes', lifes);
+			if (lifes === 0) {
+				model.emit('game-over');
+			}
+			return this;
 		},
 		// Score
 		score() {

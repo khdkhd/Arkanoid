@@ -7,11 +7,11 @@ import ScoreView from 'game/score-view';
 import View from 'ui/view';
 
 export default function Game() {
-	const model = GameModel();
-	const gameView = GameView({model});
-	const gameController = GameController({model, gameView});
-	const scoreView = ScoreView({model});
-	const lifeView = LifeView({model});
+	const gameModel = GameModel();
+	const scoreView = ScoreView({model: gameModel});
+	const lifeView = LifeView({model: gameModel});
+	const gameView = GameView({model: gameModel});
+	const gameController = GameController({gameModel, gameView});
 
 	const ui = View({
 		el: document.querySelector('#content-wrapper'),
