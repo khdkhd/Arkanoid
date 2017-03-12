@@ -1,4 +1,6 @@
-import {Dialog} from 'ui/dialog';
+import {default as Dialog} from 'ui/dialog';
+import View from 'ui/view';
+
 import {expect} from 'chai';
 import {jsdom} from 'jsdom';
 import constant from 'lodash.constant';
@@ -11,7 +13,7 @@ function random_string(len) {
 	return shuffle('abcdefghijhklmnopqrstuvwxyz0123456789').slice(0, len).join('');
 }
 
-describe('Dialog({aboutToClose, className, content, id})', () => {
+describe('Dialog({el, childView, classNames, buttons, aboutToClose})', () => {
 	beforeEach(() => {
 		const document = jsdom('<!DOCTYPE html><html><head></head><body></body></html>');
 		global.document = document;
@@ -25,87 +27,59 @@ describe('Dialog({aboutToClose, className, content, id})', () => {
 
 	describe('run()', () => {
 		it('returns a promise', () => {
-			const dialog = Dialog({content: ''});
+			const childView = View();
+			const dialog = Dialog({childView});
 			expect(dialog.run()).to.be.a('promise');
 		});
-		it('creates exactly one body > div#modal-overlay element', () => {
-			const dialog = Dialog({content: ''});
+		it('inserts exactly one .dialog element in the wrapping element', () => {
+			const childView = View();
+			const dialog = Dialog({childView});
 			dialog.run();
-			expect(document.querySelectorAll('body > div#modal-overlay'))
+			expect(document.querySelectorAll('body > .dialog'))
 				.to.have.lengthOf(1);
 		});
-		it('creates exactly one body > div.dialog element', () => {
-			const dialog = Dialog({content: ''});
+		it('inserts exactly one .dialog-button-box in the .dialog element', () => {
+			const childView = View();
+			const dialog = Dialog({childView});
 			dialog.run();
-			expect(document.querySelectorAll('body > div.dialog'))
+			expect(document.querySelectorAll('body > .dialog > .dialog-button-box'))
 				.to.have.lengthOf(1);
 		});
-		it('creates exactly one \'cancel\' button', () => {
-			const dialog = Dialog({content: ''});
+		it('inserts the childView in the .dialog element', () => {
+			const childView = View({id: 'child-view-id'});
+			const dialog = Dialog({childView});
 			dialog.run();
-			expect(document.querySelectorAll('body > .dialog button[data-role="cancel"]'))
-				.to.have.lengthOf(1);
-		});
-		it('creates exactly one \'ok\' button', () => {
-			const dialog = Dialog({content: ''});
-			dialog.run();
-			expect(document.querySelectorAll('body > .dialog button[data-role="ok"]'))
-				.to.have.lengthOf(1);
-		});
-		it('adds the specified className to the div.dialog element', () => {
-			const dialog = Dialog({content: '', className: ['foo', 'bar']});
-			dialog.run();
-			expect(document.querySelector('body > .dialog').className.split(' '))
-				.to.have.lengthOf(3);
-		});
-		it('adds the specified id to the div.dialog element', () => {
-			const dialog = Dialog({content: '', id: 'foo'});
-			dialog.run();
-			expect(document.querySelector('body > div.dialog').id).to.equal('foo');
-		});
-		it('adds the specified content string to the div.dialog element', () => {
-			const dialog = Dialog({content: 'foo'});
-			dialog.run();
-			expect(document.querySelector('body > .dialog > .content-wrapper').innerHTML).to.equal('foo');
-		});
-		it('adds the specified content element to the div.dialog element', () => {
-			const content = document.createElement('div');
-			const dialog = Dialog({content});
-			content.id = 'foo';
-			dialog.run();
-			expect(document.querySelectorAll('body > .dialog > .content-wrapper > div#foo'))
+			expect(document.querySelectorAll('body > .dialog > #child-view-id'))
 				.to.have.lengthOf(1);
 		});
 		it('calls back aboutToClose with \'ok\' when ok button is clicked', () => {
 			const aboutToClose = sinon.spy();
-			const dialog = Dialog({aboutToClose, content: ''});
+			const childView = View({id: 'child-view-id'});
+			const dialog = Dialog({childView, aboutToClose});
 			dialog.run();
 			document.querySelector('body > .dialog button[data-role="ok"]').click();
 			expect(aboutToClose).to.have.been.calledWith('ok');
 		});
 		it('calls back aboutToClose with \'cancel\' when cancel button is clicked', () => {
 			const aboutToClose = sinon.spy();
-			const dialog = Dialog({aboutToClose, content: ''});
+			const childView = View({id: 'child-view-id'});
+			const dialog = Dialog({childView, aboutToClose});
 			dialog.run();
 			document.querySelector('body > .dialog button[data-role="cancel"]').click();
 			expect(aboutToClose).to.have.been.calledWith('cancel');
 		});
 		it('fulfills the returned promise with the value returned by aboutToClose', () => {
 			const aboutToClose = constant(random_string(12));
-			const dialog = Dialog({aboutToClose, content: ''});
+			const childView = View({id: 'child-view-id'});
+			const dialog = Dialog({childView, aboutToClose});
+			dialog.run();
 			const promise = dialog.run();
 			document.querySelector('body > .dialog button[data-role="cancel"]').click();
 			return expect(promise).to.eventually.equal(aboutToClose());
 		});
-		it('removes body > div#modal-overlay element from the DOM when a button is clicked', () => {
-			const dialog = Dialog({content: ''});
-			dialog.run();
-			document.querySelector('body > .dialog button[data-role="cancel"]').click();
-			expect(document.querySelectorAll('body > #modal-overlay'))
-				.to.have.lengthOf(0);
-		});
-		it('removes body > div.dialog element from the DOM when a button is clicked', () => {
-			const dialog = Dialog({content: ''});
+		it('removes the dialog from the DOM when a button is clicked', () => {
+			const childView = View({id: 'child-view-id'});
+			const dialog = Dialog({childView});
 			dialog.run();
 			document.querySelector('body > .dialog button[data-role="cancel"]').click();
 			expect(document.querySelectorAll('body > .dialog'))

@@ -1,4 +1,4 @@
-import Game from 'game/index';
+import Game from 'game';
 
 const game = Game();
 

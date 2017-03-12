@@ -8,6 +8,7 @@ import SceneObject from 'graphics/scene-object';
 import {EventEmitter} from 'events';
 
 import is_nil from 'lodash.isnil';
+import is_number from 'lodash.isnumber';
 
 const BOTTOM_OUTER_RECT = Rect(Vector.Null, {width: 2, height: 1});
 const TOP_OUTER_RECT = Rect(Vector.Null, {width: 1.8, height: .8});
@@ -157,11 +158,10 @@ export function Brick({x, y}, color, level) {
 }
 
 export default function createBricks(level) {
-	const bricks = [];
-	level = level - 1;
-	for (let brick_data of levels[level]) {
-		const brick = Brick(brick_data.position, brick_data.color, level);
-		bricks.push(brick);
+	let stage = 0;
+	if (is_number(level)) {
+		stage = level - 1;
+		level = levels[stage];
 	}
-	return bricks;
+	return level.map(brick => Brick(brick.position, brick.color, stage));
 }

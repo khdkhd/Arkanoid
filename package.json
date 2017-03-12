@@ -1,6 +1,6 @@
 {
   "name": "arkanoid",
-  "version": "0.3.4",
+  "version": "0.4.0",
   "description": "Arkanoid in javascript",
   "scripts": {
     "build": "$PWD/tools/scripts/build.sh",
@@ -77,6 +77,7 @@
     "lodash.noop": "^3.0.1",
     "lodash.oversome": "^4.7.0",
     "lodash.pick": "^4.4.0",
+    "lodash.pull": "^4.1.0",
     "lodash.random": "^3.2.0",
     "lodash.remove": "^4.7.0",
     "lodash.shuffle": "^4.2.0",
@@ -84,6 +85,7 @@
     "lodash.throttle": "^4.1.1",
     "lodash.times": "^4.3.2",
     "lodash.uniq": "^4.5.0",
+    "lodash.without": "^4.4.0",
     "marked": "^0.3.6",
     "metalsmith-layouts": "^1.7.0",
     "metalsmith-markdown": "^0.2.1",
