@@ -26,6 +26,7 @@ export function get_frequency_of_note(note, octave) {
 export function create_audio_model({param,  init, range} = {}) {
 	const emitter = new EventEmitter();
 	let isControlled = false;
+	let events = [];
 	if(is_nil(param)){
 		param = create_value_model();
 	}
@@ -36,15 +37,12 @@ export function create_audio_model({param,  init, range} = {}) {
 		set value(value){
 			param.value = scale(range, value);
 			emitter.emit('change', param.value);
+			for(let event of events){
+				emitter.emit(event[0], event[1]());
+			}
 		},
 		get value(){
 			return unscale(range, param.value);
-		},
-		get isControlled(){
-			return isControlled;
-		},
-		set isControlled(value){
-			isControlled = value;
 		},
 		setValueAtTime(value, time) {
 			param.setValueAtTime(value, time)
@@ -58,6 +56,16 @@ export function create_audio_model({param,  init, range} = {}) {
 		cancelScheduledValues(time){
 			param.cancelScheduledValues(time);
 		},
+		registerEvent(eventId, handler) {
+			events.push([eventId, handler]);
+		},
+		get isControlled(){
+			return isControlled;
+		},
+		set isControlled(value){
+			isControlled = value;
+		},
+
 	});
 }
 
@@ -85,4 +93,17 @@ export function create_canvas(element){
   canvas.innerHTML = 'Your browser does not support canvas!';
   element.appendChild(canvas);
   return canvas;
+}
+
+/*
+ * parses path using dot as a separator and returns
+ * a reference to the nested object in params
+ */
+export function parse_parameters(path, params){
+	let param = params;
+	(path || '').split('.')
+		.forEach(
+			key=> param = param ? param[key]: params[key]
+		);
+	return param;
 }

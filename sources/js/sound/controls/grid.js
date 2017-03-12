@@ -29,7 +29,7 @@ const notes = [
 
 function get_note_cell(note, pos, state){
 	const y = notes.indexOf(note.note);
-	const width = Math.round(state.rect.width/(state.divisors+1));
+	const width = Math.round(state.rect.width/(state.divisors));
 	const height = Math.round(state.rect.height/notes.length);
 	const x_factor = note.duration * 4;
 	return Object.assign({
@@ -54,7 +54,7 @@ function create_grid_view(state){
 	const scene_coordinates = Coordinates(state.rect);
 	const scene = Scene(scene_coordinates);
 
-	let grid_coordinates = Coordinates(state.rect.translate({x:col_width, y:0}));
+	let grid_coordinates = Coordinates(state.rect);
 
 	const background = SceneObject(grid_coordinates, {
 		onRender(screen) {
@@ -79,7 +79,7 @@ function create_grid_view(state){
 			});
 			screen.restore();
 			screen.save();
-			screen.pen = '#061030';
+			screen.pen = '#061030	';
 			times(notes.length, () => {
 
 				screen.translate({x: 0, y: row_height});
@@ -88,7 +88,9 @@ function create_grid_view(state){
 			screen.restore();
 			screen.save();
 			screen.brush = '#5c142c';
-			state.cells.forEach(cell => screen.fillRect(cell));
+			if(!is_nil(state.cells)){
+				state.cells.forEach(cell => screen.fillRect(cell));
+			}
 			screen.save();
 		},
 		zIndex: 1
@@ -119,14 +121,19 @@ function create_grid_controller(state) {
 
 	function push(cell){
 		state.cells.push(cell);
-		state.track.partition[cell.pos].push(cell.note);
+		if(!is_nil(state.track)){
+			state.track.pattern[cell.pos].push(cell.note);
+		}
 	}
 
 	function pop(cell){
 		state.cells = state.cells.filter(_cell => _cell !== cell);
-		let target = state.track.partition[cell.pos];
-		let note_index = target.indexOf(cell.note);
-		target.splice(note_index, 1);
+		if(!is_nil(state.track)){
+			let target = state.track.pattern[cell.pos];
+			let note_index = target.indexOf(cell.note);
+			target.splice(note_index, 1);
+		}
+
 	}
 
 	function create_cell({x,y}){
@@ -155,25 +162,11 @@ function create_grid_controller(state) {
 			x: value*step_x,
 			y: 0
 		};
-
 	}
 
+  // update_position(state.track.pos.value);
 
-	update_position(state.track.pos.value);
-
-	state.emitter.on('change', value => state.track.pos.value = value);
-	state.track.on('change', ()=> {
-		state.track.partition.forEach((notes, pos) => {
-			for(let note of notes){
-				state.cells.push(get_note_cell(note, pos, state));
-			}
-		});
-	});
-	state.track.pos.on('change', value => {
-		if(!state.isActive){
-			update_position(value);
-		}
-	});
+	// state.emitter.on('change', value => state.track.pos.value = value);
 
 	return {
 		mousedown(pos){
@@ -182,11 +175,39 @@ function create_grid_controller(state) {
 				return push(create_cell(pos));
 			}
 			return pop(cell);
+		},
+		set track(track){
+			// if(!is_nil(state.track)){
+			// 	state.track.on('change', ()=> {})
+			// 	state.track.pos.on('change', ()=> {})
+			// }
+			state.track = track
+			state.cells = []
+			// state.track.on('change', ()=> {
+			state.track.pattern.forEach((notes, pos) => {
+				for(let note of notes){
+					state.cells.push(get_note_cell(note, pos, state));
+				}
+			});
+			// });
+			state.track.pos.on('change', value => {
+				if(!state.isActive){
+					update_position(value);
+				}
+			});
+		},
+		updatePattern(){
+			state.cells = []
+			state.track.pattern.forEach((notes, pos) => {
+				for(let note of notes){
+					state.cells.push(get_note_cell(note, pos, state));
+				}
+			});
 		}
 	};
 }
 
-export default ({width, height, track})=> {
+export default ({width, height})=> {
 	const pos = Vector({x: 0, y: 0});
 	const cursor_pos = Vector({x: 0, y: 0});
 	const divisors = 32;
@@ -196,7 +217,6 @@ export default ({width, height, track})=> {
 		divisors,
 		octave,
 		cursor_pos,
-		track,
 		width,
 		height,
 		cells: [],

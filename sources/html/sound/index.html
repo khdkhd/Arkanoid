@@ -31,8 +31,16 @@
 				<span class="fader" id="mixer-fader-3" data-control="fader" data-param="tracks.3.gain" width="50" height="225"></span>
 			</div>
 			<div data-device="seq">
+				<div style="display:inline-block">
+					<div class="selector" id="selector-1" data-control="track_selector" width="200" height="190"></div>
+					<div class="selector" id="selector-2" data-control="track_selector" width="200" height="190"></div>
+					<div class="selector" id="selector-2" data-control="track_selector" width="200" height="190"></div>
+				</div>
+
 				<span class="keyboard" id="keyboard" data-control="keyboard" width="50" height="600"></span>
-				<span class="grid" id="grid" data-control="grid" data-param="pos" width="1600" height="600"></span>
+				<!-- <span class="spinbox" id="spinbox-1" data-control="spinbox" data-param="track" width="10" height="10"></span> -->
+				<span class="spinbox" id="spinbox-2" data-control="spinbox" data-param="pattern" width="10" height="10"></span>
+				<span class="grid" id="grid" data-control="grid" data-param="pos" data-sequencer="sequencer" width="1600" height="600"></span>
 			</div>
 
 		</div>

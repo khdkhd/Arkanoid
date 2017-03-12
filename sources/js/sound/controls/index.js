@@ -2,15 +2,22 @@ import knob from 'sound/controls/knob';
 import fader from 'sound/controls/fader';
 import grid_manager from 'sound/controls/grid-manager';
 import keyboard from 'sound/controls/keyboard';
+import spinbox from 'sound/controls/spinbox';
+import track_selector from 'sound/controls/track-selector';
 import Screen from 'graphics/screen';
 import is_nil from 'lodash.isnil';
-import {create_canvas} from 'sound/common/utils';
+import {
+  create_canvas,
+  parse_parameters
+} from 'sound/common/utils';
 
 const factory = {
   fader,
   knob,
   grid: grid_manager,
-  keyboard
+  keyboard,
+  spinbox,
+  track_selector
 };
 
 
@@ -19,7 +26,7 @@ export default () => {
     get factory(){
       return factory;
     },
-    mount(element, params){
+    mount(element, device){
       const canvas = create_canvas(element);
       const screen = Screen(canvas.getContext('2d'));
       screen.width = element.getAttribute('width');
@@ -27,9 +34,7 @@ export default () => {
       let view_id = element.getAttribute('data-control');
       let param_path = element.getAttribute('data-param');
       const view = factory[view_id]({element, screen});
-      let param = params;
-      (param_path || '').split('.')
-        .forEach(key=> param = param ? param[key]: params[key]);
+      let param = parse_parameters(param_path, device);
       if(!is_nil(param)){
         view.param = param;
       }
