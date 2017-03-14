@@ -31,10 +31,7 @@ export function SceneController(state) {
 			return this;
 		},
 		reset() {
-			for (let sceneObject of state.sceneObjects) {
-				sceneObject.setScene(null);
-			}
-			return this;
+			return this.remove(...state.sceneObjects);
 		},
 	};
 }

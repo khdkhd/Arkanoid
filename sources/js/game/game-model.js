@@ -13,11 +13,20 @@ export default function GameModel() {
 			size: {
 				width: 224*2,
 				height: 248*2
-			}
+			},
+			state: 'game-over'
 		}
 	});
 	// Mix model methods with some custom attributes accessors/modifiers.
 	return Object.assign(model, {
+		// State
+		state() {
+			return model.get('state');
+		},
+		setState(state) {
+			model.set('state', state);
+			return this;
+		},
 		// Cheat mode
 		cheatMode() {
 			return model.get('cheatMode');
@@ -27,8 +36,20 @@ export default function GameModel() {
 			return this;
 		},
 		// levels
-		bricks(stage) {
+		setStage(stage) {
+			model.set('stage', stage);
+			return this;
+		},
+		stage() {
+			return model.get('stage');
+		},
+		bricks() {
+			const stage = model.get('stage');
 			return createBricks(model.get('levels')[Math.max(stage - 1, 0)]);
+		},
+		nextStage() {
+			const stage = model.get('stage')%levels.length + 1;
+			model.set('stage', stage);
 		},
 		// Lifes
 		lifeCount() {

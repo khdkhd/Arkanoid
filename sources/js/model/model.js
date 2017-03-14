@@ -67,9 +67,11 @@ export default function Model({
 			/**
 			 * Indicates that some attributes have been updated.
 			 * @event Model#changed
-			 * @type {Array} - The name of attributes which have been updated.
+			 * @type {String} - The name of the updated attribute.
 			 */
-			model.emit('changed', Object.keys(attr));
+			for (let [key, value] of Object.entries(attr)) {
+				model.emit('changed', key, value);
+			}
 			return this;
 		},
 		/**

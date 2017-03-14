@@ -14,7 +14,7 @@ export function defaultSerializeData(model) {
 	if (is_nil(model)) {
 		return {};
 	}
-	return model.toJSON();
+	return model.serialize();
 }
 
 export function createElement({el, attributes, classNames, id, tagName}) {

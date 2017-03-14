@@ -3,8 +3,8 @@ import {Model as DefaultModel} from 'model';
 
 export function EventForwarder(model, collection) {
 	return {
-		changed(attr) {
-			collection.emit('model-changed', model, attr);
+		changed(attr, value) {
+			collection.emit('model-changed', model, attr, value);
 		},
 		destroyed() {
 			collection.remove(model);
@@ -65,7 +65,7 @@ export default function Collection({
 	function clear() {
 		for (let [model, handler] of state.models) {
 			unbind(model, handler);
-			state.delete(model);
+			state.models.delete(model);
 		}
 	}
 
@@ -105,8 +105,17 @@ export default function Collection({
 			return state.models.size;
 		},
 		[Symbol.iterator]: () => state.models.keys(),
+		find(predicate) {
+			for (let item of state.models.keys()) {
+				if (predicate(item, collection)) {
+					return item;
+				}
+			}
+		},
 		forEach(iteratee) {
-			state.models.keys().forEach(iteratee);
+			for (let item of state.models.keys()) {
+				iteratee(item);
+			}
 		},
 		filter(predicate) {
 			const res = [];

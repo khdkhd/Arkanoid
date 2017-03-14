@@ -1,11 +1,10 @@
-import {dispatch} from 'common/functional';
+import {dispatch, matcher} from 'common/functional';
 
 import Ball from 'game/ball';
 import Vaus from 'game/vaus';
 import Level  from 'game/level';
 import CreateWalls from 'game/wall';
 import Coordinates from 'graphics/Coordinates';
-import gameKeyboardController from 'game/keyboard-controller';
 
 import Scene from 'graphics/scene';
 
@@ -15,14 +14,11 @@ import Vector from 'maths/vector';
 
 import soundController  from 'sound/arkanoid/sound-controller';
 
-import keyboard from 'ui/keyboard';
-
 import cond from 'lodash.cond';
 import is_nil from 'lodash.isnil';
-import matches from 'lodash.matches';
 import random from 'lodash.random';
 
-export default function GameController({gameModel, gameView}) {
+export default function GameController({gameModel, gameView, keyboard}) {
 	const scene = gameView.scene();
 	const screen = gameView.screen();
 	const gameScene = Scene(Coordinates({
@@ -35,7 +31,6 @@ export default function GameController({gameModel, gameView}) {
 	const ball = Ball(Vector.Null);
 	const vaus = Vaus({x: 1, y: gameScene.height() - 2});
 
-	let paused = false;
 	let running = false;
 
 	//////////////////////////////////////////////////////////////////////////
@@ -145,7 +140,7 @@ export default function GameController({gameModel, gameView}) {
 	}
 
 	function update() {
-		if (!paused) {
+		if (running) {
 			update_ball();
 			update_vaus();
 		}
@@ -155,55 +150,23 @@ export default function GameController({gameModel, gameView}) {
 	// Game state helpers
 
 	function loop() {
-		if (running) {
-			update();
-			screen.render();
-			requestAnimationFrame(loop);
-		}
-	}
-
-	function reset(stage) {
-		level.reset(gameModel.bricks(stage));
-		brickScene.reset().add(...level);
-	}
-
-	function togglePause() {
-		if (paused) {
-			ball.show();
-			vaus.show();
-		} else {
-			ball.hide();
-			vaus.hide();
-		}
-		paused = !paused;
-	}
-
-	function start() {
-		keyboard.use(null);
-		togglePause();
-		if (gameModel.lifeCount() > 0) {
-			if (!running) {
-				running = true;
-				loop();
-			}
-			setTimeout(() => {
-				reset_vaus_position();
-				togglePause();
-				gameModel.takeLife();
-				keyboard.use(gameKeyboardController);
-			}, 2000);
-		} else {
-			running = false;
-		}
+		update();
+		screen.render();
+		requestAnimationFrame(loop);
 	}
 
 	ball
 		.on('hit', cond([
-			[matches('brick'), soundController.ballCollidesWithBricks],
-			[matches('vaus'), soundController.ballCollidesWithVaus],
-			[matches('ground'), () => {
+			[matcher('brick'), soundController.ballCollidesWithBricks],
+			[matcher('vaus'), soundController.ballCollidesWithVaus],
+			[matcher('ground'), () => {
 				soundController.ballGoesOut();
-				start();
+				running = false;
+				if (gameModel.lifeCount() > 0) {
+					gameModel.setState('ready');
+				} else {
+					gameModel.setState('game-over');
+				}
 			}]
 		]));
 
@@ -211,34 +174,65 @@ export default function GameController({gameModel, gameView}) {
 		.on('direction-changed', direction => {
 			vaus.move(direction)
 		})
-		.on('pause', togglePause)
+		.on('pause', () => {
+			gameModel.setState('pause');
+		})
 		.on('fire', () => {
 			if (ball.velocity().isNull()) {
 				ball.setVelocity(Vector({x: 1, y: -1}).toUnit().mul(.2));
 			}
 		});
+	gameModel
+		.on('changed', cond([
+			[matcher('stage'), () => {
+				level.reset(gameModel.bricks());
+				brickScene.reset().add(...level);
+				gameModel.setState('ready');
+			}],
+			[matcher('state', 'pause'), () => {
+				running = false;
+				ball.hide();
+				vaus.hide();
+			}],
+			[matcher('state', 'ready'), () => {
+				running = false;
+				ball.show();
+				vaus.show();
+				gameModel.takeLife();
+				reset_vaus_position();
+				reset_ball_position();
+			}],
+			[matcher('state', 'running'), () => {
+				running = true;
+				ball.show();
+				vaus.show();
+				if (ball.velocity().isNull()) {
+					ball.setVelocity(Vector({x: 1, y: -1}).toUnit().mul(.2));
+				}
+			}]
+		]));
 	level
-		.on('model-changed', (brick) => {
+		.on('model-changed', brick => {
 			gameModel.updateScore(brick.points());
 		})
 		.on('model-destroyed', brick => {
 			brick.hide();
 		})
 		.on('completed', () => {
-			gameModel.emit('stage-completed');
+			ball.hide();
+			vaus.hide();
+			gameModel.gainLife();
+			gameModel.nextStage();
 		});
 
+	vaus.hide();
+	ball.hide();
 	gameScene.add(brickScene, ball, vaus);
 	scene.add(...CreateWalls(scene.width() - 1, scene.height()), gameScene);
 
 	return {
-		pause() {
-			togglePause();
-			return this;
-		},
-		run(stage) {
-			reset(stage);
-			start();
+		run() {
+			loop();
 			return this;
 		}
 	};

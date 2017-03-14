@@ -3,6 +3,7 @@
 @import "buttons";
 @import "dialog";
 @import "overlay";
+@import "game-ui";
 
 html {
 	font-family: $font-family;
@@ -39,7 +40,7 @@ h3 {
 		color: $score-fg-color;
 		font-family: $score-font-family;
 		font-size: $score-font-size;
-		margin: $score-margin 0;
+		margin: $score-margin 1px;
 		text-align: center;
 	}
 	#lifes {
