@@ -1,4 +1,4 @@
-import {VausView} from 'game/vaus';
+import {VausView} from 'game/entities/vaus';
 
 import Coordinates from 'graphics/coordinates';
 import Scene from 'graphics/Scene';

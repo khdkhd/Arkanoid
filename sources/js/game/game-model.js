@@ -1,6 +1,6 @@
 import {Model} from 'model';
 
-import createBricks from 'game/brick';
+import createBricks from 'game/entities/brick';
 import levels from 'game/resources/levels';
 
 const columns = 28;

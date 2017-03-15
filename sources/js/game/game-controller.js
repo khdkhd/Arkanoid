@@ -1,11 +1,11 @@
 import {dispatch, matcher} from 'common/functional';
 
-import Ball from 'game/ball';
-import Vaus from 'game/vaus';
+import Ball from 'game/entities/ball';
+import Vaus from 'game/entities/vaus';
 import Level  from 'game/level';
-import CreateWalls from 'game/wall';
-import Coordinates from 'graphics/Coordinates';
+import CreateWalls from 'game/entities/wall';
 
+import Coordinates from 'graphics/Coordinates';
 import Scene from 'graphics/scene';
 
 import {bounce} from 'physics/collisions';
