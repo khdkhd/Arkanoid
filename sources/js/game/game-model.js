@@ -3,6 +3,9 @@ import {Model} from 'model';
 import createBricks from 'game/brick';
 import levels from 'game/resources/levels';
 
+const columns = 28;
+const rows = 31;
+
 export default function GameModel() {
 	const model = Model({
 		attributes: {
@@ -77,6 +80,15 @@ export default function GameModel() {
 			);
 		},
 		// Size
+		columns() {
+			return columns;
+		},
+		rows() {
+			return rows;
+		},
+		scale() {
+			return Math.round(model.get('size').width/columns);
+		},
 		size() {
 			return model.get('size');
 		},
