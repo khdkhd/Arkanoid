@@ -18,9 +18,9 @@ import cond from 'lodash.cond';
 import is_nil from 'lodash.isnil';
 import random from 'lodash.random';
 
-export default function GameController({gameModel, gameView, keyboard}) {
-	const scene = gameView.scene();
-	const screen = gameView.screen();
+export default function GameController({model, view, keyboard}) {
+	const scene = view.scene();
+	const screen = view.screen();
 	const gameScene = Scene(Coordinates({
 		width: scene.width() - 2,
 		height: scene.height() - 1
@@ -77,7 +77,7 @@ export default function GameController({gameModel, gameView, keyboard}) {
 
 	function ball_goes_out(ball_box, speed) {
 		if (ball_box.bottomY >= gameZone.bottomY) {
-			if(gameModel.cheatMode()) {
+			if(model.cheatMode()) {
 				ball.emit('hit', 'wall');
 				return Vector({x: speed.x, y: -speed.y});
 			} else {
@@ -162,10 +162,10 @@ export default function GameController({gameModel, gameView, keyboard}) {
 			[matcher('ground'), () => {
 				soundController.ballGoesOut();
 				running = false;
-				if (gameModel.lifeCount() > 0) {
-					gameModel.setState('ready');
+				if (model.lifeCount() > 0) {
+					model.setState('ready');
 				} else {
-					gameModel.setState('game-over');
+					model.setState('game-over');
 				}
 			}]
 		]));
@@ -175,19 +175,19 @@ export default function GameController({gameModel, gameView, keyboard}) {
 			vaus.move(direction)
 		})
 		.on('pause', () => {
-			gameModel.setState('pause');
+			model.setState('pause');
 		})
 		.on('fire', () => {
 			if (ball.velocity().isNull()) {
 				ball.setVelocity(Vector({x: 1, y: -1}).toUnit().mul(.2));
 			}
 		});
-	gameModel
+	model
 		.on('changed', cond([
 			[matcher('stage'), () => {
-				level.reset(gameModel.bricks());
+				level.reset(model.bricks());
 				brickScene.reset().add(...level);
-				gameModel.setState('ready');
+				model.setState('ready');
 			}],
 			[matcher('state', 'pause'), () => {
 				running = false;
@@ -198,7 +198,7 @@ export default function GameController({gameModel, gameView, keyboard}) {
 				running = false;
 				ball.show();
 				vaus.show();
-				gameModel.takeLife();
+				model.takeLife();
 				reset_vaus_position();
 				reset_ball_position();
 			}],
@@ -213,7 +213,7 @@ export default function GameController({gameModel, gameView, keyboard}) {
 		]));
 	level
 		.on('model-changed', brick => {
-			gameModel.updateScore(brick.points());
+			model.updateScore(brick.points());
 		})
 		.on('model-destroyed', brick => {
 			brick.hide();
@@ -221,8 +221,8 @@ export default function GameController({gameModel, gameView, keyboard}) {
 		.on('completed', () => {
 			ball.hide();
 			vaus.hide();
-			gameModel.gainLife();
-			gameModel.nextStage();
+			model.gainLife();
+			model.nextStage();
 		});
 
 	vaus.hide();
