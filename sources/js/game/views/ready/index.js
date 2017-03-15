@@ -2,7 +2,7 @@ import {wait} from 'common/utils';
 import Modal from 'ui/modal';
 import View from 'ui/view';
 
-import template from 'game/ui/ready/template.tmpl';
+import template from 'game/views/ready/template.tmpl';
 
 export default function GameReadyView({el, model}) {
 	const childView = View({

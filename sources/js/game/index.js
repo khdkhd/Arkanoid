@@ -1,11 +1,11 @@
-import GameModel from 'game/game-model';
-import GameController from 'game/game-controller';
-import GameView from 'game/game-view';
-import LifeView from 'game/ui/lifes';
-import PauseView from 'game/ui/pause';
-import ReadyView from 'game/ui/ready';
-import ScoreView from 'game/ui/score';
-import StartMenuView from 'game/ui/start-menu';
+import GameModel from 'game/model';
+import GameController from 'game/controller';
+import GameView from 'game/views/game';
+import LifeView from 'game/views/lifes';
+import PauseView from 'game/views/pause';
+import ReadyView from 'game/views/ready';
+import ScoreView from 'game/views/score';
+import StartMenuView from 'game/views/start-menu';
 
 import gameKeyboardController from 'game/keyboard-controller';
 

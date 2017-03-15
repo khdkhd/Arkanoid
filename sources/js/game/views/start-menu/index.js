@@ -2,7 +2,7 @@ import {KeyHandler, default as keyboard} from 'ui/keyboard';
 import Modal from 'ui/modal';
 import View from 'ui/view';
 
-import template from 'game/ui/start-menu/template.tmpl';
+import template from 'game/views/start-menu/template.tmpl';
 
 const gameMenuKeyboardHandler = [
 	KeyHandler({

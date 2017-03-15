@@ -2,7 +2,7 @@ import {KeyHandler, default as keyboard} from 'ui/keyboard';
 import Modal from 'ui/modal';
 import View from 'ui/view';
 
-import template from 'game/ui/pause/template.tmpl';
+import template from 'game/views/pause/template.tmpl';
 
 const gamePauseKeyboardHandler = [
 	KeyHandler({
