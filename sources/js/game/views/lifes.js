@@ -1,7 +1,7 @@
 import {VausView} from 'game/entities/vaus';
 
 import Coordinates from 'graphics/coordinates';
-import Scene from 'graphics/Scene';
+import Scene from 'graphics/scene';
 
 import Vector from 'maths/vector';
 
