@@ -58,6 +58,9 @@ export default function GameModel() {
 		lifeCount() {
 			return model.get('lifes');
 		},
+		resetLifes() {
+			return model.set('lifes', 3);
+		},
 		gainLife() {
 			return model.set('lifes', model.get('lifes') + 1);
 		},

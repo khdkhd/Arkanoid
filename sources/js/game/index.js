@@ -2,6 +2,7 @@ import GameModel from 'game/model';
 import GameController from 'game/controller';
 import GameView from 'game/views/game';
 import LifeView from 'game/views/lifes';
+import GameOverView from 'game/views/game-over';
 import PauseView from 'game/views/pause';
 import ReadyView from 'game/views/ready';
 import ScoreView from 'game/views/score';
@@ -34,13 +35,19 @@ export default function Game() {
 	const gameMenu = StartMenuView({el: ui.el(), model: gameModel});
 	const gameReadyView = ReadyView({el: ui.el(), model: gameModel});
 	const gamePauseView = PauseView({el: ui.el(), model: gameModel});
+	const gameOverView = GameOverView({el: ui.el(), model: gameModel});
 
 	const onGameStateChanged = cond([
+		[matches('start'), () => {
+			gameController.reset();
+			gameMenu.start();
+		}],
 		[matches('ready'), () => {
 			keyboard.use(null);
 			gameReadyView.start();
 		}],
 		[matches('game-over'), () => {
+			gameOverView.start();
 		}],
 		[matches('pause'), () => {
 			gamePauseView.start();
@@ -57,8 +64,8 @@ export default function Game() {
 
 	return Object.assign(ui, {
 		start() {
+			gameModel.setState('start');
 			gameController.run();
-			gameMenu.start();
 		},
 	});
 }

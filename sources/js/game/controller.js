@@ -231,6 +231,11 @@ export default function GameController({model, view, keyboard}) {
 	scene.add(...CreateWalls(scene.width() - 1, scene.height()), gameScene);
 
 	return {
+		reset() {
+			level.reset([]);
+			brickScene.reset();
+			return this;
+		},
 		run() {
 			loop();
 			return this;
