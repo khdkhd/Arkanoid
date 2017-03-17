@@ -20,7 +20,7 @@ export default function Game() {
 	const scoreView = ScoreView({model: gameModel});
 	const lifeView = LifeView({model: gameModel});
 	const gameView = GameView({model: gameModel});
-	const gameController = GameController({gameModel, gameView, keyboard});
+	const gameController = GameController({model:gameModel, view: gameView, keyboard});
 
 	const ui = View({
 		el: document.querySelector('#content-wrapper'),

@@ -5,7 +5,7 @@ import Vaus from 'game/entities/vaus';
 import Level  from 'game/level';
 import CreateWalls from 'game/entities/wall';
 
-import Coordinates from 'graphics/Coordinates';
+import Coordinates from 'graphics/coordinates';
 import Scene from 'graphics/scene';
 
 import {bounce} from 'physics/collisions';
