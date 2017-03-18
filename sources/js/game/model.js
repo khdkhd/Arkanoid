@@ -11,7 +11,7 @@ export default function GameModel() {
 		attributes: {
 			cheatMode: false,
 			levels,
-			lifes: 3,
+			lifes: 0,
 			score: 0,
 			size: {
 				width: 224*2,
@@ -58,8 +58,8 @@ export default function GameModel() {
 		lifeCount() {
 			return model.get('lifes');
 		},
-		resetLifes() {
-			return model.set('lifes', 3);
+		setlifes(count) {
+			return model.set('lifes', count);
 		},
 		gainLife() {
 			return model.set('lifes', model.get('lifes') + 1);

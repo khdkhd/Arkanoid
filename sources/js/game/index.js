@@ -29,8 +29,8 @@ export default function Game() {
 		modelEvents: {
 			changed: cond([
 				[matcher('state', 'start'), (attr, value, view) => {
+					gameModel.reset();
 					StartMenuView({el: view.el(), model: gameModel}).start();
-					gameController.reset();
 				}],
 				[matcher('state', 'ready'), (attr, value, view) => {
 					ReadyView({el: view.el(), model: gameModel}).start();
