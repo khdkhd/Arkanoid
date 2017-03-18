@@ -30,12 +30,8 @@ export function SceneController(state) {
 			}
 			return this;
 		},
-		reset(sceneObjects = []) {
-			for (let sceneObject of state.sceneObjects) {
-				sceneObject.setScene(null);
-			}
-			state.sceneObjects = sceneObjects.slice(0); // fast array clone
-			return this;
+		reset() {
+			return this.remove(...state.sceneObjects);
 		},
 	};
 }

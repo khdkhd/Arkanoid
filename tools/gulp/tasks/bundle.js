@@ -11,7 +11,6 @@ const sourcemaps = require('gulp-sourcemaps');
 const uglify = require('gulp-uglify');
 const watchify = require('watchify');
 
-const transform_SVG = require('tools/browserify/svg');
 const transform_TMPL = require('tools/browserify/template');
 
 const env = require('tools/gulp/env');
@@ -23,14 +22,13 @@ const browserify_base_options = {
 	debug: true,
 	paths: ['node_modules', sources_dir],
 	transform: [[
+		transform_TMPL
+	], [
 		'babelify', {
+			extensions: ['.js', '.tmpl'],
 			presets: ['es2015'],
 			plugins: ['transform-runtime']
 		}
-	], [
-		transform_SVG
-	], [
-		transform_TMPL
 	]]
 };
 
@@ -44,10 +42,10 @@ Object.entries(bundles).forEach(([bundle_name, entry_point]) => {
 	function bundle(bundler) {
 		return bundler
 			.bundle()
-			.on('error', (err) => {
+			.on('error', err => {
 				gutil.log(
 					gutil.colors.red('Browserify compile error: '),
-					err.message, '\n\t'
+					err.toString()
 				);
 				if (env.isProduction) {
 					err.stream.end();

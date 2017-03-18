@@ -14,7 +14,7 @@ export function defaultSerializeData(model) {
 	if (is_nil(model)) {
 		return {};
 	}
-	return model.toJSON();
+	return model.serialize();
 }
 
 export function createElement({el, attributes, classNames, id, tagName}) {
@@ -57,11 +57,18 @@ export function createEventsManager(view, events, modelEventFilter) {
 	const handlers = Object.entries(events).map(([eventName, descriptor]) => {
 		return createEventHandler(eventName, descriptor, view);
 	});
-	const modelEventHandler = (event_name, attribute) => {
-		if (modelEventFilter(event_name, attribute)) {
-			view.render();
+	const modelEventHandler = {
+		changed(attribute) {
+			if (modelEventFilter('changed', attribute)) {
+				view.render();
+			}
+		},
+		reset() {
+			if (modelEventFilter('reset')) {
+				view.render();
+			}
 		}
-	}
+	};
 	let connected = false;
 	return {
 		connect() {
@@ -73,7 +80,9 @@ export function createEventsManager(view, events, modelEventFilter) {
 			}
 			const model = view.model();
 			if (!is_nil(model)) {
-				model.on('changed', modelEventHandler);
+				model
+					.on('changed', modelEventHandler.changed)
+					.on('reset', modelEventHandler.reset);
 			}
 			connected = true;
 		},
@@ -86,7 +95,9 @@ export function createEventsManager(view, events, modelEventFilter) {
 			}
 			const model = view.model();
 			if (!is_nil(model)) {
-				model.removeListener('changed', modelEventHandler);
+				model
+					.removeListener('changed', modelEventHandler.changed)
+					.removeListener('reset', modelEventHandler.reset);
 			}
 			connected = false;
 		}

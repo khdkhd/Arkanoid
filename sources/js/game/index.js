@@ -1,89 +1,71 @@
-import {EventEmitter} from 'events';
+import GameModel from 'game/model';
+import GameController from 'game/controller';
+import GameView from 'game/views/game';
+import LifeView from 'game/views/lifes';
+import GameOverView from 'game/views/game-over';
+import PauseView from 'game/views/pause';
+import ReadyView from 'game/views/ready';
+import ScoreView from 'game/views/score';
+import StartMenuView from 'game/views/start-menu';
 
-import {completeAssign} from 'common/utils';
+import gameKeyboardController from 'game/keyboard-controller';
 
-import Rect from 'maths/rect';
+import keyboard from 'ui/keyboard';
+import View from 'ui/view';
 
-import Controller from 'game/game-controller';
-import LifeCounter from 'game/life-counter';
-import Score from 'game/score';
-import createWalls from 'game/wall';
-
-import Coordinates from 'graphics/coordinates';
-import Scene from 'graphics/scene';
-
-import LifesView from 'game/lifes-view';
-import ScoreView from 'game/score-view';
-
-import ui from 'ui';
-
-ui.screen.setSize({
-	width: 224*2,
-	height: 248*2
-});
+import cond from 'lodash.cond';
+import matches from 'lodash.matches';
 
 export default function Game() {
-	const emitter = new EventEmitter();
-	const lifes = LifesView({el: ui.lifes});
-	const score = ScoreView({el: ui.score});
-	const screen = ui.screen;
+	const gameModel = GameModel();
+	const scoreView = ScoreView({model: gameModel});
+	const lifeView = LifeView({model: gameModel});
+	const gameView = GameView({model: gameModel});
+	const gameController = GameController({model:gameModel, view: gameView, keyboard});
 
-	const scale = Math.round((screen.width/14)/2);
-	const columns = screen.width/scale;
-	const rows = screen.height/scale;
+	const ui = View({
+		el: document.querySelector('#content-wrapper'),
+		onRender(view) {
+			view.el().appendChild(scoreView.render().el());
+			view.el().appendChild(gameView.render().el());
+			view.el().appendChild(lifeView.render().el());
+		},
+	});
 
-	const zone = Rect({x: 1, y: 1}, {width: columns - 2, height: rows - 1});
-	const scene = Scene(Coordinates(zone.size, zone.topLeft));
+	const gameMenu = StartMenuView({el: ui.el(), model: gameModel});
+	const gameReadyView = ReadyView({el: ui.el(), model: gameModel});
+	const gamePauseView = PauseView({el: ui.el(), model: gameModel});
+	const gameOverView = GameOverView({el: ui.el(), model: gameModel});
 
-	const state = {
-		cheatMode: false,
-		end: false,
-		lifes: LifeCounter(3),
-		score: Score(),
-		scene: scene,
-		zone: scene.localRect()
-	};
+	const onGameStateChanged = cond([
+		[matches('start'), () => {
+			gameController.reset();
+			gameMenu.start();
+		}],
+		[matches('ready'), () => {
+			keyboard.use(null);
+			gameReadyView.start();
+		}],
+		[matches('game-over'), () => {
+			gameOverView.start();
+		}],
+		[matches('pause'), () => {
+			gamePauseView.start();
+		}],
+		[matches('running'), () => {
+			keyboard.use(gameKeyboardController);
+		}]
+	]);
 
-	const game_contoller = Controller(state);
+	gameModel
+		.on('changed', cond([
+			[matches('state'), (attr, state) => onGameStateChanged(state)]
+		]));
 
-	function loop() {
-		if (!state.end) {
-			game_contoller.update();
-			screen.render();
-			requestAnimationFrame(loop);
-		} else {
-			emitter.emit('end', state.level);
-		}
-	}
-
-	game_contoller
-		.on('game-over', game_contoller.stop)
-		.on('pause', game_contoller.pause)
-		.on('update-score', state.score.gain)
-		.on('end-of-level', () => {
-			state.end = true;
-		})
-		.on('ball-out', () => {
-			game_contoller.stop();
-			setTimeout(game_contoller.start, 2000);
-		});
-
-	lifes.setModel(state.lifes);
-	score.setModel(state.score);
-	screen
-		.setBackgroundColor('#123')
-		.setScale(scale)
-		.add(...createWalls(columns - 1, rows))
-		.add(scene);
-
-	return completeAssign(emitter, {
-		start(level) {
-			state.end = false;
-			state.level = level;
-			game_contoller
-				.reset()
-				.start();
-			requestAnimationFrame(loop);
-		}
+	return Object.assign(ui, {
+		start() {
+			gameModel.setState('start');
+			gameController.run();
+		},
 	});
 }
