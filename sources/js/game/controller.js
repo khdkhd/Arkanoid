@@ -232,8 +232,10 @@ export default function GameController({model, view, keyboard}) {
 
 	return {
 		reset() {
-			level.reset([]);
+			level.clear();
 			brickScene.reset();
+			ball.hide();
+			vaus.hide();
 			return this;
 		},
 		run() {
