@@ -32,6 +32,13 @@ export default function LifesView({model}) {
 		id: 'lifes',
 		tagName: 'ul',
 		model,
+		modelEvents: {
+			changed(attr, value, view) {
+				if (attr === 'size' || attr === 'lifes') {
+					view.render();
+				}
+			}
+		},
 		onRender(view) {
 			const el = view.el();
 			lifes.forEach(life => life.destroy());
@@ -46,10 +53,6 @@ export default function LifesView({model}) {
 
 				el.appendChild(item);
 			});
-		},
-		modelEventFilter(event_name, attribute) {
-			return event_name === 'changed'
-				&& (attribute === 'size' || attribute === 'lifes');
 		}
 	});
 }
