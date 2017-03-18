@@ -1,5 +1,5 @@
 import Vector from 'maths/vector';
-import Model from 'model';
+import {Model} from 'model';
 
 import is_array from 'lodash.isarray';
 import over_some from 'lodash.oversome';

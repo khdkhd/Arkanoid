@@ -96,7 +96,7 @@ export default function LevelEditorView(levelModel) {
 		.add(
 			editorScene
 				.add(
-					Grid( columns - 2,    rows - 1,     1, editor_grid1_color),
+					Grid( columns - 2,     rows - 1,    1, editor_grid1_color),
 					Grid((columns - 2)/2, (rows - 1)/2, 2, editor_grid2_color),
 					levelScene,
 					mouseDropMark
