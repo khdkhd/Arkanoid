@@ -1,6 +1,7 @@
 import Game from 'game';
+import levels from 'game/resources/levels';
 
-const game = Game();
+const game = Game(levels);
 
 game
 	.on('end', level => {

@@ -1,12 +1,11 @@
 import {Model} from 'model';
 
 import createBricks from 'game/entities/brick';
-import levels from 'game/resources/levels';
 
 const columns = 28;
 const rows = 31;
 
-export default function GameModel() {
+export default function GameModel(levels) {
 	const model = Model({
 		attributes: {
 			cheatMode: false,

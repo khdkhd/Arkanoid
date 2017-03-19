@@ -16,8 +16,8 @@ import View from 'ui/view';
 
 import cond from 'lodash.cond';
 
-export default function Game() {
-	const gameModel = GameModel();
+export default function Game(levels) {
+	const gameModel = GameModel(levels);
 	const scoreView = ScoreView({model: gameModel});
 	const lifeView = LifeView({model: gameModel});
 	const gameView = GameView({model: gameModel});
