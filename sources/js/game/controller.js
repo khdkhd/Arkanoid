@@ -183,11 +183,16 @@ export default function GameController({model, view, keyboard}) {
 			}
 		});
 	model
+		.on('reset', () => {
+			level.clear();
+			brickScene.reset();
+			ball.hide();
+			vaus.hide();
+		})
 		.on('changed', cond([
 			[matcher('stage'), () => {
 				level.reset(model.bricks());
 				brickScene.reset().add(...level);
-				model.setState('ready');
 			}],
 			[matcher('state', 'pause'), () => {
 				running = false;
@@ -231,11 +236,6 @@ export default function GameController({model, view, keyboard}) {
 	scene.add(...CreateWalls(scene.width() - 1, scene.height()), gameScene);
 
 	return {
-		reset() {
-			level.reset([]);
-			brickScene.reset();
-			return this;
-		},
 		run() {
 			loop();
 			return this;

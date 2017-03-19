@@ -1,3 +1,4 @@
+import {matcher} from 'common/functional';
 import GameModel from 'game/model';
 import GameController from 'game/controller';
 import GameView from 'game/views/game';
@@ -14,10 +15,9 @@ import keyboard from 'ui/keyboard';
 import View from 'ui/view';
 
 import cond from 'lodash.cond';
-import matches from 'lodash.matches';
 
-export default function Game() {
-	const gameModel = GameModel();
+export default function Game(levels) {
+	const gameModel = GameModel(levels);
 	const scoreView = ScoreView({model: gameModel});
 	const lifeView = LifeView({model: gameModel});
 	const gameView = GameView({model: gameModel});
@@ -25,42 +25,34 @@ export default function Game() {
 
 	const ui = View({
 		el: document.querySelector('#content-wrapper'),
+		model: gameModel,
+		modelEvents: {
+			changed: cond([
+				[matcher('state', 'start'), (attr, value, view) => {
+					gameModel.reset();
+					StartMenuView({el: view.el(), model: gameModel}).start();
+				}],
+				[matcher('state', 'ready'), (attr, value, view) => {
+					ReadyView({el: view.el(), model: gameModel}).start();
+					keyboard.use(null);
+				}],
+				[matcher('state', 'game-over'), (attr, value, view) => {
+					GameOverView({el: view.el(), model: gameModel}).start();
+				}],
+				[matcher('state', 'pause'), (attr, value, view) => {
+					PauseView({el: view.el(), model: gameModel}).start();
+				}],
+				[matcher('state', 'running'), () => {
+					keyboard.use(gameKeyboardController);
+				}]
+			]),
+		},
 		onRender(view) {
 			view.el().appendChild(scoreView.render().el());
 			view.el().appendChild(gameView.render().el());
 			view.el().appendChild(lifeView.render().el());
 		},
 	});
-
-	const gameMenu = StartMenuView({el: ui.el(), model: gameModel});
-	const gameReadyView = ReadyView({el: ui.el(), model: gameModel});
-	const gamePauseView = PauseView({el: ui.el(), model: gameModel});
-	const gameOverView = GameOverView({el: ui.el(), model: gameModel});
-
-	const onGameStateChanged = cond([
-		[matches('start'), () => {
-			gameController.reset();
-			gameMenu.start();
-		}],
-		[matches('ready'), () => {
-			keyboard.use(null);
-			gameReadyView.start();
-		}],
-		[matches('game-over'), () => {
-			gameOverView.start();
-		}],
-		[matches('pause'), () => {
-			gamePauseView.start();
-		}],
-		[matches('running'), () => {
-			keyboard.use(gameKeyboardController);
-		}]
-	]);
-
-	gameModel
-		.on('changed', cond([
-			[matches('state'), (attr, state) => onGameStateChanged(state)]
-		]));
 
 	return Object.assign(ui, {
 		start() {

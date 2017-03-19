@@ -23,8 +23,9 @@ export default function GameMenuView({el, model}) {
 			keyboard
 				.use(gameMenuKeyboardHandler)
 				.once('spacebar-pressed', () => {
-					model.resetLifes();
+					model.setlifes(3);
 					model.setStage(1);
+					model.setState('ready');
 					modal.stop();
 				});
 		}

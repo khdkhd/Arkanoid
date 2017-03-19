@@ -20,8 +20,12 @@ export default function GameView({model}) {
 				.add(scene);
 		},
 		model,
-		modelEventFilter(event_name, attribute) {
-			return event_name === 'changed' && attribute === 'size';
+		modelEvents: {
+			changed(attr, value, view) {
+				if (attr === 'size') {
+					view.render();
+				}
+			}
 		}
 	});
 	return Object.assign(graphics_view, {
