@@ -193,7 +193,6 @@ export default function GameController({model, view, keyboard}) {
 			[matcher('stage'), () => {
 				level.reset(model.bricks());
 				brickScene.reset().add(...level);
-				model.setState('ready');
 			}],
 			[matcher('state', 'pause'), () => {
 				running = false;

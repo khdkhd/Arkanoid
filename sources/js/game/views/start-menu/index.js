@@ -25,6 +25,7 @@ export default function GameMenuView({el, model}) {
 				.once('spacebar-pressed', () => {
 					model.setlifes(3);
 					model.setStage(1);
+					model.setState('ready');
 					modal.stop();
 				});
 		}
