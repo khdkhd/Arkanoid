@@ -97,7 +97,7 @@ export function VausModel({x, y}) {
 		emitter: new EventEmitter(),
 		padSize: 1,
 		lifes: 3,
-		verlet: VerletModel({
+		coordinates: VerletModel({
 			width: 3,
 			height: 1
 		}, {x, y})
@@ -105,8 +105,8 @@ export function VausModel({x, y}) {
 }
 
 export function VausView(state) {
-	const {verlet} = state;
-	return SceneObject(verlet, {
+	const {coordinates} = state;
+	return SceneObject(coordinates, {
 		onRender(screen) {
 			const pad_size = state.padSize;
 			const brushes = {
@@ -152,7 +152,7 @@ export function VausView(state) {
 }
 
 export function VausController(state) {
-	const {verlet} = state;
+	const {coordinates} = state;
 	let acceleration = Vector.Null;
 	let moving = false;
 	return {
@@ -163,7 +163,7 @@ export function VausController(state) {
 				moving = !direction.isNull();
 				if (moving) {
 					acceleration = direction.mul(thrust);
-				} else if (verlet.velocity().scalar(acceleration) > 0) {
+				} else if (coordinates.velocity().scalar(acceleration) > 0) {
 					acceleration = acceleration.opposite;
 				}
 			}
@@ -172,20 +172,20 @@ export function VausController(state) {
 		update() {
 			const scene = state.scene;
 			if (!is_nil(scene)) {
-				const velocity = verlet.velocity().add(acceleration);
+				const velocity = coordinates.velocity().add(acceleration);
 				const scalar = velocity.scalar(acceleration);
 				const speed = Math.abs(velocity.x); // equivalent to velocity.norm
 				const thrust = 1/16;
 				const max_speed = 8/16;
 
 				if (!moving && speed <= thrust) {
-					verlet.setVelocity(Vector.Null);
+					coordinates.setVelocity(Vector.Null);
 				} else if (moving && scalar >= 0 && Math.abs(speed - max_speed) <= thrust) {
-					verlet.setVelocity(Vector({x: Math.sign(acceleration.x)*max_speed, y: 0}));
+					coordinates.setVelocity(Vector({x: Math.sign(acceleration.x)*max_speed, y: 0}));
 				} else {
-					verlet.setVelocity(velocity);
+					coordinates.setVelocity(velocity);
 				}
-				verlet.update();
+				coordinates.update();
 			}
 			return this;
 		},
@@ -194,14 +194,14 @@ export function VausController(state) {
 		},
 		setPadSize(pad_size) {
 			state.padSize = Math.round(pad_size);
-			state.verlet.setSize({
+			state.coordinates.setSize({
 				width: 2 + pad_size,
 				height: 1
 			});
 			return this;
 		},
 		reset({x, y}) {
-			verlet
+			coordinates
 				.setVelocity(Vector.Null)
 				.setPosition(Vector({x, y}));
 			return this;
@@ -213,7 +213,7 @@ export function Vaus({x, y}) {
 	const state = VausModel({x, y});
 	return completeAssign(
 		state.emitter,
-		state.verlet,
+		state.coordinates,
 		VausView(state),
 		VausController(state)
 	);

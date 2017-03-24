@@ -3,7 +3,11 @@ import View from 'ui/view';
 import is_nil from 'lodash.isnil';
 import noop from 'lodash.noop';
 
-export function RadioButton({role, id, name = ''} = {}) {
+export default function RadioButton({
+	role,
+	id,
+	name = ''
+} = {}) {
 	return View({
 		id,
 		attributes: Object.assign(
@@ -18,23 +22,5 @@ export function RadioButton({role, id, name = ''} = {}) {
 		},
 		onRender: noop,
 		tagName: 'input'
-	});
-}
-
-export function PushButton({
-	role,
-	label = ''
-} = {}) {
-	return View({
-		attributes: !is_nil(role) ? {'data-role': role} : {},
-		events: {
-			click(view) {
-				view.emit('click', role);
-			}
-		},
-		onRender(view) {
-			view.el().innerHTML = label;
-		},
-		tagName: 'button'
 	});
 }

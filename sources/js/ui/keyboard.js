@@ -1,5 +1,6 @@
 import cond from 'lodash.cond';
 import is_nil from 'lodash.isnil';
+import noop from 'lodash.noop';
 import EventEmitter from 'events';
 
 import {completeAssign} from 'common/utils';
@@ -24,15 +25,16 @@ function create_key_handler({
 	event,
 	on_keydown,
 	on_keyup,
-	on_keypressed,
+	on_keypressed = noop,
 	repeat = true}) {
 	let pressed = false;
 	const invoke = (handler, arg) => {
 		const data = handler(arg);
 		return Object.assign({event}, is_nil(data) ? {} : {data});
 	}
-	const callbacks = Object.assign(is_nil(on_keypressed)
-		? {
+	if (!(is_nil(on_keydown) || is_nil(on_keyup))) {
+		return {
+			code,
 			keydown(arg) {
 				if (!pressed || repeat) {
 					pressed = true;
@@ -44,9 +46,13 @@ function create_key_handler({
 				return invoke(on_keyup, arg);
 			}
 		}
-		: {keypress(arg) {return invoke(on_keypressed, arg);}}
-	);
-	return Object.assign({code}, callbacks);
+	}
+	return {
+		code,
+		keypress(arg) {
+			return invoke(on_keypressed, arg);
+		}
+	};
 }
 
 const keys = {
@@ -114,5 +120,6 @@ export default completeAssign(emitter, keys, {
 				document.addEventListener(event, state[event]);
 			}
 		}
+		return this;
 	}
 });
