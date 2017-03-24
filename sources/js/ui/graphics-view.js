@@ -9,6 +9,7 @@ export function MouseEventsHandler({
 	onMouseEnter = noop,
 	onMouseLeave = noop,
 	onMouseMove = noop,
+	onMouseWheel = noop,
 	throttleWait = 64
 } = {}) {
 	const mousemove = throttle(
@@ -25,6 +26,9 @@ export function MouseEventsHandler({
 		mouseleave(view, ev) {
 			mousemove.cancel();
 			return onMouseLeave(view, ev);
+		},
+		wheel(view, ev){
+			return onMouseWheel(view, ev);
 		},
 		mousemove
 	};
