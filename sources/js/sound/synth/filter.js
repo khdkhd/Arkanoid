@@ -1,4 +1,4 @@
-import { create_audio_model } from 'sound/common/utils';
+import Model from 'sound/common/model';
 
 export default({audio_context})=> {
 
@@ -17,22 +17,22 @@ export default({audio_context})=> {
 
 		const filter = audio_context.createBiquadFilter();
 
-		const frequency = create_audio_model({
+		const frequency = Model({
 			param: filter.frequency,
 			range: frequency_range
 		});
 
-		const gain = create_audio_model({
+		const gain = Model({
 			param: filter.gain,
 			range: gain_range
 		});
 
-		const Q = create_audio_model({
+		const Q = Model({
 			param: filter.Q,
 			range: Q_range
 		});
 
-		const type = create_audio_model({
+		const type = Model({
 			param : {
 				get value(){
 					return filter.type;
@@ -44,13 +44,14 @@ export default({audio_context})=> {
 		});
 
 		return {
-			connect({input}){
+			connect({input, connect}){
 				filter.connect(input);
+				return {connect};
 			},
 			get input(){
 				return filter;
 			},
-			get param(){
+			get lfoIn(){
 				return filter.frequency;
 			},
 			get type(){

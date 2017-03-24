@@ -1,19 +1,19 @@
 import mono from 'sound/synth/mono';
-import { create_audio_model } from 'sound/common/utils';
+import Model  from 'sound/common/model';
 
 export default({audio_context}) => {
 
 	const voices = {};
 	const channel_merger = audio_context.createChannelMerger();
-	let _type = 'sine';
+	let type_value = 'sine';
 
-	const type = create_audio_model({
+	const type = Model({
 		param: {
 			get value(){
-				return _type;
+				return type_value;
 			},
 			set value(value){
-				_type = value;
+				type_value = value;
 			}
 		}
 	});
@@ -30,11 +30,12 @@ export default({audio_context}) => {
 		noteOff(freq, time) {
 			voices[freq].noteOff(time);
 		},
-		connect({input}){
+		connect({input, connect}){
 			channel_merger.connect(input);
+			return {connect};
 		},
-		get param(){
-			return Object.values(voices).map(voice => voice.param);
+		get envIn(){
+			return Object.values(voices).map(voice => voice.envIn);
 		},
 		get type(){
 			return type;

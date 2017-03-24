@@ -1,11 +1,11 @@
-import { create_audio_model } from 'sound/common/utils';
+import Model  from 'sound/common/model';
 import constant from 'lodash.constant';
 
 export default({audio_context}) => {
 
 	const _gain = audio_context.createGain();
 
-	const gain = create_audio_model({
+	const gain = Model({
 		param: _gain.gain,
 		init: constant(0),
 		range: {
@@ -15,8 +15,9 @@ export default({audio_context}) => {
 	});
 
 	return {
-		connect({input}) {
+		connect({input, connect}) {
 			_gain.connect(input);
+			return {connect};
 		},
 		get input() {
 			return _gain;

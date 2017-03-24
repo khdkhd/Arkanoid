@@ -1,4 +1,4 @@
-import { create_audio_model } from 'sound/common/utils';
+import Model from 'sound/common/model';
 
 export default({audio_context})=> {
 
@@ -14,17 +14,17 @@ export default({audio_context})=> {
 		const osc = audio_context.createOscillator();
 		const gain = audio_context.createGain();
 
-		const frequency = create_audio_model({
+		const frequency = Model({
 			param: osc.frequency,
 			range: frequency_range
 		})
 
-		const amplitude = create_audio_model({
+		const amplitude = Model({
 			param: gain.gain,
 			range: gain_range
 		});
 
-		const type = create_audio_model({
+		const type = Model({
 			param: {
 				set value(value){
 					osc.type = value;
@@ -37,9 +37,9 @@ export default({audio_context})=> {
 
 
 		return {
-			connect({param}){
+			connect({lfoIn}){
 				osc.connect(gain);
-				gain.connect(param);
+				gain.connect(lfoIn);
 				osc.start();
 			},
 			get frequency(){

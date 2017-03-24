@@ -1,26 +1,26 @@
-import { create_audio_model } from 'sound/common/utils';
+import Model from 'sound/common/model';
 
 export default()=>{
 
-		const attack = create_audio_model({
+		const attack = Model({
 			range: {
 				min: 0,
 				max: 1
 			}
 		});
-		const decay = create_audio_model({
+		const decay = Model({
 			range: {
 				min: 0,
 				max: 1
 			}
 		});
-		const sustain = create_audio_model({
+		const sustain = Model({
 			range: {
 				min: 0,
 				max: 1
 			}
 		});
-		const release = create_audio_model({
+		const release = Model({
 			range: {
 				min: 0,
 				max: 4
@@ -49,13 +49,13 @@ export default()=>{
 		}
 
 		return {
-			connect({param}){
-				param.isControlled = true;
-				params.push(param);
-				param.on('noteon', time => {
+			connect({envIn}){
+				envIn.hasEnv = true;
+				params.push(envIn);
+				envIn.on('noteon', time => {
 					gateOn(time);
 				});
-				param.on('noteoff', ({time, onComplete}) => {
+				envIn.on('noteoff', ({time, onComplete}) => {
 					onComplete(gateOff(time));
 				});
 			},

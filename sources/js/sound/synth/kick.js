@@ -32,8 +32,6 @@
 		noteOff() {	},
 		connect({input}){
 			channel_merger.connect(input.input);
-		},
-		get param(){
 			return null
 		},
 		get type(){

@@ -1,56 +1,58 @@
-import { create_audio_model } from 'sound/common/utils';
-
+import Model from 'sound/common/model';
+import is_nil from 'lodash.isnil';
 
 export default({audio_context}) => {
 
-	let _osc;
-	let _type = 'sine';
+	let osc;
+	let type_value = 'sine';
 
 	const gain = audio_context.createGain();
 
-	const type = create_audio_model({
+	const type = Model({
 		param: {
 			get value(){
-				return _type;
+				return type;
 			},
 			set value(value){
-				_type = value;
+				type_value = value;
 			}
 		}
 	});
 
-	const _param = create_audio_model({
+	const envIn = Model({
 		param: gain.gain
 	});
 
 	return {
-		connect({input}) {
+		connect({input, connect}) {
 			gain.connect(input);
+			return {connect};
 		},
-		noteOn(freq, time) {
-			_osc = audio_context.createOscillator();
-			_osc.frequency.value = freq;
-			_osc.type = _type;
-			_osc.connect(gain);
-			_param.emit('noteon', time);
-			_osc.start(time);
+		noteOn(freq, time, velocity = 1) {
+			osc = audio_context.createOscillator();
+			osc.frequency.value = freq;
+			osc.type = type_value;
+			gain.gain.value *= velocity;
+			osc.connect(gain);
+			envIn.emit('noteon', time);
+			osc.start(time);
 		},
 		noteOff(time){
-			if(!_param.isControlled){
-				return _osc.stop(time);
+			if(!envIn.hasEnv){
+				return osc.stop(time);
 			}
-			_param.emit('noteoff', {
+			envIn.emit('noteoff', {
 				time,
 				onComplete(time){
-					_osc.stop(time);
+					osc.stop(time);
 				}
 			});
 		},
 		get type(){
 			return type;
 		},
-		get param(){
-			return _param;
+		get envIn(){
+			return envIn;
 		}
 	};
 }

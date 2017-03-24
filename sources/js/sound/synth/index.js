@@ -4,8 +4,8 @@ import lfo from 'sound/synth/lfo';
 import mono from 'sound/synth/mono';
 import poly from 'sound/synth/poly';
 import amp from 'sound/synth/amp';
-
-import { get_frequency_of_note } from 'sound/common/utils';
+import Note from 'sound/sequencer/note';
+import distortion from 'sound/synth/distortion';
 
 const factory = {
 	enveloppe,
@@ -13,9 +13,9 @@ const factory = {
 	lfo,
 	mono,
 	poly,
-	amp
+	amp,
+	distortion
 };
-
 
 export default ({audio_context}) => {
 
@@ -23,7 +23,7 @@ export default ({audio_context}) => {
 	let output, nodes;
 
 	/**
-	 * Creates an audio node from a json object description
+	 * Creates an audio node from a description object
 	 */
 	function create_node(desc){
 		const node_factory = factory[desc.factory];
@@ -65,9 +65,9 @@ export default ({audio_context}) => {
 		connect({input}){
 			output.connect(input);
 		},
-		noteOn(note, octave, time){
+		noteOn(note, octave, time, velocity = 1){
 			for(let voice of voices){
-				voice.noteOn(get_frequency_of_note(note, octave), time);
+				voice.noteOn(Note.getFrequency(note, octave), time, velocity);
 			}
 		},
 		noteOff(note, octave, time){

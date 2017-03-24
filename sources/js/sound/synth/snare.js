@@ -42,8 +42,9 @@ export default ({audio_context})  => {
       noise.stop(time + 0.2);
     },
     noteOff() {	},
-    connect({input}){
+    connect({input, connect}){
       channel_merger.connect(input.input);
+      return {input, connect};
     },
     get param(){
       return null
