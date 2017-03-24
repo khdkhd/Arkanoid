@@ -8,7 +8,7 @@ export default function PushButton({
 } = {}) {
 	return View({
 		attributes: !is_nil(role) ? {'data-role': role} : {},
-		events: {
+		domEvents: {
 			click(view) {
 				view.emit('click', role);
 			}

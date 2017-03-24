@@ -37,6 +37,7 @@ export default function Model({
 		destroy() {
 			onBeforeDestroy(model);
 			model.emit('destroyed');
+			model.removeAllListeners();
 			return this;
 		},
 		/**

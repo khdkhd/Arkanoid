@@ -100,10 +100,7 @@ export function BrickModel(state) {
 		attributes: {
 			color: state.color,
 			hits: state.hits,
-			position: {
-				x: state.x,
-				y: state.y
-			}
+			position: state.position
 		}
 	});
 	return Object.assign(model, {

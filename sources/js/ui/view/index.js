@@ -34,7 +34,7 @@ export default ({
 	attributes = {},
 	classNames = [],
 	el = null,
-	events = {},
+	domEvents = {},
 	modelEvents = {},
 	id = '',
 	model = null,
@@ -48,7 +48,7 @@ export default ({
 	const view = new EventEmitter();
 	const state = {
 		el,
-		domEventsManager: DOMEventsManager(view, events),
+		domEventsManager: DOMEventsManager(view, domEvents),
 		modelEventsManager: ModelEventsManager(view, modelEvents),
 		model,
 		template
@@ -88,7 +88,6 @@ export default ({
 			}
 			onRender(view);
 			view.connect();
-			state.domEventsManager.connect();
 			return this;
 		},
 		connect() {

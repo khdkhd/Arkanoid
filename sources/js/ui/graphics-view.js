@@ -6,6 +6,8 @@ import throttle from 'lodash.throttle';
 
 export function MouseEventsHandler({
 	onClick = noop,
+	onMouseDown = noop,
+	onMouseUp = noop,
 	onMouseEnter = noop,
 	onMouseLeave = noop,
 	onMouseMove = noop,
@@ -19,6 +21,12 @@ export function MouseEventsHandler({
 	return {
 		click(view, ev) {
 			return onClick(view, ev);
+		},
+		mousedown(view, ev) {
+			return onMouseDown(view, ev);
+		},
+		mouseup(view, ev) {
+			return onMouseUp(view, ev);
 		},
 		mouseenter(view, ev) {
 			return onMouseEnter(view, ev);
@@ -39,7 +47,8 @@ export default function GraphicsView({
 	classNames = [],
 	canvas = null,
 	id = '',
-	events = {},
+	modelEvents = {},
+	domEvents = {},
 	onBeforeRender = noop,
 	model,
 	modelEventFilter = noop
@@ -48,7 +57,8 @@ export default function GraphicsView({
 	const screen = Screen(el.getContext('2d'));
 	return Object.assign(View({
 		el,
-		events,
+		domEvents,
+		modelEvents,
 		onBeforeRender() {
 			onBeforeRender(screen);
 		},

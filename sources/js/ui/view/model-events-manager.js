@@ -6,17 +6,14 @@ export function createEventHandlers(view, events) {
 		reset:   () => view.render(),
 		destroy: () => view.destroy()
 	}, events);
-	return {
-		changed(attr, value) {
-			events.changed(attr, value, view);
-		},
-		reset() {
-			events.reset(view);
-		},
-		destroy() {
-			events.destroy(view);
-		}
-	}
+	return Object.assign.apply(
+		null,
+		Object.entries(events).map(([event_name, handler]) => ({
+			[event_name]: (...args) => {
+				handler.apply(view, args.concat(view));
+			}
+		}))
+	);
 }
 
 export default function ModelEventsManager(view, events) {
@@ -27,20 +24,18 @@ export default function ModelEventsManager(view, events) {
 			const model = view.model();
 			if (!(connected || is_nil(model))) {
 				connected = true;
-				model
-					.on('changed', handlers.changed)
-					.on('reset', handlers.reset)
-					.on('destroy', handlers.destroy);
+				Object.entries(handlers).forEach(([event_name, callback]) => {
+					model.on(event_name, callback);
+				});
 			}
 		},
 		disconnect() {
 			const model = view.model();
 			if (connected && !is_nil(model)) {
 				connected = false;
-				model
-					.removeListener('changed', handlers.changed)
-					.removeListener('reset', handlers.reset)
-					.removeListener('destroy', handlers.destroy);
+				Object.entries(handlers).forEach(([event_name, callback]) => {
+					model.removeListener(event_name, callback);
+				});
 			}
 		}
 	};
