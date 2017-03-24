@@ -15,7 +15,7 @@ export default function RadioButton({
 			{name},
 			{type: 'radio'}
 		),
-		events: {
+		domEvents: {
 			change(view) {
 				view.emit('click', role);
 			}

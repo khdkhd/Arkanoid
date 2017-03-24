@@ -84,6 +84,9 @@ $brick-colors: (
 				&[data-role="import"]::before {
 					content: '\f093';
 				}
+				&[data-role="play"]::before {
+					content: '\f144';
+				}
 			}
 		}
 	}

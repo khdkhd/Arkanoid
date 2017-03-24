@@ -184,7 +184,7 @@ export default function GameController({model, view, keyboard}) {
 		});
 	model
 		.on('reset', () => {
-			level.clear();
+			level.reset();
 			brickScene.reset();
 			ball.hide();
 			vaus.hide();
@@ -217,10 +217,10 @@ export default function GameController({model, view, keyboard}) {
 			}]
 		]));
 	level
-		.on('model-changed', brick => {
+		.on('itemChanged', brick => {
 			model.updateScore(brick.points());
 		})
-		.on('model-destroyed', brick => {
+		.on('itemDestroyed', brick => {
 			brick.hide();
 		})
 		.on('completed', () => {

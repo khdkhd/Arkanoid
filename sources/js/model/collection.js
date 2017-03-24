@@ -1,134 +1,112 @@
-import EventEmitter from 'events';
-import {Model as DefaultModel} from 'model';
+import {Model} from 'model';
+import flatten from 'lodash.flatten';
+import noop from 'lodash.noop';
 
-export function EventForwarder(model, collection) {
-	return {
-		changed(attr, value) {
-			collection.emit('model-changed', model, attr, value);
-		},
-		destroyed() {
-			collection.remove(model);
-			collection.emit('model-destroyed', model);
-		},
-		reset() {
-			collection.emit('model-reset', model);
+export function CollectionBinder(state) {
+	return item => {
+		const on_changed = (attr, value) => state.collection.emit('itemChanged', item, attr, value);
+		const on_reset   = () => state.collection.emit('item-reset', item);
+		const on_destroy = () => {
+			item
+				.removeListener('changed', on_changed)
+				.removeListener('reset', on_reset);
+			state.collection.emit('itemDestroyed', item);
+			state.items.delete(item);
+		};
+		return item
+			.on('changed', on_changed)
+			.on('reset', on_reset)
+			.once('destroyed', on_destroy);
+	};
+}
+
+export function CollectionInserter(state) {
+	const bind = CollectionBinder(state);
+	return items => {
+		items = items.filter(item => !state.items.has(item));
+		items.forEach(item => {
+			state.items.add(item);
+			bind(item, state);
+			state.collection.emit('itemAdded', item);
+		});
+		return items;
+	};
+}
+
+export function CollectionClearer(state) {
+	return () => {
+		for (let item of state.items) {
+			state.items.delete(item);
+			item.destroy();
 		}
 	};
 }
 
 export default function Collection({
-	models = [],
-	Model = DefaultModel
+	attributes = {},
+	items = [],
+	ItemModel = Model,
+	onBeforeDestroy = noop
 } = {}) {
-	const collection = new EventEmitter();
 	const state = {
-		models: new Map()
+		items: new Set(items),
+		collection: new Model({
+			attributes,
+			onBeforeDestroy(collection) {
+				onBeforeDestroy(collection);
+				collection.clear();
+			}
+		})
 	};
 
-	function bind(model) {
-		const handler = EventForwarder(model, collection);
-		for (let event_name of ['changed', 'destroyed', 'reset']) {
-			model.on(event_name, handler[event_name]);
-		}
-		return [model, handler];
-	}
+	const {reset, serialize} = state.collection;
+	const add = CollectionInserter(state);
+	const clear = CollectionClearer(state);
 
-	function unbind(model, handler) {
-		for (let event_name of ['changed', 'destroyed', 'reset']) {
-			model.removeListener(event_name, handler[event_name]);
-		}
-	}
-
-	function add(models) {
-		return models.filter(model => {
-			if (!state.models.has(model)) {
-				const [, handler] = bind(model);
-				state.models.set(model, handler);
-				return true;
-			}
-			return false;
-		});
-	}
-
-	function remove(models) {
-		return (models).filter(model => {
-			if (state.models.has(model)) {
-				const handler = state.models.get(model);
-				unbind(model, handler);
-				state.models.delete(model);
-				return true;
-			}
-			return false;
-		});
-	}
-
-	function clear() {
-		for (let [model, handler] of state.models) {
-			unbind(model, handler);
-			state.models.delete(model);
-		}
-	}
-
-	return Object.assign(collection, {
-		add(...models) {
-			const added = add(models);
-			if (added.length > 0) {
-				collection.emit('add', added);
-			}
-			return this;
-		},
-		clear() {
-			clear();
-			collection.emit('clear');
+	return Object.assign(state.collection, {
+		add(...items) {
+			add(flatten(items));
 			return this;
 		},
 		create(...args) {
-			const model = Model(...args);
-			add([model]);
-			collection.emit('add', model);
+			const item = ItemModel(...args);
+			add([item]);
 			return this;
 		},
-		remove(...models) {
-			const removed = remove(models);
-			if (removed.length > 0) {
-				collection.emit('remove', removed);
-			}
-			return this;
-		},
-		reset(models) {
+		reset(items = []) {
 			clear();
-			add(models);
-			collection.emit('reset');
+			reset(); // call Model.reset
+			add(items);
 			return this;
 		},
 		get length() {
-			return state.models.size;
+			return state.items.size;
 		},
-		[Symbol.iterator]: () => state.models.keys(),
+		[Symbol.iterator]: () => state.items.values(),
 		find(predicate) {
-			for (let item of state.models.keys()) {
-				if (predicate(item, collection)) {
+			for (let item of state.items) {
+				if (predicate(item, state.collection)) {
 					return item;
 				}
 			}
 		},
 		forEach(iteratee) {
-			for (let item of state.models.keys()) {
+			for (let item of state.items) {
 				iteratee(item);
 			}
 		},
 		filter(predicate) {
 			const res = [];
-			for (let item of state.models.keys()) {
-				if (predicate(item, collection)) {
+			for (let item of state.items) {
+				if (predicate(item, state.collection)) {
 					res.push(item);
 				}
 			}
 			return res;
 		},
 		every(predicate) {
-			for (let item of state.models.keys()) {
-				if (!predicate(item, collection)) {
+			for (let item of state.items) {
+				if (!predicate(item, state.collection)) {
 					return false;
 				}
 			}
@@ -136,32 +114,31 @@ export default function Collection({
 		},
 		map(iteratee) {
 			const res = [];
-			for (let item of state.models.keys()) {
-				res.push(iteratee(item, collection));
+			for (let item of state.items) {
+				res.push(iteratee(item, state.collection));
 			}
 			return res;
 		},
 		reduce(iteratee, initial_value) {
 			let accumulator = initial_value;
-			for (let item of state.models.keys()) {
-				accumulator = iteratee(accumulator, item, collection);
+			for (let item of state.items) {
+				accumulator = iteratee(accumulator, item, state.collection);
 			}
 			return accumulator;
 		},
 		some(predicate) {
-			for (let item of state.models.keys()) {
-				if (predicate(item, collection)) {
+			for (let item of state.items) {
+				if (predicate(item, state.collection)) {
 					return true;
 				}
 			}
 			return false;
 		},
 		serialize() {
-			const res = [];
-			for (let item of state.models.keys()) {
-				res.push(item.serialize());
-			}
-			return res;
+			return Object.assign(
+				serialize(),
+				{items: state.collection.map(item => item.serialize())}
+			);
 		}
-	}).add(...models);
+	});
 }

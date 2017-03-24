@@ -1,6 +1,7 @@
 import {completeAssign} from 'common/utils';
 import SceneObject from 'graphics/scene-object';
 
+import flatten from 'lodash.flatten';
 import remove from 'lodash.remove';
 
 export function SceneModel(options) {
@@ -13,7 +14,7 @@ export function SceneModel(options) {
 export function SceneController(state) {
 	return {
 		add(...sceneObjects) {
-			for (let sceneObject of sceneObjects) {
+			for (let sceneObject of flatten(sceneObjects)) {
 				remove(state.sceneObjects, sceneObject);
 				state.sceneObjects.push(sceneObject);
 				state.sceneObjects.sort((a, b) => a.zIndex() - b.zIndex());
@@ -24,14 +25,14 @@ export function SceneController(state) {
 			return this;
 		},
 		remove(...sceneObjects) {
-			for (let sceneObject of sceneObjects) {
+			for (let sceneObject of flatten(sceneObjects)) {
 				remove(state.sceneObjects, sceneObject);
 				sceneObject.setScene(null);
 			}
 			return this;
 		},
 		reset() {
-			return this.remove(...state.sceneObjects);
+			return this.remove(state.sceneObjects);
 		},
 	};
 }
