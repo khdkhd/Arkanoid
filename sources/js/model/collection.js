@@ -10,8 +10,8 @@ export function CollectionBinder(state) {
 			item
 				.removeListener('changed', on_changed)
 				.removeListener('reset', on_reset);
-			state.collection.emit('itemDestroyed', item);
 			state.items.delete(item);
+			state.collection.emit('itemDestroyed', item);
 		};
 		return item
 			.on('changed', on_changed)
