@@ -1,4 +1,3 @@
-import GameModel from 'game/model';
 import {KeyHandler, default as keyboard} from 'ui/keyboard';
 import Modal from 'ui/modal';
 import View from 'ui/view';
@@ -12,7 +11,7 @@ const gamePauseKeyboardHandler = [
 	})
 ];
 
-export default function PauseMenuView({el, model}) {
+export default function PauseMenuView({el}) {
 	const childView = View({
 		id: 'game-ui',
 		template
@@ -21,12 +20,14 @@ export default function PauseMenuView({el, model}) {
 		el,
 		childView,
 		onStart(modal) {
-			keyboard
-				.use(gamePauseKeyboardHandler)
-				.once('continue', () => {
-					modal.stop();
-					model.setState(GameModel.state.Running);
-				});
+			return new Promise(resolve => {
+				keyboard
+					.use(gamePauseKeyboardHandler)
+					.once('continue', () => {
+						modal.stop();
+						resolve();
+					});
+			});
 		}
 	});
 }

@@ -1,7 +1,5 @@
 import {wait} from 'common/utils';
 
-import GameModel from 'game/model';
-
 import Modal from 'ui/modal';
 import View from 'ui/view';
 
@@ -17,14 +15,13 @@ export default function GameReadyView({el, model}) {
 		el,
 		childView,
 		onStart(modal) {
-			wait(1000)
+			return wait(1000)
 				.then(() => {
 					childView.$el('.hidden').forEach(el => el.className = '');
 					return wait(1000);
 				})
 				.then(() => {
 					modal.stop();
-					model.setState(GameModel.state.Running);
 				});
 		}
 	});

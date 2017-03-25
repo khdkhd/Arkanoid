@@ -27,23 +27,38 @@ export default function Game(levels) {
 		el: document.querySelector('#content-wrapper'),
 		model: gameModel,
 		modelEvents: {
-			reset(view) {
-				StartMenuView({el: view.el(), model: gameModel}).start();
-			},
 			changed: cond([
 				[matcher('state', GameModel.state.Stopped), (attr, value, view) => {
 					gameModel.reset();
-					StartMenuView({el: view.el(), model: gameModel}).start();
-				}],
-				[matcher('state', GameModel.state.Ready), (attr, value, view) => {
-					ReadyView({el: view.el(), model: gameModel}).start();
-					keyboard.use(null);
+					StartMenuView({el: view.el()})
+						.start()
+						.then(() => {
+							gameModel.setlifes(3);
+							gameModel.setStage(1);
+							gameModel.setState(GameModel.state.Ready);
+						});
 				}],
 				[matcher('state', GameModel.state.GameOver), (attr, value, view) => {
-					GameOverView({el: view.el(), model: gameModel}).start();
+					GameOverView({el: view.el()})
+						.start()
+						.then(() => {
+							gameModel.setState(GameModel.state.Stopped);
+						});
 				}],
 				[matcher('state', GameModel.state.Paused), (attr, value, view) => {
-					PauseView({el: view.el(), model: gameModel}).start();
+					PauseView({el: view.el()})
+						.start()
+						.then(() => {
+							gameModel.setState(GameModel.state.Running);
+						});
+				}],
+				[matcher('state', GameModel.state.Ready), (attr, value, view) => {
+					keyboard.use(null);
+					ReadyView({el: view.el(), model: gameModel})
+						.start()
+						.then(() => {
+							gameModel.setState(GameModel.state.Running);
+						});
 				}],
 				[matcher('state', GameModel.state.Running), () => {
 					keyboard.use(gameKeyboardController);
@@ -59,7 +74,7 @@ export default function Game(levels) {
 
 	return Object.assign(ui, {
 		start() {
-			gameModel.reset();
+			gameModel.setState(GameModel.state.Stopped);
 			gameController.run();
 		},
 	});

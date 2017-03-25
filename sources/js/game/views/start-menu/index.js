@@ -1,5 +1,3 @@
-import GameModel from 'game/model';
-
 import {KeyHandler, default as keyboard} from 'ui/keyboard';
 import Modal from 'ui/modal';
 import View from 'ui/view';
@@ -13,7 +11,7 @@ const gameMenuKeyboardHandler = [
 	})
 ];
 
-export default function GameMenuView({el, model}) {
+export default function GameMenuView({el}) {
 	const childView = View({
 		id: 'game-ui',
 		template
@@ -22,14 +20,14 @@ export default function GameMenuView({el, model}) {
 		el,
 		childView,
 		onStart(modal) {
-			keyboard
-				.use(gameMenuKeyboardHandler)
-				.once('spacebar-pressed', () => {
-					model.setlifes(3);
-					model.setStage(1);
-					model.setState(GameModel.state.Ready);
-					modal.stop();
-				});
+			return new Promise(resolve => {
+				keyboard
+					.use(gameMenuKeyboardHandler)
+					.once('spacebar-pressed', () => {
+						modal.stop();
+						resolve();
+					});
+			});
 		}
 	});
 }
