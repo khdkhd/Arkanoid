@@ -1,3 +1,4 @@
+import GameModel from 'game/model';
 import {KeyHandler, default as keyboard} from 'ui/keyboard';
 import Modal from 'ui/modal';
 import View from 'ui/view';
@@ -24,7 +25,7 @@ export default function PauseMenuView({el, model}) {
 				.use(gamePauseKeyboardHandler)
 				.once('continue', () => {
 					modal.stop();
-					model.setState('running');
+					model.setState(GameModel.state.Running);
 				});
 		}
 	});

@@ -1,4 +1,7 @@
 import {wait} from 'common/utils';
+
+import GameModel from 'game/model';
+
 import Modal from 'ui/modal';
 import View from 'ui/view';
 
@@ -21,7 +24,7 @@ export default function GameReadyView({el, model}) {
 				})
 				.then(() => {
 					modal.stop();
-					model.setState('running');
+					model.setState(GameModel.state.Running);
 				});
 		}
 	});

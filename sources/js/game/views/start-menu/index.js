@@ -1,3 +1,5 @@
+import GameModel from 'game/model';
+
 import {KeyHandler, default as keyboard} from 'ui/keyboard';
 import Modal from 'ui/modal';
 import View from 'ui/view';
@@ -25,7 +27,7 @@ export default function GameMenuView({el, model}) {
 				.once('spacebar-pressed', () => {
 					model.setlifes(3);
 					model.setStage(1);
-					model.setState('ready');
+					model.setState(GameModel.state.Ready);
 					modal.stop();
 				});
 		}

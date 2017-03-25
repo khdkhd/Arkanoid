@@ -1,4 +1,7 @@
 import {wait} from 'common/utils';
+
+import GameModel from 'game/model';
+
 import Modal from 'ui/modal';
 import View from 'ui/view';
 
@@ -15,7 +18,7 @@ export default function PauseMenuView({el, model}) {
 		onStart(modal) {
 			wait(2000)
 				.then(() => {
-					model.setState('start');
+					model.setState(GameModel.state.Stopped);
 					modal.stop();
 				});
 		}
