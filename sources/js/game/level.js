@@ -2,7 +2,7 @@ import {Collection} from 'model';
 
 export default function Level() {
 	const collection = Collection();
-	collection.on('model-destroyed', () => {
+	collection.on('itemDestroyed', () => {
 		if (collection.every(brick => brick.color() === 'gold')) {
 			collection.emit('completed');
 		}
