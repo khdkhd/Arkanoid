@@ -33,7 +33,7 @@ export default function Game(levels) {
 						.then(() => {
 							gameModel.toggleCheatMode(true);
 							gameModel.setlifes(3);
-							gameModel.setStage(3);
+							gameModel.setStage(1);
 							gameModel.setState(GameModel.state.Ready);
 						});
 				}],
