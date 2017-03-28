@@ -1,5 +1,6 @@
 import {dispatch, matcher} from 'common/functional';
 
+import gameKeyboardController from 'game/keyboard-controller';
 import Ball from 'game/entities/ball';
 import Vaus from 'game/entities/vaus';
 import Level  from 'game/level';
@@ -167,7 +168,6 @@ export default function GameController({model, view, keyboard}) {
 				}
 			}]
 		]));
-
 	keyboard
 		.on('direction-changed', direction => {
 			vaus.move(direction)
@@ -197,6 +197,7 @@ export default function GameController({model, view, keyboard}) {
 				vaus.hide();
 			}],
 			[matcher('state', GameModel.state.Ready), () => {
+				keyboard.use(null);
 				ball.show();
 				vaus.show();
 				model.takeLife();
@@ -204,6 +205,7 @@ export default function GameController({model, view, keyboard}) {
 				reset_ball_position();
 			}],
 			[matcher('state', GameModel.state.Running), () => {
+				keyboard.use(gameKeyboardController);
 				ball.show();
 				vaus.show();
 				if (ball.velocity().isNull()) {
@@ -213,16 +215,22 @@ export default function GameController({model, view, keyboard}) {
 		]));
 	level
 		.on('itemChanged', brick => {
-			model.updateScore(brick.points());
+			const points = brick.points();
+			if (points > 0) {
+				model.updateScore(points);
+			}
 		})
 		.on('itemDestroyed', brick => {
 			brick.hide();
 		})
 		.on('completed', () => {
-			ball.hide();
-			vaus.hide();
-			model.gainLife();
-			model.nextStage();
+			if (model.isRunning()) {
+				ball.hide();
+				vaus.hide();
+				model.gainLife();
+				model.nextStage();
+				model.setState(GameModel.state.Ready);
+			}
 		});
 
 	vaus.hide();

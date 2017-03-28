@@ -9,8 +9,6 @@ import ReadyView from 'game/views/ready';
 import ScoreView from 'game/views/score';
 import StartMenuView from 'game/views/start-menu';
 
-import gameKeyboardController from 'game/keyboard-controller';
-
 import keyboard from 'ui/keyboard';
 import View from 'ui/view';
 
@@ -33,8 +31,9 @@ export default function Game(levels) {
 					StartMenuView({el: view.el()})
 						.start()
 						.then(() => {
+							gameModel.toggleCheatMode(true);
 							gameModel.setlifes(3);
-							gameModel.setStage(1);
+							gameModel.setStage(3);
 							gameModel.setState(GameModel.state.Ready);
 						});
 				}],
@@ -53,15 +52,11 @@ export default function Game(levels) {
 						});
 				}],
 				[matcher('state', GameModel.state.Ready), (attr, value, view) => {
-					keyboard.use(null);
 					ReadyView({el: view.el(), model: gameModel})
 						.start()
 						.then(() => {
 							gameModel.setState(GameModel.state.Running);
 						});
-				}],
-				[matcher('state', GameModel.state.Running), () => {
-					keyboard.use(gameKeyboardController);
 				}]
 			]),
 		},
