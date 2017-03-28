@@ -30,7 +30,7 @@ export function createElement({el, attributes, classNames, id, tagName}) {
 	return el;
 }
 
-export default ({
+export default function View({
 	attributes = {},
 	classNames = [],
 	el = null,
@@ -44,7 +44,7 @@ export default ({
 	serializeData = defaultSerializeData,
 	tagName = 'div',
 	template = null
-} = {}) => {
+} = {}) {
 	const view = new EventEmitter();
 	const state = {
 		el,

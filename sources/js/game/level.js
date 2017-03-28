@@ -2,9 +2,11 @@ import {Collection} from 'model';
 
 export default function Level() {
 	const collection = Collection();
-	collection.on('itemDestroyed', () => {
-		if (collection.every(brick => brick.color() === 'gold')) {
-			collection.emit('completed');
+	collection.on('itemDestroyed', brick => {
+		if (brick.color() !== 'gold') {
+			if (collection.every(brick => brick.color() === 'gold')) {
+				collection.emit('completed');
+			}
 		}
 	});
 	return Object.assign(collection, {

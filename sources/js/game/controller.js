@@ -1,9 +1,11 @@
 import {dispatch, matcher} from 'common/functional';
 
+import gameKeyboardController from 'game/keyboard-controller';
 import Ball from 'game/entities/ball';
 import Vaus from 'game/entities/vaus';
 import Level  from 'game/level';
 import CreateWalls from 'game/entities/wall';
+import GameModel from 'game/model';
 
 import Coordinates from 'graphics/coordinates';
 import Scene from 'graphics/scene';
@@ -30,8 +32,6 @@ export default function GameController({model, view, keyboard}) {
 	const level = Level();
 	const ball = Ball(Vector.Null);
 	const vaus = Vaus({x: 1, y: gameScene.height() - 2});
-
-	let running = false;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Collision helpers
@@ -140,7 +140,7 @@ export default function GameController({model, view, keyboard}) {
 	}
 
 	function update() {
-		if (running) {
+		if (model.isRunning()) {
 			update_ball();
 			update_vaus();
 		}
@@ -161,21 +161,19 @@ export default function GameController({model, view, keyboard}) {
 			[matcher('vaus'), soundController.ballCollidesWithVaus],
 			[matcher('ground'), () => {
 				soundController.ballGoesOut();
-				running = false;
 				if (model.lifeCount() > 0) {
-					model.setState('ready');
+					model.setState(GameModel.state.Ready);
 				} else {
-					model.setState('game-over');
+					model.setState(GameModel.state.GameOver);
 				}
 			}]
 		]));
-
 	keyboard
 		.on('direction-changed', direction => {
 			vaus.move(direction)
 		})
 		.on('pause', () => {
-			model.setState('pause');
+			model.setState(GameModel.state.Paused);
 		})
 		.on('fire', () => {
 			if (ball.velocity().isNull()) {
@@ -194,21 +192,20 @@ export default function GameController({model, view, keyboard}) {
 				level.reset(model.bricks());
 				brickScene.reset().add(...level);
 			}],
-			[matcher('state', 'pause'), () => {
-				running = false;
+			[matcher('state', GameModel.state.Paused), () => {
 				ball.hide();
 				vaus.hide();
 			}],
-			[matcher('state', 'ready'), () => {
-				running = false;
+			[matcher('state', GameModel.state.Ready), () => {
+				keyboard.use(null);
 				ball.show();
 				vaus.show();
 				model.takeLife();
 				reset_vaus_position();
 				reset_ball_position();
 			}],
-			[matcher('state', 'running'), () => {
-				running = true;
+			[matcher('state', GameModel.state.Running), () => {
+				keyboard.use(gameKeyboardController);
 				ball.show();
 				vaus.show();
 				if (ball.velocity().isNull()) {
@@ -218,16 +215,22 @@ export default function GameController({model, view, keyboard}) {
 		]));
 	level
 		.on('itemChanged', brick => {
-			model.updateScore(brick.points());
+			const points = brick.points();
+			if (points > 0) {
+				model.updateScore(points);
+			}
 		})
 		.on('itemDestroyed', brick => {
 			brick.hide();
 		})
 		.on('completed', () => {
-			ball.hide();
-			vaus.hide();
-			model.gainLife();
-			model.nextStage();
+			if (model.isRunning()) {
+				ball.hide();
+				vaus.hide();
+				model.gainLife();
+				model.nextStage();
+				model.setState(GameModel.state.Ready);
+			}
 		});
 
 	vaus.hide();

@@ -11,7 +11,7 @@ const gameMenuKeyboardHandler = [
 	})
 ];
 
-export default function GameMenuView({el, model}) {
+export default function GameMenuView({el}) {
 	const childView = View({
 		id: 'game-ui',
 		template
@@ -20,14 +20,14 @@ export default function GameMenuView({el, model}) {
 		el,
 		childView,
 		onStart(modal) {
-			keyboard
-				.use(gameMenuKeyboardHandler)
-				.once('spacebar-pressed', () => {
-					model.setlifes(3);
-					model.setStage(1);
-					model.setState('ready');
-					modal.stop();
-				});
+			return new Promise(resolve => {
+				keyboard
+					.use(gameMenuKeyboardHandler)
+					.once('spacebar-pressed', () => {
+						modal.stop();
+						resolve();
+					});
+			});
 		}
 	});
 }
