@@ -1,5 +1,5 @@
 import times from 'lodash.times';
-import create_note from 'sound/sequencer/note';
+import Note from 'sound/sequencer/note';
 
 export default({length=32}) => {
   let pattern = times(length, ()=> []);
@@ -9,7 +9,7 @@ export default({length=32}) => {
     },
     set pattern(matrix2d){
       pattern = matrix2d.map(notes =>
-        notes.map(create_note));
+        notes.map(Note));
     },
     push(pos, note){
       pattern[pos].push(note);

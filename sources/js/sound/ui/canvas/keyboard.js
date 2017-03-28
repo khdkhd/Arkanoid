@@ -2,13 +2,13 @@ import Vector from 'maths/vector';
 import Rect from 'maths/rect';
 import EventEmitter from 'events';
 import { completeAssign as assign } from 'common/utils';
-
-
+import is_nil from 'lodash.isnil';
 import Coordinates from 'graphics/coordinates';
 import SceneObject from 'graphics/scene-object';
 import Scene from 'graphics/scene';
+import { getCanvasEventPosition } from 'sound/common/utils';
+import { default as GraphicsView, MouseEventsHandler } from 'ui/graphics-view';
 
-import Keyboard from 'sound/keyboard/keyboard';
 
 const notes = [
 	'A',
@@ -25,6 +25,12 @@ const notes = [
 	'G#'
 ].reverse();
 
+export function getNote(event, state){
+	const pos = getCanvasEventPosition(event);
+	const height = Math.round(state.height/notes.length);
+	const i = Math.floor(pos.y/height);
+	return notes[i];
+}
 
 function View(state){
 
@@ -32,16 +38,16 @@ function View(state){
 		x: 0,
 		y: 0
 	},{
-		width: state.screen.width,
-		height: Math.round(state.screen.height/notes.length)*notes.length
+		width: state.width,
+		height: Math.round(state.height/notes.length)*notes.length
 	});
+
 	let height = Math.round(rect.height/notes.length);
-	let width = state.screen.width;
+	let width = state.width;
 
-	const scene_coordinates = Coordinates(rect);
-	const scene = Scene(scene_coordinates);
-
-	const keyboard = SceneObject(scene_coordinates, {
+	const coordinates = Coordinates(rect);
+	const scene = Scene(coordinates);
+	const keyboard = SceneObject(coordinates, {
 		onRender(screen) {
 			screen.save();
 			screen.pen = 1;
@@ -68,29 +74,43 @@ function View(state){
 		zIndex: 4
 	});
 
-	state.screen.add(scene.add(keyboard));
-
-	return {
-		render(){
-			state.screen.render()
+	const view = GraphicsView({
+		domEvents: MouseEventsHandler({
+			onMouseDown(view, event){
+				if(!is_nil(state.keyboard)){
+					state.keyboard.noteOn(getNote(event,state), 2)
+				}
+			},
+			onMouseUp(){
+				state.keyboard.noteOff()
+			}
+		}),
+		onBeforeRender(screen){
+			screen.setBackgroundColor('#fff');
+			screen.setSize({
+				width: state.width,
+				height: state.height
+			})
 		}
-	}
+	});
+	view.screen().add(scene.add(keyboard));
+	return view;
 }
 
 function Controller(state){
 	return {
-		set sequencer(sequencer){
-			state.sequencer = sequencer;
+		setKeyboard(keyboard){
+			state.keyboard = keyboard;
 		}
 	}
 }
 
-export default ({element, screen})=> {
+export default function Keyboard({width, height}) {
 
 	const pos = Vector({x: 0, y: 0});
 	const state = {
-		element,
-		screen,
+		width,
+		height,
 		pos,
 		cells: [],
 		emitter: new EventEmitter()

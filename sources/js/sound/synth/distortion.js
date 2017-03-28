@@ -12,7 +12,7 @@ export function makeDistortionCurve(amount = 50) {
 
 export default ({audio_context}) => {
   const distortion = audio_context.createWaveShaper();
-  distortion.curve = makeDistortionCurve(400);
+  distortion.curve = makeDistortionCurve(800);
   distortion.oversample = '4x';
 
   return {

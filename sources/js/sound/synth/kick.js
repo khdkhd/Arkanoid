@@ -31,11 +31,8 @@
 		},
 		noteOff() {	},
 		connect({input}){
-			channel_merger.connect(input.input);
+			channel_merger.connect(input);
 			return null
-		},
-		get type(){
-			return null;
-		},
+		}
 	}
 }

@@ -5,48 +5,9 @@ import _clamp from 'lodash.clamp';
 import { completeAssign as assign } from 'common/utils';
 import ui from 'sound/controls/ui';
 
-function create_knob_view(state){
+const View = state => {
 
   const screen = state.screen;
-
-	function clamp(angle) {
-		return _clamp(angle, state.curve_start, state.curve_end);
-	}
-
-	function get_angle_increment(event){
-		switch(event.type){
-			case 'mousewheel':
-				return Math.sign(event.wheelDelta)*(state.curve_length/state.inc_factor);
-      case 'DOMMouseScroll':
-        return Math.sign(-event.detail)*(state.curve_length/state.inc_factor);
-			case 'mousemove':
-				return Math.sign(-event.movementY)*(state.curve_length/state.inc_factor);
-		}
-	}
-
-	function tweak(event) {
-		state.angle = clamp(state.angle + get_angle_increment(event));
-		state.emitter.emit('change', (state.angle + Math.PI/2)/state.curve_length);
-	}
-
-	ui.bind_events({
-		element: state.element,
-		mousemove: () => {
-			if (state.isActive) {
-				//tweak(event);
-			}
-		},
-		mouseup: () => {
-			state.isActive = false;
-		},
-		mousedown: () => {
-
-		},
-		mousewheel: event => {
-      state.isActive = true;
-			tweak(event);
-		}
-	});
 
 	return  {
 		render(){
@@ -78,11 +39,38 @@ function create_knob_view(state){
 	};
 }
 
-function create_knob_controller(state) {
+const Controller = state => {
 
 	function update(value){
 		state.angle = state.curve_length*value - Math.PI/2;
 	}
+  function clamp(angle) {
+    return _clamp(angle, state.curve_start, state.curve_end);
+  }
+
+  function get_angle_increment(event){
+    switch(event.type){
+      case 'mousewheel':
+        return Math.sign(event.wheelDelta)*(state.curve_length/state.inc_factor);
+      case 'DOMMouseScroll':
+        return Math.sign(-event.detail)*(state.curve_length/state.inc_factor);
+      case 'mousemove':
+        return Math.sign(-event.movementY)*(state.curve_length/state.inc_factor);
+    }
+  }
+
+  function tweak(event) {
+    state.angle = clamp(state.angle + get_angle_increment(event));
+    state.emitter.emit('change', (state.angle + Math.PI/2)/state.curve_length);
+  }
+
+  ui.bind_events({
+    element: state.element,
+    mousewheel: event => {
+      state.isActive = true;
+      tweak(event);
+    }
+  });
 
 	state.emitter.on('change', value => state.param.value = value);
 
@@ -136,5 +124,5 @@ export default ({element, screen})=> {
 		},
 		emitter: new EventEmitter()
 	};
-	return assign(state.emitter, create_knob_view(state), create_knob_controller(state));
+	return assign(state.emitter, View(state), Controller(state));
 }

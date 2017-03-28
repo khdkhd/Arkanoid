@@ -1,5 +1,5 @@
-import create_track from 'sound/sequencer/track';
-import { create_audio_model } from 'sound/common/utils';
+import Track from 'sound/sequencer/track';
+import Model from 'sound/common/model';
 import is_nil from 'lodash.isnil';
 
 export default ({audio_context}) => {
@@ -16,16 +16,16 @@ export default ({audio_context}) => {
 		}
 	}
 
-	const pos = create_audio_model({
+	const pos = Model({
 		init: () => -1
 	});
-	const tempo = create_audio_model({
+	const tempo = Model({
 		init: () => 120
 	});
-	const current_pattern = create_audio_model({
+	const current_pattern = Model({
 		init: () => 1
 	});
-	const current_track = create_audio_model({
+	const current_track = Model({
 		init: () => 1
 	});
 
@@ -66,7 +66,7 @@ export default ({audio_context}) => {
 		},
 		assign(track_id, slave){
 			if(is_nil(tracks[track_id])){
-				tracks[track_id] = create_track({track_id, tempo, length, pos, current_pattern});
+				tracks[track_id] = Track({track_id, tempo, length, pos, current_pattern});
 			}
 			tracks[track_id].assign(slave);
 		},

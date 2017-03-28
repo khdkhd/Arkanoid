@@ -1,7 +1,7 @@
 import {
-	createSequencer,
-	createSynth,
-	createMixer,
+	Sequencer,
+	Synth,
+	Mixer,
 } from 'sound';
 import cond from 'lodash.cond';
 import no_op from 'lodash.noop';
@@ -10,9 +10,7 @@ import ui from 'sound/controls/ui';
 import Kick from 'sound/synth/kick';
 import Snare from 'sound/synth/snare';
 import keyboard from 'ui/keyboard';
-import is_nil from 'lodash.isnil';
-
-import { parse_parameters } from 'sound/common/utils';
+import Distortion from 'sound/synth/distortion';
 
 const view_factory = create_controls();
 const views = [];
@@ -49,7 +47,7 @@ const synth_patch = {
 	{
 		id: 'filter',
 		factory: 'filter',
-		type: 'output',
+		// type: 'output',
 		config:{
 			frequency:{
 				value: .95,
@@ -86,28 +84,35 @@ const synth_patch = {
 			}
 		}
 	},
+	{
+		id: 'distortion',
+		factory: 'distortion',
+		type: 'output'
+	}
 ],
 connexions: [
 	['generator', 'filter'],
 	['lfo', 'filter'],
-	['enveloppe', 'generator']
+	['enveloppe', 'generator'],
+	['filter', 'distortion']
 ]
 
 };
 
 const audio_context = new AudioContext();
 
-const sequencer = createSequencer({
+const sequencer = Sequencer({
 	audio_context
 });
-const synth = createSynth({
+const synth = Synth({
 	audio_context
 });
-const mixer = createMixer({
+const mixer = Mixer({
 	audio_context
 });
 
 const kick = Kick({audio_context});
+
 const snare = Snare({audio_context});
 
 synth.patch(synth_patch);

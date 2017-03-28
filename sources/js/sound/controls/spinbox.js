@@ -1,11 +1,7 @@
 import Vector from 'maths/vector';
-import Rect from 'maths/rect';
 import EventEmitter from 'events';
-import _clamp from 'lodash.clamp';
 import { completeAssign as assign } from 'common/utils';
-import { scale, unscale } from 'sound/common/utils';
 import ui from 'sound/controls/ui';
-import Screen from 'graphics/screen';
 import times from 'lodash.times';
 import keyboard from 'ui/keyboard';
 

@@ -1,9 +1,9 @@
-import { createSynth, createKeyboard } from 'sound';
+import { Synth, createKeyboard } from 'sound';
 
 import collision_buzzer_patch from 'sound/arkanoid/patches/collision-buzzer-patch';
 
 export default ({track_id, audio_context, mixer}) => {
-	const synth = createSynth({audio_context});
+	const synth = Synth({audio_context});
 	const keyboard = createKeyboard({slave: synth});
 	synth.patch(collision_buzzer_patch);
 	mixer.assign(track_id, synth);

@@ -26,7 +26,7 @@ const View = state => {
   const knob = SceneObject(coordinates, {
     onRender(screen) {
       screen.save();
-      screen.pen =1;
+      screen.pen =.5;
       screen.pen = '#333333';
       screen.beginPath();
       screen.arc(state.pos, state.outer_radius, 0, 2*Math.PI);
@@ -51,7 +51,7 @@ const View = state => {
   });
 
   const view = GraphicsView({
-    events: MouseEventsHandler({
+    domEvents : MouseEventsHandler({
       onMouseWheel(view, event){
         state.isActive = true;
         tweak(event, state);

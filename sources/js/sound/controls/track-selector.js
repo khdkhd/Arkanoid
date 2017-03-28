@@ -35,7 +35,14 @@ function view(state){
 	});
 
 	state.screen.add(background);
-
+	state.element.style.position = 'relative'
+	const select = state.element.appendChild(document.createElement('select'));
+	select.style.position = 'absolute';
+	select.style.right = 0;
+	select.style.top = 0;
+	select.style.zIndex = 10;
+	const option = select.appendChild(document.createElement('option'));
+	option.text = 'Drum Synth'
 	return {
 		render(){
 			state.screen.render()

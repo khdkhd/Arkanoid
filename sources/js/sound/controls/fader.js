@@ -7,50 +7,9 @@ import { scale, unscale } from 'sound/common/utils';
 import ui from 'sound/controls/ui';
 
 
-function create_fader_view(state){
+const View = state => {
 
 	const screen = state.screen;
-
-	function clamp(pos, state){
-		return _clamp(pos, state.inner_rect.topLeft.y, state.inner_rect.bottomRight.y);
-	}
-
-	function fade(event) {
-		switch(event.type){
-			case 'mousewheel':
-				state.cursor = clamp(state.cursor - event.wheelDelta/10, state);
-				break;
-			case 'DOMMouseScroll':
-				state.cursor = clamp(state.cursor + event.detail, state);
-				break;
-			case 'mousemove':
-				state.cursor = clamp(state.cursor + event.movementY, state);
-				break;
-		}
-		state.emitter.emit('change', unscale({max: state.inner_rect.topLeft.y, min: state.inner_rect.bottomRight.y}, state.cursor));
-		// state.cursor = clamp(state.cursor + event.movementY, state);
-		// state.emitter.emit('change', unscale({max: state.inner_rect.topLeft.y, min: state.inner_rect.bottomRight.y}, state.cursor));
-	}
-
-
-	ui.bind_events({
-		element: state.element,
-		mousemove: () => {
-			if (state.isActive) {
-				//tweak(event);
-			}
-		},
-		mouseup: () => {
-			state.isActive = false;
-		},
-		mousedown: () => {
-
-		},
-		mousewheel: event => {
-			state.isActive = true;
-			fade(event);
-		}
-	});
 
 
 	return  {
@@ -98,11 +57,41 @@ function create_fader_view(state){
 	};
 }
 
-function create_fader_controller(state) {
+const Controller = state => {
 
 	function update(value){
 		state.cursor = scale({max: state.inner_rect.topLeft.y, min: state.inner_rect.bottomRight.y}, value);
 	}
+
+	function clamp(pos, state){
+		return _clamp(pos, state.inner_rect.topLeft.y, state.inner_rect.bottomRight.y);
+	}
+
+	function fade(event) {
+		switch (event.type) {
+			case 'mousewheel':
+			state.cursor = clamp(state.cursor - event.wheelDelta / 10, state);
+			break;
+			case 'DOMMouseScroll':
+			state.cursor = clamp(state.cursor + event.detail, state);
+			break;
+			case 'mousemove':
+			state.cursor = clamp(state.cursor + event.movementY, state);
+			break;
+		}
+		state.emitter.emit('change', unscale({
+			max: state.inner_rect.topLeft.y,
+			min: state.inner_rect.bottomRight.y
+		}, state.cursor));
+	}
+
+	ui.bind_events({
+		element: state.element,
+		mousewheel: event => {
+			state.isActive = true;
+			fade(event);
+		}
+	});
 
 	state.emitter.on('change', value => state.param.value = value);
 
@@ -179,5 +168,5 @@ export default ({element, screen})=> {
 		},
 		emitter: new EventEmitter()
 	};
-	return assign(state.emitter, create_fader_view(state), create_fader_controller(state));
+	return assign(state.emitter, View(state), Controller(state));
 }

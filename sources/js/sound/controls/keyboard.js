@@ -8,6 +8,7 @@ import Coordinates from 'graphics/coordinates';
 import SceneObject from 'graphics/scene-object';
 import Scene from 'graphics/scene';
 
+import Keyboard from 'sound/keyboard/keyboard';
 
 const notes = [
 	'A',
@@ -25,7 +26,7 @@ const notes = [
 ].reverse();
 
 
-function create_keyboard_view(state){
+function View(state){
 
 	const rect = Rect({
 		x: 0,
@@ -76,6 +77,13 @@ function create_keyboard_view(state){
 	}
 }
 
+function Controller(state){
+	return {
+		set sequencer(sequencer){
+			state.sequencer = sequencer;
+		}
+	}
+}
 
 export default ({element, screen})=> {
 
@@ -87,5 +95,5 @@ export default ({element, screen})=> {
 		cells: [],
 		emitter: new EventEmitter()
 	};
-	return assign(state.emitter, create_keyboard_view(state));
+	return assign(state.emitter, View(state), Controller(state));
 }

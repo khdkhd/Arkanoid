@@ -63,7 +63,7 @@ export default ({audio_context}) => {
 			}
 		},
 		connect({input}){
-			output.connect(input);
+			output.connect({input});
 		},
 		noteOn(note, octave, time, velocity = 1){
 			for(let voice of voices){

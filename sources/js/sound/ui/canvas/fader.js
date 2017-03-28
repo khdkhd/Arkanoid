@@ -27,19 +27,14 @@ const View = state => {
 	const fader = SceneObject(coordinates, {
 		onRender(screen){
 			screen.save();
-			screen.pen = 1;
+			screen.pen = .5;
 			screen.pen = '#333333';
-			screen.beginPath();
 			screen.drawRect(state.outer_rect);
-			screen.drawPath();
 			screen.brush = '#cbc5cb';
-			screen.beginPath();
 			screen.fillRect(state.inner_rect);
-			screen.drawPath();
 			screen.restore();
 			screen.save();
 			screen.brush = 'rgb(67, 86, 117)';
-			screen.beginPath();
 			screen.fillRect({
 				topLeft: {
 					x: state.inner_rect.bottomLeft.x,
@@ -58,13 +53,12 @@ const View = state => {
 					y: state.inner_rect.bottomLeft.y
 				}
 			});
-			screen.drawPath();
 			screen.restore();
 		}
 	});
 
 	const view = GraphicsView({
-		events: MouseEventsHandler({
+		domEvents: MouseEventsHandler({
 			onMouseWheel(view, event){
 				fade(event, state);
 			}
@@ -105,7 +99,7 @@ const Controller = state => {
 }
 
 export default ({width, height})=> {
-	const padding = 5;
+	const padding = 3;
 	const pos = {x: padding, y: padding};
 	const state = {
 		pos,

@@ -43,7 +43,7 @@ export default ({audio_context})  => {
     },
     noteOff() {	},
     connect({input, connect}){
-      channel_merger.connect(input.input);
+      channel_merger.connect(input);
       return {input, connect};
     },
     get param(){

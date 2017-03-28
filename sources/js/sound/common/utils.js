@@ -88,6 +88,16 @@ export function get_cursor_position(canvas, event) {
 	return {x,y};
 }
 
+export function getCanvasEventPosition(event) {
+	if('CANVAS' !== event.target.nodeName){
+		throw new Error('This is not a canvas element');
+	}
+	let rect = event.target.getBoundingClientRect();
+	let x = event.clientX - rect.left;
+	let y = event.clientY - rect.top;
+	return {x,y};
+}
+
 export function create_canvas(element){
   const canvas = document.createElement('canvas');
   canvas.innerHTML = 'Your browser does not support canvas!';

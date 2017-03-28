@@ -1,4 +1,3 @@
-import create_note from 'sound/sequencer/note';
 import is_nil from 'lodash.isnil';
 import times from 'lodash.times';
 import EventEmitter from 'events';
@@ -55,6 +54,9 @@ export default ({track_id, tempo, length, pos, current_pattern}) => {
 			},
 			assign(slave){
 				_slave = slave;
+			},
+			get slave(){
+				return _slave;
 			}
 		});
 	}

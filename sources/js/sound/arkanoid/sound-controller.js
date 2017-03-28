@@ -1,4 +1,4 @@
-import createMixer from 'sound/audio/mixer';
+import Mixer from 'sound/audio/mixer';
 import collision_buzzer from 'sound/arkanoid/collision-buzzer';
 import is_nil from 'lodash.isnil';
 import constant from 'lodash.constant';
@@ -24,7 +24,7 @@ const create_audio_context = (() => {
 
 const audio_context = create_audio_context();
 
-const mixer = createMixer({audio_context});
+const mixer = Mixer({audio_context});
 
 const collizion_buzzer = collision_buzzer({
 	track_id: 'collision_buzzer',

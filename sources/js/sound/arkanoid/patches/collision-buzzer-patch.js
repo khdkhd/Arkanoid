@@ -19,10 +19,10 @@ export default  {
 					value: 1
 				},
 				Q: {
-					value: 0
+					value: .2
 				},
 				type : {
-					value: 'lowpass'
+					value: 'lowshelf'
 				}
 			},
 		}

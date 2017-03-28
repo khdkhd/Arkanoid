@@ -7,7 +7,7 @@ export const DURATIONS = {
 	EIGHTH : 1/8
 };
 
-export default({note, octave, duration})=> {
+const Note = ({note, octave, duration})=> {
 	if(is_nil(note)){
 		return {};
 	}
@@ -23,3 +23,12 @@ export default({note, octave, duration})=> {
 		}
 	};
 }
+
+Note.getFrequency = (note, octave) => {
+	const notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+	let key_index = notes.indexOf(note);
+	key_index = key_index + ((octave - 1) * 12) + 1;
+	return 440 * Math.pow(2, (key_index - 49) / 12);
+}
+
+export default Note

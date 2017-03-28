@@ -10,7 +10,7 @@ import Coordinates from 'graphics/coordinates';
 import SceneObject from 'graphics/scene-object';
 import Scene from 'graphics/scene';
 
-import create_note from 'sound/sequencer/note';
+import Note from 'sound/sequencer/note';
 
 const notes = [
 	'A',
@@ -59,11 +59,8 @@ const View = state => {
 	const background = SceneObject(grid_coordinates, {
 		onRender(screen) {
 			screen.save();
-			screen.pen = 1;
-			screen.brush = '#bdbdbd';
-			screen.pen = '#fff';
+			screen.brush = '#282726';
 			screen.fillRect(state.rect);
-			screen.drawRect(state.rect);
 			screen.restore();
 		},
 		zIndex: 0
@@ -71,23 +68,23 @@ const View = state => {
 
 	const grid = SceneObject(grid_coordinates, {
 		onRender(screen) {
+			screen.pen = 1;
 			screen.save();
 			times(cols-1, i => {
-				screen.pen = (i + 1)%4 === 0 ? '#5c142c' : '#061030';
+				screen.pen = (i + 1)%4 === 0 ? '#A37C27' : '#6A8A82';
 				screen.translate({x: col_width, y: 0});
 				screen.drawLine({x: 0, y: 0}, {x: 0, y: height});
 			});
 			screen.restore();
 			screen.save();
-			screen.pen = '#061030	';
+			screen.pen = '#6A8A82';
 			times(notes.length, () => {
-
 				screen.translate({x: 0, y: row_height});
 				screen.drawLine({x: 0, y: 0}, {x: width, y: 0});
 			});
 			screen.restore();
 			screen.save();
-			screen.brush = '#5c142c';
+			screen.brush = '#A37C27';
 			if(!is_nil(state.cells)){
 				state.cells.forEach(cell => screen.fillRect(cell));
 			}
@@ -98,8 +95,7 @@ const View = state => {
 
 	const cursor = SceneObject(grid_coordinates, {
 		onRender(screen) {
-			screen.pen = '#fff';
-			screen.brush = 'hsla(0, 6%, 57%, 0.42)';
+			screen.brush = 'hsla(0, 20%, 27%, 0.28)';
 			screen.save();
 			screen.fillRect(Rect(state.cursor_pos,{
 				width: col_width,
@@ -109,7 +105,6 @@ const View = state => {
 		},
 		zIndex: 3
 	});
-
 
 	return scene.add(background).add(grid).add(cursor);
 }
@@ -142,9 +137,9 @@ const Controller = state => {
 		const width = Math.round(state.rect.width/cols);
 		const height = Math.round(state.rect.height/notes.length);
 		const _x = Math.floor(x/width);
-		const _y = Math.floor(y/width);
+		const _y = Math.floor(y/height);
 		return Object.assign({
-			note: create_note({
+			note: Note({
 				note: notes[_y],
 				octave: state.octave,
 				duration: 'QUARTER'
@@ -206,7 +201,7 @@ export default ({width, height})=> {
 	const pos = Vector({x: 0, y: 0});
 	const cursor_pos = Vector({x: 0, y: 0});
 	const divisors = 32;
-	const octave = 3;
+	const octave = 4;
 	const state = {
 		pos,
 		divisors,

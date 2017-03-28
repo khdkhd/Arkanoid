@@ -1,5 +1,4 @@
 import Model from 'sound/common/model';
-import is_nil from 'lodash.isnil';
 
 export default({audio_context}) => {
 
@@ -41,6 +40,7 @@ export default({audio_context}) => {
 			if(!envIn.hasEnv){
 				return osc.stop(time);
 			}
+			console.log('has env');
 			envIn.emit('noteoff', {
 				time,
 				onComplete(time){
