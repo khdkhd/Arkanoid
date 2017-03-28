@@ -9,10 +9,9 @@ describe('KeyHandler(code, ev, on_keypressed)', () => {
 	const event = 'event';
 	const on_keypressed = sinon.stub();
 
-	on_keypressed.returns(0);
-
 	beforeEach(() => {
 		on_keypressed.reset();
+		on_keypressed.returns(0);
 	});
 
 	describe('code', () => {
@@ -73,12 +72,11 @@ describe('KeyHandler(code, ev, on_keydown, on_keyup, repeat)', () => {
 	const on_keydown = sinon.stub();
 	const on_keyup = sinon.stub();
 
-	on_keydown.returns(0);
-	on_keyup.returns(0);
-
 	beforeEach(() => {
 		on_keydown.reset();
 		on_keyup.reset();
+		on_keydown.returns(0);
+		on_keyup.returns(0);
 	});
 
 	describe('code', () => {

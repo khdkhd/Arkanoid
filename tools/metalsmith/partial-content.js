@@ -1,16 +1,12 @@
-const handlebars = require('handlebars');
-const front_matter = require('front-matter');
-
-const marked = require('marked');
-
-const is_nil = require('lodash.isnil');
-const identity = require('lodash.identity');
-
-const fs = require('fs-extra');
-const path = require('path');
-
 const {loadFile, mapSeries} = require('tools/common');
 
+const front_matter = require('front-matter');
+const handlebars = require('handlebars');
+const is_nil = require('lodash.isnil');
+const identity = require('lodash.identity');
+const klaw = require('klaw');
+const marked = require('marked');
+const path = require('path');
 const through2 = require('through2')
 
 const excludeDirFilter = () => through2.obj(function(item, enc, next) {
@@ -42,7 +38,7 @@ function handle_partials(directory, sort) {
 			});
 	}
 	return new Promise((resolve, reject) => {
-		const stream  = fs.walk(directory);
+		const stream  = klaw(directory);
 		const files = [];
 		stream
 			.pipe(excludeDirFilter())

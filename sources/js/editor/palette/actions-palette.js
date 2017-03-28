@@ -1,12 +1,13 @@
 import {PushButton} from 'ui/button';
 import View from 'ui/view';
 
-const roles = ['export', 'import'];
+const roles = ['export', 'import', 'play'];
 
-export default function ActionsPalette({el}) {
+export default function ActionsPalette() {
 	const buttons = roles.map(role => PushButton({role}));
 	return View({
-		el,
+		id: 'actions',
+		tagName: 'ul',
 		onBeforeDestroy() {
 			for (let button of buttons) {
 				button.destroy();

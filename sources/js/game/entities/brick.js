@@ -1,21 +1,20 @@
-import {completeAssign} from 'common/utils';
-import levels from 'game/resources/levels';
-import Rect from 'maths/rect';
-import Vector from 'maths/vector';
 import Coordinates from 'graphics/coordinates';
 import SceneObject from 'graphics/scene-object';
 
-import {EventEmitter} from 'events';
+import {Model} from 'model';
 
-import is_nil from 'lodash.isnil';
-import is_number from 'lodash.isnumber';
+import Rect from 'maths/rect';
+import Vector from 'maths/vector';
+
+import pick from 'lodash.pick';
 
 const BOTTOM_OUTER_RECT = Rect(Vector.Null, {width: 2, height: 1});
 const TOP_OUTER_RECT = Rect(Vector.Null, {width: 1.8, height: .8});
 const INNER_RECT = Rect(Vector.Null.add({x: .2, y: .2}), {width: 1.6, height: .6});
 
-const bricks_state = {
+const bricksState = {
 	'gold': () => ({
+		hits: Infinity,
 		points: 0,
 		colors: {
 			inner: 'hsl(58, 65%, 43%)',
@@ -96,72 +95,69 @@ const bricks_state = {
 	})
 };
 
-export function BrickModel({x, y}, color, level) {
-	return completeAssign(bricks_state[color](level), {
-		color,
-		coordinates: Coordinates({width: 2, height: 1}, {x, y}),
-		destroyed: false,
-		emitter: new EventEmitter(),
+export function BrickModel(state) {
+	const model = Model({
+		attributes: {
+			color: state.color,
+			hits: state.hits,
+			position: state.position
+		}
+	});
+	return Object.assign(model, {
+		color() {
+			return state.color;
+		},
+		hit() {
+			const hits = Math.max(model.get('hits') - 1, 0);
+			model.set('hits', hits);
+			if (hits === 0) {
+				model.destroy();
+			}
+			return this;
+		},
+		points() {
+			return state.points;
+		},
+		serialize() {
+			return pick(model.attributes(), 'color', 'position');
+		}
 	});
 }
 
 export function BrickView(state) {
-	return SceneObject(state.coordinates, {
-		onRender(screen) {
-			screen.brush = 'black';
-			screen.fillRect(BOTTOM_OUTER_RECT);
+	const coordinates = Coordinates({
+		width: 2,
+		height: 1
+	}, Vector(state.position));
+	return Object.assign(
+		SceneObject(coordinates, {
+			onRender(screen) {
+				screen.brush = 'black';
+				screen.fillRect(BOTTOM_OUTER_RECT);
 
-			screen.brush = state.colors.top || state.colors.inner;
-			screen.fillRect(TOP_OUTER_RECT);
+				screen.brush = state.colors.top || state.colors.inner;
+				screen.fillRect(TOP_OUTER_RECT);
 
-			screen.brush = state.colors.top || state.colors.inner;
-			screen.brush = state.colors.inner;
-			screen.fillRect(INNER_RECT);
-		}
-	});
-}
-
-export function BrickController(state) {
-	return {
-		hit() {
-			if (!(is_nil(state.hits) || state.destroyed)) {
-				state.hits = state.hits - 1;
-				state.emitter.emit('hit', state.points);
-				if (state.hits === 0) {
-					state.destroyed = true;
-					state.emitter.emit('destroyed');
-				}
+				screen.brush = state.colors.top || state.colors.inner;
+				screen.brush = state.colors.inner;
+				screen.fillRect(INNER_RECT);
 			}
-		},
-		update() {
-		},
-		get color() {
-			return state.color;
-		},
-		get destroyed() {
-			return state.destroyed;
-		},
-		get points() {
-			return state.points;
-		}
-	};
-}
-
-export function Brick({x, y}, color, level) {
-	const state = BrickModel({x, y}, color, level);
-	return completeAssign(
-		state.emitter,
-		state.coordinates,
-		BrickView(state),
-		BrickController(state)
+		}),
+		coordinates
 	);
 }
 
-export default function createBricks(level) {
-	let stage = 0;
-	if (is_number(level)) {
-		stage = level - 1;
-		level = levels[stage];
-	}
+export function Brick({x, y}, color, stage) {
+	const state = Object.assign({
+		color,
+		position: {x, y}
+	}, bricksState[color](stage));
+	return Object.assign(
+		BrickModel(state),
+		BrickView(state)
+	);
+}
+
+export default function createBricks(level, stage = 0) {
 	return level.map(brick => Brick(brick.position, brick.color, stage));
 }

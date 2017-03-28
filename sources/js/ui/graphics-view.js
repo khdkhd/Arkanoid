@@ -1,11 +1,13 @@
 import Screen from 'graphics/screen';
-import View from 'ui/view';
+import {default as View, createElement} from 'ui/view';
 
 import noop from 'lodash.noop';
 import throttle from 'lodash.throttle';
 
 export function MouseEventsHandler({
 	onClick = noop,
+	onMouseDown = noop,
+	onMouseUp = noop,
 	onMouseEnter = noop,
 	onMouseLeave = noop,
 	onMouseMove = noop,
@@ -19,6 +21,12 @@ export function MouseEventsHandler({
 		click(view, ev) {
 			return onClick(view, ev);
 		},
+		mousedown(view, ev) {
+			return onMouseDown(view, ev);
+		},
+		mouseup(view, ev) {
+			return onMouseUp(view, ev);
+		},
 		mouseenter(view, ev) {
 			return onMouseEnter(view, ev);
 		},
@@ -30,20 +38,34 @@ export function MouseEventsHandler({
 	};
 }
 
-export default function GraphicsView({canvas, model = null, events = {}} = {}) {
-	const screen = Screen(canvas.getContext('2d'));
-	return Object.assign({
-		screen() {
-			return screen
-		}
-	}, View({
-		el: canvas,
-		events,
-		model,
-		onBeforeRender: noop,
+export default function GraphicsView({
+	attributes = {},
+	classNames = [],
+	canvas = null,
+	id = '',
+	modelEvents = {},
+	domEvents = {},
+	onBeforeRender = noop,
+	model,
+	modelEventFilter = noop
+} = {}) {
+	const el = createElement({el: canvas, attributes, classNames, id, tagName: 'canvas'});
+	const screen = Screen(el.getContext('2d'));
+	return Object.assign(View({
+		el,
+		domEvents,
+		modelEvents,
+		onBeforeRender() {
+			onBeforeRender(screen);
+		},
 		onRender() {
-			screen.clear();
-			screen.render();
+			screen.clear().render();
+		},
+		model,
+		modelEventFilter
+	}), {
+		screen() {
+			return screen;
 		}
-	}));
+	});
 }

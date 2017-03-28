@@ -12,13 +12,14 @@ function BricksPaletteButtonLabel({name}) {
 	});
 }
 
-export default function BricksPalette({el}) {
+export default function BricksPalette() {
 	const bricks = colors.map(color => ({
 		button: RadioButton({id: color, name: 'brick', role: color}),
 		label: BricksPaletteButtonLabel({name: color})
 	}));
 	return View({
-		el,
+		id: 'bricks',
+		tagName: 'ul',
 		onBeforeDestroy() {
 			for (let {button, label} of bricks) {
 				button.destroy();

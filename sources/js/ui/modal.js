@@ -7,7 +7,11 @@ export function Overlay() {
 	return View({classNames: ['overlay'], onRender: noop});
 }
 
-export default ({el, childView} = {}) => {
+export default ({
+	el,
+	childView,
+	onStart = noop
+} = {}) => {
 	const overlay = Overlay();
 	const view = View({
 		el,
@@ -19,13 +23,14 @@ export default ({el, childView} = {}) => {
 			center(el.getBoundingClientRect(), childview_el);
 		}
 	});
-	return {
+	return Object.assign(view, {
 		start() {
 			view.render();
+			return onStart(view);
 		},
 		stop() {
 			overlay.destroy();
 			childView.destroy();
 		}
-	}
+	});
 }
