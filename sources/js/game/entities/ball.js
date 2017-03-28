@@ -1,4 +1,3 @@
-import {completeAssign} from 'common/utils';
 import Vector from 'maths/vector';
 import VerletModel from 'physics/verlet-model';
 import SceneObject from 'graphics/scene-object';
@@ -37,21 +36,18 @@ export function BallView(state) {
 }
 
 export function BallController({verlet}) {
-	return completeAssign({
+	return Object.assign({
 		reset({x, y}) {
 			verlet.setVelocity(Vector.Null);
 			verlet.setPosition(Vector({x, y}));
 			return this;
-		},
-		get radius() {
-			return radius;
 		}
 	}, verlet);
 }
 
 export function Ball({x, y}) {
 	const state = BallModel({x, y});
-	return completeAssign(
+	return Object.assign(
 		state.emitter,
 		state.verlet,
 		BallView(state),
