@@ -9,8 +9,6 @@ import ReadyView from 'game/views/ready';
 import ScoreView from 'game/views/score';
 import StartMenuView from 'game/views/start-menu';
 
-import gameKeyboardController from 'game/keyboard-controller';
-
 import keyboard from 'ui/keyboard';
 import View from 'ui/view';
 
@@ -28,22 +26,36 @@ export default function Game(levels) {
 		model: gameModel,
 		modelEvents: {
 			changed: cond([
-				[matcher('state', 'start'), (attr, value, view) => {
+				[matcher('state', GameModel.state.Stopped), (attr, value, view) => {
 					gameModel.reset();
-					StartMenuView({el: view.el(), model: gameModel}).start();
+					StartMenuView({el: view.el()})
+						.start()
+						.then(() => {
+							gameModel.setlifes(3);
+							gameModel.setStage(1);
+							gameModel.setState(GameModel.state.Ready);
+						});
 				}],
-				[matcher('state', 'ready'), (attr, value, view) => {
-					ReadyView({el: view.el(), model: gameModel}).start();
-					keyboard.use(null);
+				[matcher('state', GameModel.state.GameOver), (attr, value, view) => {
+					GameOverView({el: view.el()})
+						.start()
+						.then(() => {
+							gameModel.setState(GameModel.state.Stopped);
+						});
 				}],
-				[matcher('state', 'game-over'), (attr, value, view) => {
-					GameOverView({el: view.el(), model: gameModel}).start();
+				[matcher('state', GameModel.state.Paused), (attr, value, view) => {
+					PauseView({el: view.el()})
+						.start()
+						.then(() => {
+							gameModel.setState(GameModel.state.Running);
+						});
 				}],
-				[matcher('state', 'pause'), (attr, value, view) => {
-					PauseView({el: view.el(), model: gameModel}).start();
-				}],
-				[matcher('state', 'running'), () => {
-					keyboard.use(gameKeyboardController);
+				[matcher('state', GameModel.state.Ready), (attr, value, view) => {
+					ReadyView({el: view.el(), model: gameModel})
+						.start()
+						.then(() => {
+							gameModel.setState(GameModel.state.Running);
+						});
 				}]
 			]),
 		},
@@ -56,7 +68,7 @@ export default function Game(levels) {
 
 	return Object.assign(ui, {
 		start() {
-			gameModel.setState('start');
+			gameModel.setState(GameModel.state.Stopped);
 			gameController.run();
 		},
 	});

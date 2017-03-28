@@ -5,13 +5,13 @@ import noop from 'lodash.noop';
 export function CollectionBinder(state) {
 	return item => {
 		const on_changed = (attr, value) => state.collection.emit('itemChanged', item, attr, value);
-		const on_reset   = () => state.collection.emit('item-reset', item);
+		const on_reset   = () => state.collection.emit('itemReset', item);
 		const on_destroy = () => {
 			item
 				.removeListener('changed', on_changed)
 				.removeListener('reset', on_reset);
-			state.collection.emit('itemDestroyed', item);
 			state.items.delete(item);
+			state.collection.emit('itemDestroyed', item);
 		};
 		return item
 			.on('changed', on_changed)

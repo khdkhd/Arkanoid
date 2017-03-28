@@ -26,7 +26,7 @@ export default ({
 	return Object.assign(view, {
 		start() {
 			view.render();
-			onStart(view);
+			return onStart(view);
 		},
 		stop() {
 			overlay.destroy();
