@@ -31,7 +31,6 @@ export default function Game(levels) {
 					StartMenuView({el: view.el()})
 						.start()
 						.then(() => {
-							gameModel.toggleCheatMode(true);
 							gameModel.setlifes(3);
 							gameModel.setStage(1);
 							gameModel.setState(GameModel.state.Ready);
