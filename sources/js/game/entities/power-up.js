@@ -86,12 +86,13 @@ export function PowerUpModel({x, y}, type) {
 		[PowerUp.Expand]:    'E',
 		[PowerUp.Catch]:     'C'
 	})[type];
+	const coordinates = VerletModel({
+		width: 2,
+		height: 1
+	}, {x, y}).setVelocity({x: 0, y: .05});
 	return {
 		emitter: new EventEmitter(),
-		coordinates: VerletModel({
-			width: 2,
-			height: 1
-		}, {x, y}),
+		coordinates,
 		letter,
 		flareColor: color.lighten(50).hex,
 		innerColor: color.hex,
@@ -122,7 +123,6 @@ export function PowerUpView(state) {
 			screen.fillPath(flare_box1);
 			screen.fillPath(flare_box2);
 
-			screen.brush = 'yellow';
 			screen.setFont({
 				fontFamily: 'Press Start 2P',
 				fontSize: 10,
@@ -130,14 +130,42 @@ export function PowerUpView(state) {
 			});
 			screen.setTextBaseline('top');
 			screen.clipRect(clip_rect);
-			screen.translate({x: .6, y: frame/10 - .8});
+
+			const text_pos = {x: .6 + 2/16, y: frame/10 - .8 + 2/16};
+
+			screen.save();
+			screen.translate(text_pos);
+			screen.brush = '#000';
 			screen.fillText({
 				text: state.letter,
 				rect
 			});
+			screen.restore();
+
+			text_pos.x -= 2/16;
+			text_pos.y -= 2/16;
+
+			screen.save();
+			screen.translate(text_pos);
+			screen.brush = 'yellow';
+			screen.fillText({
+				text: state.letter,
+				rect
+			});
+			screen.restore();
+
 			frame = (frame + .25)%14;
 		}
 	});
+}
+
+export function PowerUpController(state) {
+	return {
+		update() {
+			state.coordinates.update();
+			return this;
+		}
+	}
 }
 
 export default function PowerUp({x, y}, type) {
