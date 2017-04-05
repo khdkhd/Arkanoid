@@ -168,6 +168,25 @@ export default function Screen(canvas_context) {
 			return this;
 		},
 		///////////////////////////////////////////////////////////////////////
+		// Text
+		fillText({text, rect}) {
+			canvas_context.fillText(text, rect.topLeft.x, rect.topLeft.y, rect.width);
+			return this;
+		},
+		drawText({text, rect}) {
+			canvas_context.strokeText(text, rect.topLeft.x, rect.topLeft.y, rect.width);
+			return this;
+		},
+		measureText(text) {
+			return canvas_context.measureText(text);
+		},
+		setFont({fontFamily, fontSize, scale = 1}) {
+			canvas_context.font = `${fontSize/scale}px '${fontFamily}'`;
+		},
+		setTextBaseline(baseline) {
+			canvas_context.textBaseline = baseline;
+		},
+		///////////////////////////////////////////////////////////////////////
 		/// Context save/restore
 		save() {
 			const {scale, absoluteScale} = state;
