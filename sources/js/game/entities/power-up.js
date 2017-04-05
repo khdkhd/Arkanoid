@@ -85,14 +85,14 @@ export function PowerUpModel({x, y}, type) {
 		[PowerUp.ExtraLife]: 'P',
 		[PowerUp.Expand]:    'E',
 		[PowerUp.Catch]:     'C'
-	});
+	})[type];
 	return {
 		emitter: new EventEmitter(),
 		coordinates: VerletModel({
 			width: 2,
 			height: 1
 		}, {x, y}),
-		letter: letter[type],
+		letter,
 		flareColor: color.lighten(50).hex,
 		innerColor: color.hex,
 		outerColor: color.lighten(10).hex,
