@@ -1,8 +1,10 @@
 import {EventEmitter} from 'events';
 import {hsl} from 'graphics/color';
 import SceneObject from 'graphics/scene-object';
-import VerletModel from 'physics/verlet-model';
 
+import Rect from 'maths/rect';
+
+import VerletModel from 'physics/verlet-model';
 
 const shadow_box1 = new Path2D(`
 	M ${ 4/16} ${ 2/16}
@@ -90,7 +92,7 @@ export function PowerUpModel({x, y}, type) {
 			width: 2,
 			height: 1
 		}, {x, y}),
-		letter,
+		letter: letter[type],
 		flareColor: color.lighten(50).hex,
 		innerColor: color.hex,
 		outerColor: color.lighten(10).hex,
@@ -100,14 +102,10 @@ export function PowerUpModel({x, y}, type) {
 
 export function PowerUpView(state) {
 	const {coordinates} = state;
+	const clip_rect = Rect({x: 0, y: 2/16}, {width: 30/16, height: 12/16});
+	let frame = 0;
 	return SceneObject(coordinates, {
-		onRender(screen) {
-			const scale = screen.absoluteScale().x;
-			screen.pen = {
-				strokeStyle: state.color,
-				lineWidth: 1/scale
-			};
-
+		onRender(screen, scene, rect) {
 			screen.brush = '#000';
 			screen.fillPath(shadow_box1);
 			screen.fillPath(shadow_box2);
@@ -123,6 +121,21 @@ export function PowerUpView(state) {
 			screen.brush = state.flareColor;
 			screen.fillPath(flare_box1);
 			screen.fillPath(flare_box2);
+
+			screen.brush = 'yellow';
+			screen.setFont({
+				fontFamily: 'Press Start 2P',
+				fontSize: 10,
+				scale: screen.absoluteScale().x
+			});
+			screen.setTextBaseline('top');
+			screen.clipRect(clip_rect);
+			screen.translate({x: .6, y: frame/10 - .8});
+			screen.fillText({
+				text: state.letter,
+				rect
+			});
+			frame = (frame + .25)%14;
 		}
 	});
 }
