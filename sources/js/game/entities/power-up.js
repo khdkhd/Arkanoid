@@ -1,10 +1,15 @@
-import {EventEmitter} from 'events';
 import {hsl} from 'graphics/color';
 import SceneObject from 'graphics/scene-object';
-
 import Rect from 'maths/rect';
-
 import VerletModel from 'physics/verlet-model';
+
+import {EventEmitter} from 'events';
+
+import constant from 'lodash.constant';
+import flatten from 'lodash.flatten';
+import is_nil from 'lodash.isnil';
+import random from 'lodash.random';
+import times from 'lodash.times';
 
 const shadow_box1 = new Path2D(`
 	M ${ 4/16} ${ 2/16}
@@ -93,7 +98,7 @@ export function PowerUpModel({x, y}, type) {
 	const coordinates = VerletModel({
 		width: 2,
 		height: 1
-	}, {x, y}).setVelocity({x: 0, y: .05});
+	}, {x, y}).setVelocity({x: 0, y: .1});
 	return {
 		emitter: new EventEmitter(),
 		coordinates,
@@ -165,9 +170,11 @@ export function PowerUpView(state) {
 
 export function PowerUpController(state) {
 	return {
-		update() {
-			state.coordinates.update();
-			return this;
+		type() {
+			return state.type;
+		},
+		letter() {
+			return state.letter;
 		}
 	}
 }
@@ -177,7 +184,8 @@ export default function PowerUp({x, y}, type) {
 	return Object.assign(
 		state.emitter,
 		state.coordinates,
-		PowerUpView(state)
+		PowerUpView(state),
+		PowerUpController(state)
 	);
 }
 
@@ -215,3 +223,19 @@ Object.defineProperty(PowerUp, 'Split', {
 	writable: false,
 	value: Symbol('PowerUp.Split')
 });
+
+export const PowerUpDistribution = [
+	[null,             24], [PowerUp.Catch,     2], [PowerUp.Expand,    2],
+	[PowerUp.Laser,     2], [PowerUp.Slow,      2], [PowerUp.Split,     2],
+	[PowerUp.Break,     1], [PowerUp.ExtraLife, 1]
+];
+
+export function PowerUpRandomizer(distribution = PowerUpDistribution) {
+	const pillsDistribution = flatten(distribution.map(([item, count]) => times(count, constant(item))));
+	return ({x, y}) => {
+		const type = pillsDistribution[0, random(pillsDistribution.length - 1)];
+		if (!is_nil(type)) {
+			return PowerUp({x, y}, type);
+		}
+	};
+}
