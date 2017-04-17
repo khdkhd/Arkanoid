@@ -1,4 +1,4 @@
-import {VausView} from 'game/entities/vaus';
+import {Vaus} from 'game/entities/vaus';
 
 import Coordinates from 'graphics/coordinates';
 import Scene from 'graphics/scene';
@@ -11,16 +11,16 @@ import View from 'ui/view';
 import times from 'lodash.times';
 
 export function LifeView({model}) {
-	const coordinates = Coordinates({width: 3, height: 1}, Vector.Null);
-	const scene = Scene(coordinates);
-	const vaus = VausView({coordinates, padSize: 1});
+	const vaus = Vaus(Vector.Null).setMode(Vaus.Mode.Tiny);
+	const vaus_size = vaus.size();
+	const scene = Scene(Coordinates(vaus_size, Vector.Null));
 	return GraphicsView({
 		onBeforeRender(screen) {
 			const scale = model.scale();
 			scene.setScale(scale).reset().add(vaus);
 			screen.reset()
 				.setBackgroundColor('#123')
-				.setSize({width: 3*scale, height: scale})
+				.setSize({width: vaus_size.width*scale, height: vaus_size.height*scale})
 				.add(scene);
 		},
 	});
