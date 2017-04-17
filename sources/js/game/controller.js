@@ -3,6 +3,7 @@ import {dispatch, matcher} from 'common/functional';
 import gameKeyboardController from 'game/keyboard-controller';
 import Ball from 'game/entities/ball';
 import Vaus from 'game/entities/vaus';
+import PowerUp from 'game/entities/power-up';
 import Level  from 'game/level';
 import CreateWalls from 'game/entities/wall';
 import GameModel from 'game/model';
@@ -10,7 +11,7 @@ import GameModel from 'game/model';
 import Coordinates from 'graphics/coordinates';
 import Scene from 'graphics/scene';
 
-import {bounce} from 'physics/collisions';
+import {bounce, overlap} from 'physics/collisions';
 
 import Vector from 'maths/vector';
 
@@ -32,6 +33,7 @@ export default function GameController({model, view, keyboard}) {
 	const level = Level();
 	const ball = Ball(Vector.Null);
 	const vaus = Vaus({x: 1, y: gameScene.height() - 2});
+	const pills = new Set();
 
 	//////////////////////////////////////////////////////////////////////////
 	// Collision helpers
@@ -94,6 +96,20 @@ export default function GameController({model, view, keyboard}) {
 		ball_goes_out
 	);
 
+	function pills_collides() {
+		for (let pill of pills) {
+			const pill_box = pill.rect();
+			const o = overlap(pill_box, vaus.rect(), pill.velocity().y);
+			if (o !== overlap.NONE || pill_box.topY >= gameZone.bottomY) {
+				pills.delete(pill);
+				gameScene.remove(pill);
+				if (o !== overlap.NONE) {
+					vaus.emit('powerUp', pill.type());
+				}
+			}
+		}
+	}
+
 	//////////////////////////////////////////////////////////////////////////
 	// Position helpers
 
@@ -141,6 +157,10 @@ export default function GameController({model, view, keyboard}) {
 
 	function update() {
 		if (model.isRunning()) {
+			pills_collides();
+			for (let pill of pills) {
+				pill.update();
+			}
 			update_ball();
 			update_vaus();
 		}
@@ -168,6 +188,12 @@ export default function GameController({model, view, keyboard}) {
 				}
 			}]
 		]));
+	vaus
+		.on('powerUp', cond([
+			[matcher(PowerUp.ExtraLife), () => model.gainLife()],
+			[matcher(PowerUp.Expand), () => vaus.setMode(Vaus.Mode.Large)],
+			[matcher(PowerUp.Laser), () => vaus.setMode(Vaus.Mode.Armed)]
+		]))
 	keyboard
 		.on('direction-changed', direction => {
 			vaus.move(direction)
@@ -222,6 +248,10 @@ export default function GameController({model, view, keyboard}) {
 		})
 		.on('itemDestroyed', brick => {
 			brick.hide();
+		})
+		.on('powerUp', power_up => {
+			gameScene.add(power_up);
+			pills.add(power_up);
 		})
 		.on('completed', () => {
 			if (model.isRunning()) {
