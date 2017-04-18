@@ -229,7 +229,7 @@ export default function GameController({model, view, keyboard}) {
 					gameScene.remove(pill);
 				}
 				ball.show();
-				vaus.show();
+				vaus.show().setMode(Vaus.Mode.Small);
 				model.takeLife();
 				reset_vaus_position();
 				reset_ball_position();
