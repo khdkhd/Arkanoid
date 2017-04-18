@@ -224,6 +224,10 @@ export default function GameController({model, view, keyboard}) {
 			}],
 			[matcher('state', GameModel.state.Ready), () => {
 				keyboard.use(null);
+				for (let pill of pills) {
+					pills.delete(pill);
+					gameScene.remove(pill);
+				}
 				ball.show();
 				vaus.show();
 				model.takeLife();
@@ -250,8 +254,10 @@ export default function GameController({model, view, keyboard}) {
 			brick.hide();
 		})
 		.on('powerUp', power_up => {
-			gameScene.add(power_up);
-			pills.add(power_up);
+			if (model.isRunning()) {
+				gameScene.add(power_up);
+				pills.add(power_up);
+			}
 		})
 		.on('completed', () => {
 			if (model.isRunning()) {
