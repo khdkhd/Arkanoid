@@ -3,7 +3,7 @@ import {dispatch, matcher} from 'common/functional';
 import gameKeyboardController from 'game/keyboard-controller';
 import {BrickCollection} from 'game/entities/brick';
 import {default as Ball, BallCollection} from 'game/entities/ball';
-import {default as PowerUp, PillCollections} from 'game/entities/power-up';
+import {default as Pill, PillCollection} from 'game/entities/pill';
 import Vaus from 'game/entities/vaus';
 import CreateWalls from 'game/entities/wall';
 import GameModel from 'game/model';
@@ -32,7 +32,7 @@ export default function GameController({model, view, keyboard}) {
 	const brickScene = Scene(Coordinates(gameZone.size), Vector.Null);
 	const bricks = BrickCollection();
 	const balls = BallCollection();
-	const pills = PillCollections();
+	const pills = PillCollection();
 	const vaus = Vaus({x: 1, y: gameScene.height() - 2});
 
 	//////////////////////////////////////////////////////////////////////////
@@ -212,10 +212,10 @@ export default function GameController({model, view, keyboard}) {
 		.on('itemDestroyed', pill => gameScene.remove(pill));
 	vaus
 		.on('powerUp', cond([
-			[matcher(PowerUp.ExtraLife), () => model.gainLife()],
-			[matcher(PowerUp.Expand), () => vaus.setMode(Vaus.Mode.Large)],
-			[matcher(PowerUp.Laser), () => vaus.setMode(Vaus.Mode.Armed)],
-			[matcher(PowerUp.Split), () => {
+			[matcher(Pill.ExtraLife), () => model.gainLife()],
+			[matcher(Pill.Expand), () => vaus.setMode(Vaus.Mode.Large)],
+			[matcher(Pill.Laser), () => vaus.setMode(Vaus.Mode.Armed)],
+			[matcher(Pill.Split), () => {
 				vaus.setMode(Vaus.Mode.Small);
 				ball_split();
 			}]

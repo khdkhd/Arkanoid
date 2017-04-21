@@ -75,24 +75,24 @@ const flare_box2 = new Path2D(`
 	Z
 `);
 
-export function PowerUpModel({x, y}, type) {
+export function PillModel({x, y}, type) {
 	const color = ({
-		[PowerUp.Break]:     hsl(292,  84, 44), // #b612cf
-		[PowerUp.Catch]:     hsl(120, 100, 20), // #006600
-		[PowerUp.Expand]:    hsl(249, 100, 33), // #1c00ab
-		[PowerUp.ExtraLife]: hsl(  0,   0, 40), // #666666
-		[PowerUp.Laser]:     hsl(  0,  99, 39), // #c60101
-		[PowerUp.Slow]:      hsl( 24, 100, 50), // #ff6600
-		[PowerUp.Split]:     hsl(213,  96, 70), // #6aaafc
+		[Pill.Break]:     hsl(292,  84, 44), // #b612cf
+		[Pill.Catch]:     hsl(120, 100, 20), // #006600
+		[Pill.Expand]:    hsl(249, 100, 33), // #1c00ab
+		[Pill.ExtraLife]: hsl(  0,   0, 40), // #666666
+		[Pill.Laser]:     hsl(  0,  99, 39), // #c60101
+		[Pill.Slow]:      hsl( 24, 100, 50), // #ff6600
+		[Pill.Split]:     hsl(213,  96, 70), // #6aaafc
 	})[type];
 	const letter = ({
-		[PowerUp.Break]:     'B',
-		[PowerUp.Catch]:     'C',
-		[PowerUp.Expand]:    'E',
-		[PowerUp.ExtraLife]: 'P',
-		[PowerUp.Laser]:     'L',
-		[PowerUp.Slow]:      'S',
-		[PowerUp.Split]:     'D'
+		[Pill.Break]:     'B',
+		[Pill.Catch]:     'C',
+		[Pill.Expand]:    'E',
+		[Pill.ExtraLife]: 'P',
+		[Pill.Laser]:     'L',
+		[Pill.Slow]:      'S',
+		[Pill.Split]:     'D'
 	})[type];
 	const coordinates = VerletModel({
 		width: 2,
@@ -108,7 +108,7 @@ export function PowerUpModel({x, y}, type) {
 	};
 }
 
-export function PowerUpView(state) {
+export function PillView(state) {
 	const {coordinates} = state;
 	const clip_rect = Rect({x: 0, y: 2/16}, {width: 30/16, height: 12/16});
 	let frame = 0;
@@ -166,7 +166,7 @@ export function PowerUpView(state) {
 	});
 }
 
-export function PowerUpController(state) {
+export function PillController(state) {
 	return {
 		type() {
 			return state.type;
@@ -177,60 +177,60 @@ export function PowerUpController(state) {
 	}
 }
 
-export default function PowerUp({x, y}, type) {
-	const state = PowerUpModel({x, y}, type);
+export default function Pill({x, y}, type) {
+	const state = PillModel({x, y}, type);
 	return Object.assign(
 		Model(),
 		state.coordinates,
-		PowerUpView(state),
-		PowerUpController(state)
+		PillView(state),
+		PillController(state)
 	);
 }
 
-Object.defineProperty(PowerUp, 'Break', {
+Object.defineProperty(Pill, 'Break', {
 	writable: false,
-	value: Symbol('PowerUp.Break')
+	value: Symbol('Pill.Break')
 });
 
-Object.defineProperty(PowerUp, 'Catch', {
+Object.defineProperty(Pill, 'Catch', {
 	writable: false,
-	value: Symbol('PowerUp.Catch')
+	value: Symbol('Pill.Catch')
 });
 
-Object.defineProperty(PowerUp, 'Expand', {
+Object.defineProperty(Pill, 'Expand', {
 	writable: false,
-	value: Symbol('PowerUp.Expand')
+	value: Symbol('Pill.Expand')
 });
 
-Object.defineProperty(PowerUp, 'ExtraLife', {
+Object.defineProperty(Pill, 'ExtraLife', {
 	writable: false,
-	value: Symbol('PowerUp.ExtraLife')
+	value: Symbol('Pill.ExtraLife')
 });
 
-Object.defineProperty(PowerUp, 'Laser', {
+Object.defineProperty(Pill, 'Laser', {
 	writable: false,
-	value: Symbol('PowerUp.Laser')
+	value: Symbol('Pill.Laser')
 });
 
-Object.defineProperty(PowerUp, 'Slow', {
+Object.defineProperty(Pill, 'Slow', {
 	writable: false,
-	value: Symbol('PowerUp.Slow')
+	value: Symbol('Pill.Slow')
 });
 
-Object.defineProperty(PowerUp, 'Split', {
+Object.defineProperty(Pill, 'Split', {
 	writable: false,
-	value: Symbol('PowerUp.Split')
+	value: Symbol('Pill.Split')
 });
 
-export const PowerUpDistribution = [
-	[null,             24], [PowerUp.Catch,     2], [PowerUp.Expand,    2],
-	[PowerUp.Laser,     2], [PowerUp.Slow,      2], [PowerUp.Split,     2],
-	[PowerUp.Break,     1], [PowerUp.ExtraLife, 1]
+export const PillDistribution = [
+	[null,             24], [Pill.Catch,     2], [Pill.Expand,    2],
+	[Pill.Laser,     2], [Pill.Slow,      2], [Pill.Split,     2],
+	[Pill.Break,     1], [Pill.ExtraLife, 1]
 ];
 
-export function PillCollections(distribution = PowerUpDistribution) {
+export function PillCollection(distribution = PillDistribution) {
 	const pillsDistribution = flatten(distribution.map(([item, count]) => times(count, constant(item))));
-	const collection = Collection({ItemModel: PowerUp});
+	const collection = Collection({ItemModel: Pill});
 	return Object.assign(collection, {
 		random({x, y}) {
 			const type = pillsDistribution[random(pillsDistribution.length - 1)];
