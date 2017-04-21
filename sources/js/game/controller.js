@@ -32,7 +32,6 @@ export default function GameController({model, view, keyboard}) {
 	const brickScene = Scene(Coordinates(gameZone.size), Vector.Null);
 	const level = Level();
 	const balls = BallCollection();
-	// const ball = Ball(Vector.Null);
 	const vaus = Vaus({x: 1, y: gameScene.height() - 2});
 	const pills = new Set();
 
@@ -98,16 +97,14 @@ export default function GameController({model, view, keyboard}) {
 
 	const ball_split = balls.splitter(Math.PI/8);
 
-	function pills_collides() {
-		for (let pill of pills) {
-			const pill_box = pill.rect();
-			const o = overlap(pill_box, vaus.rect(), pill.velocity().y);
-			if (o !== overlap.NONE || pill_box.topY >= gameZone.bottomY) {
-				pills.delete(pill);
-				gameScene.remove(pill);
-				if (o !== overlap.NONE) {
-					vaus.emit('powerUp', pill.type());
-				}
+	function pill_collides(pill) {
+		const pill_box = pill.rect();
+		const o = overlap(pill_box, vaus.rect(), pill.velocity().y);
+		if (o !== overlap.NONE || pill_box.topY >= gameZone.bottomY) {
+			pills.delete(pill);
+			gameScene.remove(pill);
+			if (o !== overlap.NONE) {
+				vaus.emit('powerUp', pill.type());
 			}
 		}
 	}
@@ -123,19 +120,22 @@ export default function GameController({model, view, keyboard}) {
 		}));
 	}
 
-	function update_ball() {
-		balls.forEach(ball => {
-			if (!ball.velocity().isNull()) {
-				const ball_box = ball.rect().translate(ball.velocity());
-				const ball_speed = ball_collides(ball, ball_box, ball.velocity());
-				if (!is_nil(ball_speed)) {
-					ball.setVelocity(ball_speed);
-				}
-			} else {
-				reset_ball_position(ball);
+	function update_ball(ball) {
+		if (!ball.velocity().isNull()) {
+			const ball_box = ball.rect().translate(ball.velocity());
+			const ball_speed = ball_collides(ball, ball_box, ball.velocity());
+			if (!is_nil(ball_speed)) {
+				ball.setVelocity(ball_speed);
 			}
-			ball.update();
-		});
+		} else {
+			reset_ball_position(ball);
+		}
+		ball.update();
+	}
+
+	function update_pill(pill) {
+		pill_collides(pill);
+		pill.update();
 	}
 
 	function update_vaus() {
@@ -146,22 +146,21 @@ export default function GameController({model, view, keyboard}) {
 			vaus.move(Vector.Null);
 			vaus.setPosition(vaus.position().add({x: zone_left_x - vaus_left_x, y: 0}));
 		}
-
 		if (!vaus.velocity().isNull() && vaus_right_x >= zone_right_x) {
 			vaus.move(Vector.Null);
 			vaus.setPosition(vaus.position().add({x: zone_right_x - vaus_right_x, y: 0}));
 		}
-
 		vaus.update();
 	}
 
 	function update() {
 		if (model.isRunning()) {
-			pills_collides();
-			for (let pill of pills) {
-				pill.update();
+			for (let ball of balls) {
+				update_ball(ball);
 			}
-			update_ball();
+			for (let pill of pills) {
+				update_pill(pill);
+			}
 			update_vaus();
 		}
 	}
@@ -197,8 +196,8 @@ export default function GameController({model, view, keyboard}) {
 			[matcher(PowerUp.Expand), () => vaus.setMode(Vaus.Mode.Large)],
 			[matcher(PowerUp.Laser), () => vaus.setMode(Vaus.Mode.Armed)],
 			[matcher(PowerUp.Split), () => {
-				ball_split();
 				vaus.setMode(Vaus.Mode.Small);
+				ball_split();
 			}]
 		]))
 	keyboard
