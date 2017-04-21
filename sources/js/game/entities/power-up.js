@@ -1,9 +1,8 @@
 import {hsl} from 'graphics/color';
 import SceneObject from 'graphics/scene-object';
 import Rect from 'maths/rect';
+import {Model, Collection} from 'model';
 import VerletModel from 'physics/verlet-model';
-
-import {EventEmitter} from 'events';
 
 import constant from 'lodash.constant';
 import flatten from 'lodash.flatten';
@@ -100,7 +99,6 @@ export function PowerUpModel({x, y}, type) {
 		height: 1
 	}, {x, y}).setVelocity({x: 0, y: .1});
 	return {
-		emitter: new EventEmitter(),
 		coordinates,
 		letter,
 		flareColor: color.lighten(50).hex,
@@ -182,7 +180,7 @@ export function PowerUpController(state) {
 export default function PowerUp({x, y}, type) {
 	const state = PowerUpModel({x, y}, type);
 	return Object.assign(
-		state.emitter,
+		Model(),
 		state.coordinates,
 		PowerUpView(state),
 		PowerUpController(state)
@@ -230,12 +228,15 @@ export const PowerUpDistribution = [
 	[PowerUp.Break,     1], [PowerUp.ExtraLife, 1]
 ];
 
-export function PowerUpRandomizer(distribution = PowerUpDistribution) {
+export function PillCollections(distribution = PowerUpDistribution) {
 	const pillsDistribution = flatten(distribution.map(([item, count]) => times(count, constant(item))));
-	return ({x, y}) => {
-		const type = pillsDistribution[0, random(pillsDistribution.length - 1)];
-		if (!is_nil(type)) {
-			return PowerUp({x, y}, type);
+	const collection = Collection({ItemModel: PowerUp});
+	return Object.assign(collection, {
+		random({x, y}) {
+			const type = pillsDistribution[random(pillsDistribution.length - 1)];
+			if (!is_nil(type)) {
+				collection.create({x, y}, type);
+			}
 		}
-	};
+	});
 }

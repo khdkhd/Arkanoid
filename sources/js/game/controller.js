@@ -1,10 +1,10 @@
 import {dispatch, matcher} from 'common/functional';
 
 import gameKeyboardController from 'game/keyboard-controller';
+import {BrickCollection} from 'game/entities/brick';
 import {default as Ball, BallCollection} from 'game/entities/ball';
+import {default as PowerUp, PillCollections} from 'game/entities/power-up';
 import Vaus from 'game/entities/vaus';
-import PowerUp from 'game/entities/power-up';
-import Level  from 'game/level';
 import CreateWalls from 'game/entities/wall';
 import GameModel from 'game/model';
 
@@ -30,16 +30,16 @@ export default function GameController({model, view, keyboard}) {
 	}, {x: 1, y: 1}));
 	const gameZone = gameScene.localRect();
 	const brickScene = Scene(Coordinates(gameZone.size), Vector.Null);
-	const level = Level();
+	const bricks = BrickCollection();
 	const balls = BallCollection();
+	const pills = PillCollections();
 	const vaus = Vaus({x: 1, y: gameScene.height() - 2});
-	const pills = new Set();
 
 	//////////////////////////////////////////////////////////////////////////
 	// Collision helpers
 
 	function ball_collides_with_bricks(ball, ball_box, speed) {
-		for (let brick of level.neighborhood(ball.position())) {
+		for (let brick of bricks.neighborhood(ball.position())) {
 			const brick_box = brick.rect();
 			const v = bounce(ball_box, speed, brick_box, .001);
 			if (!is_nil(v)) {
@@ -101,11 +101,10 @@ export default function GameController({model, view, keyboard}) {
 		const pill_box = pill.rect();
 		const o = overlap(pill_box, vaus.rect(), pill.velocity().y);
 		if (o !== overlap.NONE || pill_box.topY >= gameZone.bottomY) {
-			pills.delete(pill);
-			gameScene.remove(pill);
 			if (o !== overlap.NONE) {
 				vaus.emit('powerUp', pill.type());
 			}
+			pill.destroy();
 		}
 	}
 
@@ -174,6 +173,24 @@ export default function GameController({model, view, keyboard}) {
 		requestAnimationFrame(loop);
 	}
 
+	bricks
+		.on('itemAdded', brick => brickScene.add(brick))
+		.on('itemChanged', brick => model.updateScore(brick.points()))
+		.on('itemDestroyed', brick => {
+			brickScene.remove(brick);
+			if (model.isRunning()) {
+				pills.random(brick.position());
+			}
+		})
+		.on('completed', () => {
+			if (model.isRunning()) {
+				balls.hide();
+				vaus.hide();
+				model.gainLife();
+				model.nextStage();
+				model.setState(GameModel.state.Ready);
+			}
+		});
 	balls
 		.on('itemAdded', ball => gameScene.add(ball))
 		.on('itemDestroyed', ball => gameScene.remove(ball))
@@ -190,6 +207,9 @@ export default function GameController({model, view, keyboard}) {
 			[matcher('brick'), soundController.ballCollidesWithBricks],
 			[matcher('vaus'), soundController.ballCollidesWithVaus]
 		]));
+	pills
+		.on('itemAdded', pill => gameScene.add(pill))
+		.on('itemDestroyed', pill => gameScene.remove(pill));
 	vaus
 		.on('powerUp', cond([
 			[matcher(PowerUp.ExtraLife), () => model.gainLife()],
@@ -200,31 +220,16 @@ export default function GameController({model, view, keyboard}) {
 				ball_split();
 			}]
 		]))
-	keyboard
-		.on('direction-changed', direction => {
-			vaus.move(direction)
-		})
-		.on('pause', () => {
-			model.setState(GameModel.state.Paused);
-		})
-		.on('fire', () => {
-			balls.forEach(ball => {
-				if (ball.velocity().isNull()) {
-					ball.setVelocity(Vector({x: 1, y: -1}).toUnit().mul(.2));
-				}
-			});
-		});
 	model
 		.on('reset', () => {
-			level.reset();
+			bricks.reset();
 			brickScene.reset();
 			balls.hide();
 			vaus.hide();
 		})
 		.on('changed', cond([
 			[matcher('stage'), () => {
-				level.reset(model.bricks());
-				brickScene.reset().add(...level);
+				bricks.reset(model.bricks());
 			}],
 			[matcher('state', GameModel.state.Paused), () => {
 				balls.hide();
@@ -232,10 +237,6 @@ export default function GameController({model, view, keyboard}) {
 			}],
 			[matcher('state', GameModel.state.Ready), () => {
 				keyboard.use(null);
-				for (let pill of pills) {
-					pills.delete(pill);
-					gameScene.remove(pill);
-				}
 				model.takeLife();
 				vaus
 					.setMode(Vaus.Mode.Small)
@@ -245,6 +246,7 @@ export default function GameController({model, view, keyboard}) {
 					.reset()
 					.create(Vector.Null)
 					.forEach(reset_ball_position);
+				pills.reset();
 			}],
 			[matcher('state', GameModel.state.Running), () => {
 				keyboard.use(gameKeyboardController);
@@ -257,30 +259,20 @@ export default function GameController({model, view, keyboard}) {
 				});
 			}]
 		]));
-	level
-		.on('itemChanged', brick => {
-			const points = brick.points();
-			if (points > 0) {
-				model.updateScore(points);
-			}
+	keyboard
+		.on('direction-changed', direction => {
+			vaus.move(direction)
 		})
-		.on('itemDestroyed', brick => {
-			brick.hide();
+		.on('pause', () => {
+			model.setState(GameModel.state.Paused);
 		})
-		.on('powerUp', power_up => {
-			if (model.isRunning()) {
-				gameScene.add(power_up);
-				pills.add(power_up);
-			}
-		})
-		.on('completed', () => {
-			if (model.isRunning()) {
-				balls.hide();
-				vaus.hide();
-				model.gainLife();
-				model.nextStage();
-				model.setState(GameModel.state.Ready);
-			}
+		.on('fire', () => {
+			bricks.find(brick => brick.color() !== 'gold').destroy();
+			balls.forEach(ball => {
+				if (ball.velocity().isNull()) {
+					ball.setVelocity(Vector({x: 1, y: -1}).toUnit().mul(.2));
+				}
+			});
 		});
 
 	vaus.hide();
