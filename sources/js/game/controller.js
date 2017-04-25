@@ -184,7 +184,7 @@ export default function GameController({model, view, keyboard}) {
 				vaus.hide();
 				model.gainLife();
 				model.nextStage();
-				model.setState(GameModel.state.Ready);
+				model.setState(GameModel.State.Ready);
 			}
 		});
 	balls
@@ -194,8 +194,8 @@ export default function GameController({model, view, keyboard}) {
 			if (model.isRunning()) {
 				soundController.ballGoesOut();
 				model.setState(model.lifeCount() > 0
-					? GameModel.state.Ready
-					: GameModel.state.GameOver
+					? GameModel.State.Ready
+					: GameModel.State.GameOver
 				);
 			}
 		});
@@ -224,11 +224,11 @@ export default function GameController({model, view, keyboard}) {
 			[matcher('stage'), () => {
 				bricks.reset(model.bricks());
 			}],
-			[matcher('state', GameModel.state.Paused), () => {
+			[matcher('state', GameModel.State.Paused), () => {
 				balls.hide();
 				vaus.hide();
 			}],
-			[matcher('state', GameModel.state.Ready), () => {
+			[matcher('state', GameModel.State.Ready), () => {
 				keyboard.use(null);
 				model.takeLife();
 				vaus
@@ -241,7 +241,7 @@ export default function GameController({model, view, keyboard}) {
 					.forEach(reset_ball_position);
 				pills.reset();
 			}],
-			[matcher('state', GameModel.state.Running), () => {
+			[matcher('state', GameModel.State.Running), () => {
 				keyboard.use(gameKeyboardController);
 				balls.show();
 				vaus.show();
@@ -257,7 +257,7 @@ export default function GameController({model, view, keyboard}) {
 			vaus.move(direction)
 		})
 		.on('pause', () => {
-			model.setState(GameModel.state.Paused);
+			model.setState(GameModel.State.Paused);
 		})
 		.on('fire', () => {
 			bricks.find(brick => brick.color() !== 'gold').destroy();

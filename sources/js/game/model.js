@@ -16,7 +16,7 @@ export default function GameModel(levels) {
 				width: 224*2,
 				height: 248*2
 			},
-			state: GameModel.state.Stopped
+			state: GameModel.State.Stopped
 		}
 	});
 	// Mix model methods with some custom attributes accessors/modifiers.
@@ -30,7 +30,7 @@ export default function GameModel(levels) {
 			return this;
 		},
 		isRunning() {
-			return model.get('state') === GameModel.state.Running;
+			return model.get('state') === GameModel.State.Running;
 		},
 		// Cheat mode
 		cheatMode() {
@@ -110,7 +110,7 @@ export default function GameModel(levels) {
 	});
 }
 
-Object.defineProperty(GameModel, 'state', {
+Object.defineProperty(GameModel, 'State', {
 	writable: false,
 	value: Object.freeze({
 		Stopped: 0,
