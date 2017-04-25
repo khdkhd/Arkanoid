@@ -44,6 +44,9 @@ export function VausController(state) {
 	let acceleration = Vector.Null;
 	let moving = false;
 	return {
+		hit() {
+			state.emitter.emit('hit');
+		},
 		move(direction) {
 			const thrust = 1/16;
 			moving = !direction.isNull();

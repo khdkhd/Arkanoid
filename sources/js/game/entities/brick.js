@@ -160,13 +160,14 @@ export function Brick({x, y}, color, stage) {
 
 export function BrickCollection() {
 	const collection = Collection();
-	collection.on('itemDestroyed', brick => {
-		if (brick.color() !== 'gold') {
-			if (collection.every(brick => brick.color() === 'gold')) {
-				collection.emit('completed');
+	collection
+		.on('itemDestroyed', brick => {
+			if (brick.color() !== 'gold') {
+				if (collection.every(brick => brick.color() === 'gold')) {
+					collection.emit('completed');
+				}
 			}
-		}
-	});
+		});
 	return Object.assign(collection, {
 		neighborhood(position) {
 			const col = Math.round(position.x);
