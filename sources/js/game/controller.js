@@ -47,9 +47,12 @@ export default function GameController({model, view, keyboard}) {
 	}
 
 	function ball_collides_with_vaus(ball_box, speed) {
-		const v = bounce(ball_box, speed, vaus.rect(), 1/16);
-		if (!is_nil(v)) {
-			return [v, vaus];
+		const vaus_box = vaus.rect();
+		if (overlap(ball_box, vaus_box, 1/16) !== overlap.NONE) {
+			const x1 = ball_box.center.x;
+			const x2 = vaus_box.center.x;
+			const teta = Math.PI/2*(x1 - x2)/vaus_box.width;
+			return [Vector({x: Math.sin(teta), y: -Math.cos(teta)}).mul(speed.norm), vaus];
 		}
 	}
 
