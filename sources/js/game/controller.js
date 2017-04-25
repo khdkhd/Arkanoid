@@ -3,6 +3,7 @@ import {dispatch, matcher} from 'common/functional';
 import gameKeyboardController from 'game/keyboard-controller';
 import {BrickCollection} from 'game/entities/brick';
 import {default as Ball, BallCollection} from 'game/entities/ball';
+import {BulletCollection} from 'game/entities/bullet';
 import {default as Pill, PillCollection} from 'game/entities/pill';
 import Vaus from 'game/entities/vaus';
 import CreateWalls from 'game/entities/wall';
@@ -31,6 +32,7 @@ export default function GameController({model, view, keyboard}) {
 	const brickScene = Scene(Coordinates(gameZone.size));
 	const bricks = BrickCollection();
 	const balls = BallCollection();
+	const bullets = BulletCollection();
 	const pills = PillCollection();
 	const vaus = Vaus({x: 1, y: gameScene.height() - 2});
 
@@ -97,6 +99,18 @@ export default function GameController({model, view, keyboard}) {
 		}
 	}
 
+	function bullet_collides(bullet) {
+		const bullet_box = bullet.rect();
+		if (bullet_box.bottomY > 0) {
+			for (let brick of bricks.neighborhood(bullet_box.topLeft)) {
+				if (overlap(bullet_box, brick.rect(), .001) !== overlap.NONE) {
+					brick.hit();
+					bullet.destroy();
+				}
+			}
+		} else bullet.destroy();
+	}
+
 	//////////////////////////////////////////////////////////////////////////
 	// Position helpers
 
@@ -128,6 +142,11 @@ export default function GameController({model, view, keyboard}) {
 		ball.update();
 	}
 
+	function update_bullet(bullet) {
+		bullet_collides(bullet);
+		bullet.update();
+	}
+
 	function update_pill(pill) {
 		pill_collides(pill);
 		pill.update();
@@ -150,6 +169,9 @@ export default function GameController({model, view, keyboard}) {
 
 	function update() {
 		if (model.isRunning()) {
+			for (let bullet of bullets) {
+				update_bullet(bullet);
+			}
 			for (let ball of balls) {
 				update_ball(ball);
 			}
@@ -190,6 +212,9 @@ export default function GameController({model, view, keyboard}) {
 				model.setState(GameModel.State.Ready);
 			}
 		});
+	bullets
+		.on('itemAdded', bullet => gameScene.add(bullet))
+		.on('itemDestroyed', bullet => gameScene.remove(bullet));
 	balls
 		.on('itemAdded', ball => gameScene.add(ball))
 		.on('itemDestroyed', ball => gameScene.remove(ball))
@@ -242,6 +267,7 @@ export default function GameController({model, view, keyboard}) {
 					.reset()
 					.create(Vector.Null)
 					.forEach(reset_ball_position);
+				bullets.reset();
 				pills.reset();
 			}],
 			[matcher('state', GameModel.State.Running), () => {
@@ -263,7 +289,11 @@ export default function GameController({model, view, keyboard}) {
 			model.setState(GameModel.State.Paused);
 		})
 		.on('fire', () => {
-			bricks.find(brick => brick.color() !== 'gold').destroy();
+			if (vaus.mode() === Vaus.Mode.Armed) {
+				const vaus_box = vaus.rect();
+				bullets.create(vaus_box.topLeft.add({x: 1, y: 0}));
+				bullets.create(vaus_box.topRight.sub({x: 1 + 8/16, y: 0}));
+			}
 			balls.forEach(ball => {
 				if (ball.velocity().isNull()) {
 					ball.setVelocity(Vector({x: 1, y: -1}).toUnit().mul(.2));

@@ -43,8 +43,7 @@ export default [
 	KeyHandler({
 		code: keyboard.KEY_SPACE,
 		event: 'fire',
-		on_keydown: constant(true),
-		on_keyup: constant(false)
+		on_keypressed: () => constant(null)
 	}),
 	KeyHandler({
 		code: keyboard.KEY_P,
