@@ -8,4 +8,4 @@ game
 		game.start(level === 32 ? 1 : level + 1);
 	})
 	.render()
-	.start(1);
+	.start();
