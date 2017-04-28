@@ -25,7 +25,7 @@ import is_nil from 'lodash.isnil';
 const PILL_BONUS_POINT = 1000;
 
 const BALL_SPEED_MIN = .2;
-const BALL_SPEED_MAX = .4;
+const BALL_SPEED_MAX = .6;
 const BALL_SPEED_STEP = .025;
 const BALL_SPEED_INITIAL = .3;
 
@@ -44,27 +44,32 @@ export default function GameController({model, view, keyboard}) {
 	const pills = PillCollection();
 	const vaus = Vaus({x: 1, y: gameScene.height() - 2});
 
+	let ball_stuck_x = .5;
+
 	//////////////////////////////////////////////////////////////////////////
 	// Ball speed helpers
 
 	function throw_ball(ball, speed = BALL_SPEED_INITIAL) {
+		const ball_x = ball.rect().center.x;
+		const vaus_box = vaus.rect();
+		const teta = Math.PI/2*(ball_x - vaus_box.center.x)/vaus_box.width;
 		if (ball.velocity().isNull()) {
-			ball.setVelocity(Vector({x: 1, y: -1}).toUnit().mul(speed));
+			ball.setVelocity(
+				Vector({x: Math.sin(teta), y: -Math.cos(teta)}).mul(speed)
+			);
 		}
 	}
 
 	function slow_down(speed, min, step = BALL_SPEED_STEP) {
-		if (speed > min) {
-			return Math.max(speed - step, min);
-		}
-		return speed;
+		return speed > min
+			? Math.max(speed - step, min)
+			: speed;
 	}
 
 	function speed_up(speed, max, step = BALL_SPEED_STEP) {
-		if (speed > 0 && speed < max) {
-			return Math.min(speed + step, max);
-		}
-		return speed;
+		return speed > 0 && speed < max
+			? Math.min(speed + step, max)
+			: speed;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -86,9 +91,17 @@ export default function GameController({model, view, keyboard}) {
 		if (overlap(ball_box, vaus_box, epsilon) !== overlap.NONE) {
 			const ball_x = ball_box.center.x;
 			const vaus_x = vaus_box.center.x;
-			const teta = Math.PI/2*(ball_x - vaus_x)/vaus_box.width;
-			const speed = slow_down(velocity.norm, BALL_SPEED_INITIAL);
-			return [Vector({x: Math.sin(teta), y: -Math.cos(teta)}).mul(speed), vaus];
+			const offset_x = ball_x - vaus_x;
+			if (vaus.mode() === Vaus.Mode.Catch) {
+				ball_stuck_x = offset_x;
+				return [Vector.Null, vaus];
+			} else {
+				const teta = Math.PI/2*(offset_x)/vaus_box.width;
+				return [
+					Vector({x: Math.sin(teta), y: -Math.cos(teta)}).mul(slow_down(velocity.norm, BALL_SPEED_INITIAL)),
+					vaus
+				];
+			}
 		}
 	}
 
@@ -153,10 +166,10 @@ export default function GameController({model, view, keyboard}) {
 
 	function reset_ball_position(ball) {
 		const vaus_box = vaus.rect();
-		ball.setPosition(vaus_box.center.sub({
-			x: 0,
-			y: vaus_box.height/2 + 2*Ball.Radius
-		}));
+		ball.setPosition({
+			x: vaus_box.center.x + ball_stuck_x,
+			y: vaus_box.topLeft.y - 2*Ball.Radius
+		});
 	}
 
 	function update_ball(ball) {
@@ -275,10 +288,11 @@ export default function GameController({model, view, keyboard}) {
 			},
 			cond([
 				[matcher(Pill.ExtraLife), () => model.gainLife()],
-				[matcher(Pill.Expand), () => vaus.setMode(Vaus.Mode.Large)],
-				[matcher(Pill.Laser), () => vaus.setMode(Vaus.Mode.Armed)],
-				[matcher(Pill.Split), () => balls.split()],
-				[matcher(Pill.Slow), () => balls.setSpeed(BALL_SPEED_MIN)]
+				[matcher(Pill.Catch),     () => vaus.setMode(Vaus.Mode.Catch)],
+				[matcher(Pill.Expand),    () => vaus.setMode(Vaus.Mode.Large)],
+				[matcher(Pill.Laser),     () => vaus.setMode(Vaus.Mode.Armed)],
+				[matcher(Pill.Split),     () => balls.split()],
+				[matcher(Pill.Slow),      () => balls.setSpeed(BALL_SPEED_MIN)]
 			])
 		))
 		.on('hit', () => soundController.ballCollidesWithVaus());

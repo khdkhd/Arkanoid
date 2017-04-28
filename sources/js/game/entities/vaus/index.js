@@ -25,6 +25,7 @@ export function VausModel({x, y}) {
 export function VausView(state) {
 	const paths = {
 		[Vaus.Mode.Armed]: armedVausPath,
+		[Vaus.Mode.Catch]: smallVausPath,
 		[Vaus.Mode.Large]: largeVausPath,
 		[Vaus.Mode.Small]: smallVausPath,
 		[Vaus.Mode.Tiny]:  tinyVausPath
@@ -86,7 +87,7 @@ export function VausController(state) {
 					width: 6.125,
 					height: 1.125
 				});
-			} else if (mode === Vaus.Mode.Small) {
+			} else if (mode === Vaus.Mode.Small || mode === Vaus.Mode.Catch) {
 				state.coordinates.setSize({
 					width: 4.125,
 					height: 1.125
@@ -125,6 +126,7 @@ Object.defineProperty(Vaus, 'Mode', {
 	writable: false,
 	value: Object.freeze({
 		Armed: Symbol('Vaus.Armed'),
+		Catch: Symbol('Vaus.Catch'),
 		Large: Symbol('Vaus.Large'),
 		Small: Symbol('Vaus.Small'),
 		Tiny:  Symbol('Vaus.Tiny')
