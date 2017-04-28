@@ -217,6 +217,7 @@ export default function GameController({model, view, keyboard}) {
 
 	function update() {
 		if (model.isRunning()) {
+			update_vaus();
 			for (let bullet of bullets) {
 				update_bullet(bullet);
 			}
@@ -226,7 +227,6 @@ export default function GameController({model, view, keyboard}) {
 			for (let pill of pills) {
 				update_pill(pill);
 			}
-			update_vaus();
 		}
 	}
 
