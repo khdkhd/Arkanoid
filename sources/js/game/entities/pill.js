@@ -223,7 +223,7 @@ Object.defineProperty(Pill, 'Split', {
 });
 
 export const PillDistribution = [
-	[null,             24], [Pill.Catch,     2], [Pill.Expand,    2],
+	[null,          24], [Pill.Catch,     2], [Pill.Expand,    2],
 	[Pill.Laser,     2], [Pill.Slow,      2], [Pill.Split,     2],
 	[Pill.Break,     1], [Pill.ExtraLife, 1]
 ];
