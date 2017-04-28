@@ -3,6 +3,9 @@ import SceneObject from 'graphics/scene-object';
 import Vector from 'maths/vector';
 import VerletModel from 'physics/verlet-model';
 
+import is_nil from 'lodash.isnil';
+import times from 'lodash.times';
+
 const radius = .3;
 
 export function BallView({verlet}) {
@@ -53,6 +56,15 @@ export function Ball(
 
 export function BallCollection() {
 	const collection = Collection({ItemModel: Ball});
+	const cos_teta = Math.cos(Math.PI/8);
+	const sin_teta = Math.sin(Math.PI/8);
+	const transforms = [{
+		m11:  cos_teta, m12:  sin_teta,
+		m21: -sin_teta, m22:  cos_teta
+	}, {
+		m11:  cos_teta, m12: -sin_teta,
+		m21:  sin_teta, m22:  cos_teta
+	}];
 	collection
 		.on('itemDestroyed', () => {
 			if (collection.size() === 0) {
@@ -75,25 +87,30 @@ export function BallCollection() {
 			collection.forEach(ball => ball.update());
 			return this;
 		},
-		splitter(teta) {
-			const cos_teta = Math.cos(teta);
-			const sin_teta = Math.sin(teta);
-			const m1 = {
-				m11:  cos_teta, m12:  sin_teta,
-				m21: -sin_teta, m22:  cos_teta
-			};
-			const m2 = {
-				m11:  cos_teta, m12: -sin_teta,
-				m21:  sin_teta, m22:  cos_teta
-			};
-			return () => {
-				if (collection.size() === 1) {
-					const [ball] = collection;
-					const v = ball.velocity();
-					collection.create(ball.position(), v.transform(m1));
-					collection.create(ball.position(), v.transform(m2));
-				}
-			};
+		setSpeed(speed) {
+			collection.forEach(ball => {
+				const velocity = ball.velocity();
+				ball.setVelocity(velocity.mul(speed/velocity.norm));
+			});
+			return this;
+		},
+		split() {
+			const [ball] = collection;
+			const v = ball.velocity();
+			times(3 - collection.size(), n => {
+				collection.create(ball.position(), v.transform(transforms[n]));
+			});
+			return this;
+		},
+		unsplit() {
+			const [,b1, b2] = collection;
+			if (!is_nil(b1)) {
+				b1.destroy();
+			}
+			if (!is_nil(b2)) {
+				b2.destroy();
+			}
+			return this;
 		}
 	});
 }

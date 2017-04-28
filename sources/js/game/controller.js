@@ -19,13 +19,21 @@ import Vector from 'maths/vector';
 import soundController from 'sound/arkanoid/sound-controller';
 
 import cond from 'lodash.cond';
+import flow from 'lodash.flow';
 import is_nil from 'lodash.isnil';
+
+const PILL_BONUS_POINT = 1000;
+
+const BALL_SPEED_MIN = .2;
+const BALL_SPEED_MAX = .4;
+const BALL_SPEED_STEP = .025;
+const BALL_SPEED_INITIAL = .3;
 
 export default function GameController({model, view, keyboard}) {
 	const scene = view.scene();
 	const screen = view.screen();
 	const gameScene = Scene(Coordinates({
-		width: scene.width() - 2,
+		width:  scene.width()  - 2,
 		height: scene.height() - 1
 	}, {x: 1, y: 1}));
 	const gameZone = gameScene.localRect();
@@ -37,44 +45,72 @@ export default function GameController({model, view, keyboard}) {
 	const vaus = Vaus({x: 1, y: gameScene.height() - 2});
 
 	//////////////////////////////////////////////////////////////////////////
+	// Ball speed helpers
+
+	function throw_ball(ball, speed = BALL_SPEED_INITIAL) {
+		if (ball.velocity().isNull()) {
+			ball.setVelocity(Vector({x: 1, y: -1}).toUnit().mul(speed));
+		}
+	}
+
+	function slow_down(speed, min, step = BALL_SPEED_STEP) {
+		if (speed > min) {
+			return Math.max(speed - step, min);
+		}
+		return speed;
+	}
+
+	function speed_up(speed, max, step = BALL_SPEED_STEP) {
+		if (speed > 0 && speed < max) {
+			return Math.min(speed + step, max);
+		}
+		return speed;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
 	// Collision helpers
 
-	function ball_collides_with_bricks(ball_box, speed) {
+	function ball_collides_with_bricks(ball_box, velocity) {
+		const epsilon = 1/screen.absoluteScale();
 		for (let brick of bricks.neighborhood(ball_box.topLeft)) {
-			const v = bounce(ball_box, speed, brick.rect(), .001);
+			const v = bounce(ball_box, velocity, brick.rect(), epsilon);
 			if (!is_nil(v)) {
 				return [v, brick];
 			}
 		}
 	}
 
-	function ball_collides_with_vaus(ball_box, speed) {
+	function ball_collides_with_vaus(ball_box, velocity) {
+		const epsilon = 1/screen.absoluteScale();
 		const vaus_box = vaus.rect();
-		if (overlap(ball_box, vaus_box, 1/16) !== overlap.NONE) {
-			const x1 = ball_box.center.x;
-			const x2 = vaus_box.center.x;
-			const teta = Math.PI/2*(x1 - x2)/vaus_box.width;
-			return [Vector({x: Math.sin(teta), y: -Math.cos(teta)}).mul(speed.norm), vaus];
+		if (overlap(ball_box, vaus_box, epsilon) !== overlap.NONE) {
+			const ball_x = ball_box.center.x;
+			const vaus_x = vaus_box.center.x;
+			const teta = Math.PI/2*(ball_x - vaus_x)/vaus_box.width;
+			const speed = slow_down(velocity.norm, BALL_SPEED_INITIAL);
+			return [Vector({x: Math.sin(teta), y: -Math.cos(teta)}).mul(speed), vaus];
 		}
 	}
 
-	function ball_collides_with_walls(ball_box, speed) {
+	function ball_collides_with_walls(ball_box, velocity) {
 		if (ball_box.leftX <= gameZone.leftX) {
 			// collide with left wall
-			return [Vector({x: -speed.x, y: speed.y})];
+			return [Vector({x: -velocity.x, y: velocity.y})];
 		} else if (ball_box.rightX >= gameZone.rightX) {
 			// collide with right wall
-			return [Vector({x: -speed.x, y: speed.y})];
+			return [Vector({x: -velocity.x, y: velocity.y})];
 		} else if (ball_box.topY <= gameZone.topY) {
 			// collide with roof
-			return [Vector({x: speed.x, y: -speed.y})];
+			const speed = velocity.norm;
+			const v = speed_up(speed, BALL_SPEED_MAX)/speed;
+			return [Vector({x: v*velocity.x, y: -v*velocity.y})];
 		}
 	}
 
-	function ball_goes_out(ball_box, speed) {
+	function ball_goes_out(ball_box, velocity) {
 		if (ball_box.bottomY >= gameZone.bottomY) {
 			if(model.cheatMode()) {
-				return [Vector({x: speed.x, y: -speed.y})];
+				return [Vector({x: velocity.x, y: -velocity.y})];
 			}
 			return [];
 		}
@@ -85,7 +121,7 @@ export default function GameController({model, view, keyboard}) {
 		ball_collides_with_vaus,
 		ball_collides_with_walls,
 		ball_goes_out,
-		(ball_box, speed) => [speed]
+		(ball_box, velocity) => [velocity]
 	);
 
 	function pill_collides(pill) {
@@ -100,10 +136,11 @@ export default function GameController({model, view, keyboard}) {
 	}
 
 	function bullet_collides(bullet) {
+		const epsilon = 1/screen.absoluteScale();
 		const bullet_box = bullet.rect();
 		if (bullet_box.bottomY > 0) {
 			for (let brick of bricks.neighborhood(bullet_box.topLeft)) {
-				if (overlap(bullet_box, brick.rect(), .001) !== overlap.NONE) {
+				if (overlap(bullet_box, brick.rect(), epsilon) !== overlap.NONE) {
 					brick.hit();
 					bullet.destroy();
 				}
@@ -113,8 +150,6 @@ export default function GameController({model, view, keyboard}) {
 
 	//////////////////////////////////////////////////////////////////////////
 	// Position helpers
-
-	const ball_split = balls.splitter(Math.PI/8);
 
 	function reset_ball_position(ball) {
 		const vaus_box = vaus.rect();
@@ -231,15 +266,21 @@ export default function GameController({model, view, keyboard}) {
 		.on('itemAdded', pill => gameScene.add(pill))
 		.on('itemDestroyed', pill => gameScene.remove(pill));
 	vaus
-		.on('powerUp', cond([
-			[matcher(Pill.ExtraLife), () => model.gainLife()],
-			[matcher(Pill.Expand), () => vaus.setMode(Vaus.Mode.Large)],
-			[matcher(Pill.Laser), () => vaus.setMode(Vaus.Mode.Armed)],
-			[matcher(Pill.Split), () => {
+		.on('powerUp', flow(
+			power_up => {
+				model.updateScore(PILL_BONUS_POINT);
+				balls.unsplit().setSpeed(BALL_SPEED_INITIAL);
 				vaus.setMode(Vaus.Mode.Small);
-				ball_split();
-			}]
-		]))
+				return power_up;
+			},
+			cond([
+				[matcher(Pill.ExtraLife), () => model.gainLife()],
+				[matcher(Pill.Expand), () => vaus.setMode(Vaus.Mode.Large)],
+				[matcher(Pill.Laser), () => vaus.setMode(Vaus.Mode.Armed)],
+				[matcher(Pill.Split), () => balls.split()],
+				[matcher(Pill.Slow), () => balls.setSpeed(BALL_SPEED_MIN)]
+			])
+		))
 		.on('hit', () => soundController.ballCollidesWithVaus());
 	model
 		.on('reset', () => {
@@ -274,11 +315,7 @@ export default function GameController({model, view, keyboard}) {
 				keyboard.use(gameKeyboardController);
 				balls.show();
 				vaus.show();
-				balls.forEach(ball => {
-					if (ball.velocity().isNull()) {
-						ball.setVelocity(Vector({x: 1, y: -1}).toUnit().mul(.2));
-					}
-				});
+				balls.forEach(throw_ball);
 			}]
 		]));
 	keyboard
@@ -294,11 +331,7 @@ export default function GameController({model, view, keyboard}) {
 				bullets.create(vaus_box.topLeft.add({x: 1, y: 0}));
 				bullets.create(vaus_box.topRight.sub({x: 1 + 8/16, y: 0}));
 			}
-			balls.forEach(ball => {
-				if (ball.velocity().isNull()) {
-					ball.setVelocity(Vector({x: 1, y: -1}).toUnit().mul(.2));
-				}
-			});
+			balls.forEach(throw_ball);
 		});
 
 	vaus.hide();

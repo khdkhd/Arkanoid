@@ -81,7 +81,7 @@ export function VausController(state) {
 					width: 4.125,
 					height: 1.125
 				});
-			} else if (mode == Vaus.Mode.Large) {
+			} else if (mode === Vaus.Mode.Large) {
 				state.coordinates.setSize({
 					width: 6.125,
 					height: 1.125

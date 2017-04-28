@@ -62,8 +62,11 @@ function createVector({x, y}) {
 		isNull() {
 			return this.x === 0 && this.y === 0;
 		},
+		mutToUnit() {
+			return this.mutMul(1/this.norm);
+		},
 		toUnit() {
-			return this.mul(1/this.norm);
+			return createVector({x: this.x, y: this.y}).mutToUnit();
 		}
 	};
 }
