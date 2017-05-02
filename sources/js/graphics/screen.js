@@ -64,6 +64,23 @@ export default function Screen(canvas_context) {
 				canvas_context.strokeStyle = pen.strokeStyle;
 			}
 		},
+		getPen() {
+			return {
+				lineWidth: canvas_context.lineWidth,
+				strokeStyle: canvas_context.strokeStyle
+			};
+		},
+		setPen(pen) {
+			if (is_number(pen)) {
+				canvas_context.lineWidth = pen;
+			} else if (is_string(pen)) {
+				canvas_context.strokeStyle = pen;
+			} else {
+				canvas_context.lineWidth = pen.lineWidth;
+				canvas_context.strokeStyle = pen.strokeStyle;
+			}
+			return this;
+		},
 		///////////////////////////////////////////////////////////////////////
 		/// Brush
 		get brush() {
@@ -84,10 +101,29 @@ export default function Screen(canvas_context) {
 				canvas_context.fillStyle = brush.fillStyle;
 			}
 		},
+		getBrush() {
+			return {
+				fillStyle: canvas_context.fillStyle,
+				get isGradient() {
+					return false;
+				},
+				get isSolid() {
+					return false;
+				}
+			};
+		},
+		setBrush(brush) {
+			if (is_string(brush)) {
+				canvas_context.fillStyle = brush;
+			} else {
+				canvas_context.fillStyle = brush.fillStyle;
+			}
+			return this;
+		},
 		///////////////////////////////////////////////////////////////////////
 		/// Basics drawing routines
 		clear() {
-			canvas_context.fillRect(0, 0, this.width, this.height);
+			canvas_context.clearRect(0, 0, this.width, this.height);
 			return this;
 		},
 		drawLine({x: x1, y: y1}, {x: x2, y: y2}) {
