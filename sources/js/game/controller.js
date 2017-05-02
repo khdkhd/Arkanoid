@@ -44,16 +44,18 @@ export default function GameController({model, view, keyboard}) {
 	const pills = PillCollection();
 	const vaus = Vaus({x: 1, y: gameScene.height() - 2});
 
-	let ball_stuck_x = .5;
+	let ballXOffset = .5;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Ball speed helpers
 
+	function ball_bounce_angle(x_offset, vaus_width) {
+		return Math.PI/2*(x_offset)/vaus_width;
+	}
+
 	function throw_ball(ball, speed = BALL_SPEED_INITIAL) {
 		if (ball.velocity().isNull()) {
-			const ball_x = ball.rect().center.x;
-			const vaus_box = vaus.rect();
-			const teta = Math.PI/2*(ball_x - vaus_box.center.x)/vaus_box.width;
+			const teta = ball_bounce_angle(ballXOffset, vaus.rect().width);
 			ball.setVelocity(
 				Vector({x: Math.sin(teta), y: -Math.cos(teta)}).mul(speed)
 			);
@@ -91,12 +93,11 @@ export default function GameController({model, view, keyboard}) {
 		if (overlap(ball_box, vaus_box, epsilon) !== overlap.NONE) {
 			const ball_x = ball_box.center.x;
 			const vaus_x = vaus_box.center.x;
-			const offset_x = ball_x - vaus_x;
+			ballXOffset = ball_x - vaus_x;
 			if (vaus.mode() === Vaus.Mode.Catch) {
-				ball_stuck_x = offset_x;
 				return [Vector.Null, vaus];
 			} else {
-				const teta = Math.PI/2*(offset_x)/vaus_box.width;
+				const teta = ball_bounce_angle(ballXOffset, vaus_box.width);
 				return [
 					Vector({x: Math.sin(teta), y: -Math.cos(teta)}).mul(slow_down(velocity.norm, BALL_SPEED_INITIAL)),
 					vaus
@@ -167,7 +168,7 @@ export default function GameController({model, view, keyboard}) {
 	function reset_ball_position(ball) {
 		const vaus_box = vaus.rect();
 		ball.setPosition({
-			x: vaus_box.center.x + ball_stuck_x,
+			x: vaus_box.center.x + ballXOffset,
 			y: vaus_box.topLeft.y - 2*Ball.Radius
 		});
 	}
@@ -314,6 +315,7 @@ export default function GameController({model, view, keyboard}) {
 				vaus.hide();
 			}],
 			[matcher('state', GameModel.State.Ready), () => {
+				ballXOffset = .5;
 				keyboard.use(null);
 				model.takeLife();
 				vaus
