@@ -91,6 +91,7 @@ export default function Collection({
 			for (let item of state.items) {
 				iteratee(item);
 			}
+			return this;
 		},
 		filter(predicate) {
 			const res = [];

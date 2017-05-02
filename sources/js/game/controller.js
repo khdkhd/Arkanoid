@@ -50,10 +50,10 @@ export default function GameController({model, view, keyboard}) {
 	// Ball speed helpers
 
 	function throw_ball(ball, speed = BALL_SPEED_INITIAL) {
-		const ball_x = ball.rect().center.x;
-		const vaus_box = vaus.rect();
-		const teta = Math.PI/2*(ball_x - vaus_box.center.x)/vaus_box.width;
 		if (ball.velocity().isNull()) {
+			const ball_x = ball.rect().center.x;
+			const vaus_box = vaus.rect();
+			const teta = Math.PI/2*(ball_x - vaus_box.center.x)/vaus_box.width;
 			ball.setVelocity(
 				Vector({x: Math.sin(teta), y: -Math.cos(teta)}).mul(speed)
 			);
@@ -282,8 +282,10 @@ export default function GameController({model, view, keyboard}) {
 		.on('powerUp', flow(
 			power_up => {
 				model.updateScore(PILL_BONUS_POINT);
-				balls.unsplit().setSpeed(BALL_SPEED_INITIAL);
 				vaus.setMode(Vaus.Mode.Small);
+				balls
+					.forEach(throw_ball)
+					.unsplit().setSpeed(BALL_SPEED_INITIAL);
 				return power_up;
 			},
 			cond([
