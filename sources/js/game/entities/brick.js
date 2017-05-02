@@ -1,7 +1,7 @@
 import Coordinates from 'graphics/coordinates';
 import SceneObject from 'graphics/scene-object';
 
-import {Model} from 'model';
+import {Collection, Model} from 'model';
 
 import Rect from 'maths/rect';
 import Vector from 'maths/vector';
@@ -156,6 +156,29 @@ export function Brick({x, y}, color, stage) {
 		BrickModel(state),
 		BrickView(state)
 	);
+}
+
+export function BrickCollection() {
+	const collection = Collection();
+	collection
+		.on('itemDestroyed', brick => {
+			if (brick.color() !== 'gold') {
+				if (collection.every(brick => brick.color() === 'gold')) {
+					collection.emit('completed');
+				}
+			}
+		});
+	return Object.assign(collection, {
+		neighborhood(position) {
+			const col = Math.round(position.x);
+			const row = Math.round(position.y);
+			return collection.filter(brick => {
+				const brick_pos = brick.position();
+				return Math.abs(col - brick_pos.x) <= 2
+					&& Math.abs(row - brick_pos.y) <= 1;
+			});
+		}
+	});
 }
 
 export default function createBricks(level, stage = 0) {

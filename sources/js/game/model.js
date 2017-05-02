@@ -16,7 +16,7 @@ export default function GameModel(levels) {
 				width: 224*2,
 				height: 248*2
 			},
-			state: GameModel.state.Stopped
+			state: GameModel.State.Stopped
 		}
 	});
 	// Mix model methods with some custom attributes accessors/modifiers.
@@ -30,7 +30,7 @@ export default function GameModel(levels) {
 			return this;
 		},
 		isRunning() {
-			return model.get('state') === GameModel.state.Running;
+			return model.get('state') === GameModel.State.Running;
 		},
 		// Cheat mode
 		cheatMode() {
@@ -65,17 +65,17 @@ export default function GameModel(levels) {
 			return model.get('lifes');
 		},
 		setlifes(count) {
+			count = Math.min(5, Math.max(0, count));
+			if (count === 0) {
+				model.emit('game-over');
+			}
 			return model.set('lifes', count);
 		},
 		gainLife() {
-			return model.set('lifes', model.get('lifes') + 1);
+			return model.setlifes(model.lifeCount() + 1);
 		},
 		takeLife() {
-			const lifes = Math.max(model.get('lifes') - 1, 0);
-			model.set('lifes', lifes);
-			if (lifes === 0) {
-				model.emit('game-over');
-			}
+			model.setlifes(model.lifeCount() - 1);
 			return this;
 		},
 		// Score
@@ -83,10 +83,12 @@ export default function GameModel(levels) {
 			return model.get('score');
 		},
 		updateScore(points) {
-			return model.set(
-				'score',
-				model.get('score') + points
-			);
+			const current = model.get('score');
+			const updated = current + points;
+			if (Math.trunc(updated/20000) > Math.trunc(current/20000)) {
+				model.gainLife();
+			}
+			return model.set('score', updated);
 		},
 		// Size
 		columns() {
@@ -110,7 +112,7 @@ export default function GameModel(levels) {
 	});
 }
 
-Object.defineProperty(GameModel, 'state', {
+Object.defineProperty(GameModel, 'State', {
 	writable: false,
 	value: Object.freeze({
 		Stopped: 0,

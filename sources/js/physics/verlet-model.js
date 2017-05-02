@@ -1,13 +1,16 @@
-import constant from 'lodash.constant';
-
 import Rect from 'maths/rect';
 import Vector from 'maths/vector';
 
-export default function VerletModel(size, {x: px0, y: py0} = {x: 0, y: 0}, {x: vx0, y: vy0} = {x: 0, y: 0}) {
+export default function VerletModel(
+	size,
+	{x: px0, y: py0} = Vector.Null,
+	{x: vx0, y: vy0} = Vector.Null
+) {
 	const current = Vector({x: px0, y: py0});
 	const velocity = Vector({x: vx0, y: vy0});
 	const previous = current.sub(velocity);
 	const rect = Rect(current, size);
+	const localRect = Rect(Vector.Null, size);
 
 	return {
 		position() {
@@ -36,7 +39,9 @@ export default function VerletModel(size, {x: px0, y: py0} = {x: 0, y: 0}, {x: v
 				y: current.y + velocity.y
 			});
 		},
-		localRect: constant(Rect(Vector.Null, size)),
+		localRect() {
+			return localRect;
+		},
 		rect() {
 			return rect;
 		},
@@ -45,7 +50,9 @@ export default function VerletModel(size, {x: px0, y: py0} = {x: 0, y: 0}, {x: v
 		},
 		setSize({width, height}) {
 			rect.width = width;
+			localRect.width = width;
 			rect.height = height;
+			localRect.height = height;
 		}
 	};
 }

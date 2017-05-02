@@ -26,35 +26,35 @@ export default function Game(levels) {
 		model: gameModel,
 		modelEvents: {
 			changed: cond([
-				[matcher('state', GameModel.state.Stopped), (attr, value, view) => {
+				[matcher('state', GameModel.State.Stopped), (attr, value, view) => {
 					gameModel.reset();
 					StartMenuView({el: view.el()})
 						.start()
 						.then(() => {
 							gameModel.setlifes(3);
 							gameModel.setStage(1);
-							gameModel.setState(GameModel.state.Ready);
+							gameModel.setState(GameModel.State.Ready);
 						});
 				}],
-				[matcher('state', GameModel.state.GameOver), (attr, value, view) => {
+				[matcher('state', GameModel.State.GameOver), (attr, value, view) => {
 					GameOverView({el: view.el()})
 						.start()
 						.then(() => {
-							gameModel.setState(GameModel.state.Stopped);
+							gameModel.setState(GameModel.State.Stopped);
 						});
 				}],
-				[matcher('state', GameModel.state.Paused), (attr, value, view) => {
+				[matcher('state', GameModel.State.Paused), (attr, value, view) => {
 					PauseView({el: view.el()})
 						.start()
 						.then(() => {
-							gameModel.setState(GameModel.state.Running);
+							gameModel.setState(GameModel.State.Running);
 						});
 				}],
-				[matcher('state', GameModel.state.Ready), (attr, value, view) => {
+				[matcher('state', GameModel.State.Ready), (attr, value, view) => {
 					ReadyView({el: view.el(), model: gameModel})
 						.start()
 						.then(() => {
-							gameModel.setState(GameModel.state.Running);
+							gameModel.setState(GameModel.State.Running);
 						});
 				}]
 			]),
@@ -68,7 +68,7 @@ export default function Game(levels) {
 
 	return Object.assign(ui, {
 		start() {
-			gameModel.setState(GameModel.state.Stopped);
+			gameModel.setState(GameModel.State.Stopped);
 			gameController.run();
 		},
 	});

@@ -125,19 +125,19 @@ describe('graphics.Screen(canvas_context)', () => {
 		});
 	});
 	describe('#clear()', () => {
-		it('calls fillRect once on the context', () => {
+		it('calls clearRect once on the context', () => {
 			const context = CanvasContextMock();
 			const screen = Screen(context);
 			screen.clear();
-			expect(context.fillRect.calledOnce).to.be.true;
-			expect(context.fillRect.thisValues[0]).to.equal(context);
+			expect(context.clearRect.calledOnce).to.be.true;
+			expect(context.clearRect.thisValues[0]).to.equal(context);
 		});
-		it('calls fillRect with the good parameters', () => {
+		it('calls clearRect with the good parameters', () => {
 			const context = CanvasContextMock();
 			const screen = Screen(context);
 			const {width, height} = context.canvas;
 			screen.clear();
-			expect(context.fillRect.calledWith(0, 0, width, height)).to.be.true;
+			expect(context.clearRect.calledWith(0, 0, width, height)).to.be.true;
 		});
 		it('returns itself', () => {
 			const screen = Screen(CanvasContextMock());

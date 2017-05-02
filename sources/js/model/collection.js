@@ -7,9 +7,6 @@ export function CollectionBinder(state) {
 		const on_changed = (attr, value) => state.collection.emit('itemChanged', item, attr, value);
 		const on_reset   = () => state.collection.emit('itemReset', item);
 		const on_destroy = () => {
-			item
-				.removeListener('changed', on_changed)
-				.removeListener('reset', on_reset);
 			state.items.delete(item);
 			state.collection.emit('itemDestroyed', item);
 		};
@@ -79,7 +76,7 @@ export default function Collection({
 			add(items);
 			return this;
 		},
-		get length() {
+		size() {
 			return state.items.size;
 		},
 		[Symbol.iterator]: () => state.items.values(),
@@ -94,6 +91,7 @@ export default function Collection({
 			for (let item of state.items) {
 				iteratee(item);
 			}
+			return this;
 		},
 		filter(predicate) {
 			const res = [];
