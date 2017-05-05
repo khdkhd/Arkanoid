@@ -1,4 +1,5 @@
 import clamp from 'lodash.clamp';
+import pad_start from 'lodash.padstart';
 
 function rgb2hsl(r, g, b) {
 	const max = Math.max(r, g, b);
@@ -48,19 +49,24 @@ function hsl2rgb(h, s, l) {
 	];
 }
 
+function toByte(v) {
+	return Math.round(v*255);
+}
+
+function toHex(v) {
+	return pad_start(toByte(v).toString(16), 2, '0');
+}
+
 export function Color(r, g, b, a = 1) {
 	return {
 		get hex() {
-			const rr = Math.round(r*255).toString(16).padStart(2, '0');
-			const gg = Math.round(g*255).toString(16).padStart(2, '0');
-			const bb = Math.round(b*255).toString(16).padStart(2, '0');
-			return `#${rr}${gg}${bb}`;
+			return `#${[r, g, b].map(toHex).join('')}`;
 		},
 		get rgb() {
-			return `rgb(${Math.round(r*255)}, ${Math.round(g*255)}, ${Math.round(b*255)})`;
+			return `rgb(${[r, g, b].map(toByte).join()})`;
 		},
 		get rgba() {
-			return `rgba(${Math.round(r*255)}, ${Math.round(g*255)}, ${Math.round(b*255)}, ${a})`;
+			return `rgb(${[r, g, b].map(toByte).join()}, ${a})`;
 		},
 		get hsl() {
 			const [h, s, l] = rgb2hsl(r, g, b);
