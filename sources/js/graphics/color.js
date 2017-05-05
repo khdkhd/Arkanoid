@@ -63,10 +63,10 @@ export function Color(r, g, b, a = 1) {
 			return `#${[r, g, b].map(toHex).join('')}`;
 		},
 		get rgb() {
-			return `rgb(${[r, g, b].map(toByte).join('')})`;
+			return `rgb(${[r, g, b].map(toByte).join()})`;
 		},
 		get rgba() {
-			return `rgb(${[r, g, b].map(toByte).join('')}, ${a})`;
+			return `rgb(${[r, g, b].map(toByte).join()}, ${a})`;
 		},
 		get hsl() {
 			const [h, s, l] = rgb2hsl(r, g, b);
