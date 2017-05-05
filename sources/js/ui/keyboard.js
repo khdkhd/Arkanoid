@@ -11,7 +11,8 @@ function create_keyboard_event_handler(name, handlers, emitter) {
 		.map(handler => [key => key === handler.code, handler[name]])
 	);
 	return ev => {
-		const event_data = handle(ev.keyCode);
+		const code = ev.keyCode || ev.charCode;
+		const event_data = handle(code);
 		if (!is_nil(event_data)) {
 			emitter.emit(event_data.event, event_data.data);
 			ev.preventDefault();
