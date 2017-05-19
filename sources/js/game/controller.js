@@ -1,8 +1,8 @@
 import {dispatch, matcher} from 'common/functional';
 
 import KeyboardController from 'game/keyboard-controller';
+import {BallCollection} from 'game/entities/ball';
 import {BrickCollection} from 'game/entities/brick';
-import {default as Ball, BallCollection} from 'game/entities/ball';
 import {BulletCollection} from 'game/entities/bullet';
 import {default as Pill, PillCollection} from 'game/entities/pill';
 import Vaus from 'game/entities/vaus';
@@ -28,7 +28,7 @@ const BALL_SPEED_MIN = .2;
 const BALL_SPEED_MAX = .6;
 const BALL_SPEED_STEP = .025;
 const BALL_SPEED_INITIAL = .3;
-
+const BALL_TIMEOUT = 1000;
 export default function GameController({model, view, keyboard}) {
 	const scene = view.scene();
 	const screen = view.screen();
@@ -45,6 +45,7 @@ export default function GameController({model, view, keyboard}) {
 	const vaus = Vaus({x: 1, y: gameScene.height() - 2});
 
 	let ballXOffset = .5;
+	let ballTimeout = null;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Ball speed helpers
@@ -53,13 +54,21 @@ export default function GameController({model, view, keyboard}) {
 		return Math.PI/2*(x_offset)/vaus_width;
 	}
 
-	function throw_ball(ball, speed = BALL_SPEED_INITIAL) {
-		if (ball.velocity().isNull()) {
-			const teta = ball_bounce_angle(ballXOffset, vaus.rect().width);
-			ball.setVelocity(
-				Vector({x: Math.sin(teta), y: -Math.cos(teta)}).mul(speed)
-			);
+	function throw_ball() {
+		if (!is_nil(ballTimeout)) {
+			clearTimeout(ballTimeout);
+			ballTimeout = null;
 		}
+		balls
+			.filter(ball => ball.velocity().isNull())
+			.forEach(ball => {
+				const teta = ball_bounce_angle(ballXOffset, vaus.rect().width);
+				const velocity = Vector({
+					x:  Math.sin(teta)*BALL_SPEED_INITIAL,
+					y: -Math.cos(teta)*BALL_SPEED_INITIAL
+				});
+				ball.setVelocity(velocity);
+			});
 	}
 
 	function slow_down(speed, min, step = BALL_SPEED_STEP) {
@@ -169,7 +178,7 @@ export default function GameController({model, view, keyboard}) {
 		const vaus_box = vaus.rect();
 		ball.setPosition({
 			x: vaus_box.center.x + ballXOffset,
-			y: vaus_box.topLeft.y - 2*Ball.Radius
+			y: vaus_box.topLeft.y - ball.rect().width
 		});
 	}
 
@@ -283,9 +292,8 @@ export default function GameController({model, view, keyboard}) {
 			power_up => {
 				model.updateScore(PILL_BONUS_POINT);
 				vaus.setMode(Vaus.Mode.Small);
-				balls
-					.forEach(throw_ball)
-					.unsplit().setSpeed(BALL_SPEED_INITIAL);
+				throw_ball();
+				balls.unsplit().setSpeed(BALL_SPEED_INITIAL);
 				return power_up;
 			},
 			cond([
@@ -331,7 +339,7 @@ export default function GameController({model, view, keyboard}) {
 			[matcher('state', GameModel.State.Running), () => {
 				balls.show();
 				vaus.show();
-				balls.forEach(throw_ball);
+				ballTimeout = setTimeout(throw_ball, BALL_TIMEOUT);
 				keyboard.use(KeyboardController());
 			}]
 		]));
@@ -348,13 +356,18 @@ export default function GameController({model, view, keyboard}) {
 				bullets.create(vaus_box.topLeft.add({x: 1, y: 0}));
 				bullets.create(vaus_box.topRight.sub({x: 1 + 8/16, y: 0}));
 			}
-			balls.forEach(throw_ball);
+			throw_ball();
 		});
 
 	vaus.hide();
 	balls.hide();
-	gameScene.add(brickScene, vaus);
-	scene.add(...CreateWalls(scene.width() - 1, scene.height()), gameScene);
+	scene.add(
+		CreateWalls(scene.width() - 1, scene.height()),
+		gameScene.add(
+			brickScene,
+			vaus
+		)
+	);
 
 	return {
 		run() {
