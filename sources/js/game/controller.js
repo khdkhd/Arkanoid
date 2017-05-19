@@ -29,6 +29,7 @@ const BALL_SPEED_MAX = .6;
 const BALL_SPEED_STEP = .025;
 const BALL_SPEED_INITIAL = .3;
 const BALL_TIMEOUT = 1000;
+
 export default function GameController({model, view, keyboard}) {
 	const scene = view.scene();
 	const screen = view.screen();
