@@ -67,6 +67,9 @@ function createVector({x, y}) {
 		},
 		toUnit() {
 			return createVector({x: this.x, y: this.y}).mutToUnit();
+		},
+		toString() {
+			return `(${x},${y})`;
 		}
 	};
 }
