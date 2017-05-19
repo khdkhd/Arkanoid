@@ -104,9 +104,10 @@ export function VausController(state) {
 			return state.mode;
 		},
 		reset({x, y}) {
+			acceleration = Vector.Null;
 			coordinates
-				.setVelocity(Vector.Null)
-				.setPosition(Vector({x, y}));
+				.setPosition(Vector({x, y}))
+				.setVelocity(Vector.Null);
 			return this;
 		},
 	};
