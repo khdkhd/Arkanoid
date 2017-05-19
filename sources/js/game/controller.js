@@ -1,6 +1,6 @@
 import {dispatch, matcher} from 'common/functional';
 
-import gameKeyboardController from 'game/keyboard-controller';
+import KeyboardController from 'game/keyboard-controller';
 import {BrickCollection} from 'game/entities/brick';
 import {default as Ball, BallCollection} from 'game/entities/ball';
 import {BulletCollection} from 'game/entities/bullet';
@@ -204,14 +204,13 @@ export default function GameController({model, view, keyboard}) {
 	function update_vaus() {
 		const {leftX: vaus_left_x, rightX: vaus_right_x} = vaus.rect();
 		const {leftX: zone_left_x, rightX: zone_right_x} = gameScene.localRect();
-
 		if (!vaus.velocity().isNull() && vaus_left_x <= zone_left_x) {
-			vaus.move(Vector.Null);
 			vaus.setPosition(vaus.position().add({x: zone_left_x - vaus_left_x, y: 0}));
+			vaus.move(Vector.Null);
 		}
 		if (!vaus.velocity().isNull() && vaus_right_x >= zone_right_x) {
-			vaus.move(Vector.Null);
 			vaus.setPosition(vaus.position().add({x: zone_right_x - vaus_right_x, y: 0}));
+			vaus.move(Vector.Null);
 		}
 		vaus.update();
 	}
@@ -330,10 +329,10 @@ export default function GameController({model, view, keyboard}) {
 				pills.reset();
 			}],
 			[matcher('state', GameModel.State.Running), () => {
-				keyboard.use(gameKeyboardController);
 				balls.show();
 				vaus.show();
 				balls.forEach(throw_ball);
+				keyboard.use(KeyboardController());
 			}]
 		]));
 	keyboard
