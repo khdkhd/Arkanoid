@@ -4,11 +4,11 @@ export default({audio_context})=> {
 
 		const frequency_range = {
 			min: 0,
-			max: 15
+			max: 20
 		};
 		const gain_range = {
 			min: 0,
-			max: 450
+			max: 250
 		};
 
 		const osc = audio_context.createOscillator();

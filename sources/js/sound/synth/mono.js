@@ -40,7 +40,6 @@ export default({audio_context}) => {
 			if(!envIn.hasEnv){
 				return osc.stop(time);
 			}
-			console.log('has env');
 			envIn.emit('noteoff', {
 				time,
 				onComplete(time){

@@ -6,6 +6,7 @@ import poly from 'sound/synth/poly';
 import amp from 'sound/synth/amp';
 import Note from 'sound/sequencer/note';
 import distortion from 'sound/synth/distortion';
+import delay from 'sound/synth/delay';
 
 const factory = {
 	enveloppe,
@@ -14,7 +15,8 @@ const factory = {
 	mono,
 	poly,
 	amp,
-	distortion
+	distortion,
+	delay
 };
 
 export default ({audio_context}) => {
