@@ -11,7 +11,7 @@ export default({audio_context}) => {
 		get input(){
 			return channel_merger;
 		},
-		assign(track_id, instrument){
+		addTrack(track_id, instrument){
 			if(!tracks.hasOwnProperty(track_id)){
 				tracks[track_id] = create_track({audio_context});
 			}
