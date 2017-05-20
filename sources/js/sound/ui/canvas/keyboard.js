@@ -82,7 +82,9 @@ function View(state){
 				}
 			},
 			onMouseUp(){
-				state.keyboard.noteOff()
+				if(!is_nil(state.keyboard)){
+					state.keyboard.noteOff()
+				}
 			}
 		}),
 		onBeforeRender(screen){
@@ -115,5 +117,5 @@ export default function Keyboard({width, height}) {
 		cells: [],
 		emitter: new EventEmitter()
 	};
-	return assign(state.emitter, View(state), Controller(state));
+	return assign(View(state), Controller(state));
 }

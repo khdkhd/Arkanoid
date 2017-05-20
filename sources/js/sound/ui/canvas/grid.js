@@ -15,7 +15,8 @@ const View = state => {
     domEvents: MouseEventsHandler({
       onMouseDown(view, event){
         if(!is_nil(current_grid)){
-          current_grid.mousedown(getCanvasEventPosition(event));
+          current_grid.updateCell(getCanvasEventPosition(event));
+          current_grid.render(view.screen())
         }
       }
     }),
@@ -38,7 +39,7 @@ const View = state => {
 
 const Controller = state => {
   return {
-    set sequencer(sequencer){
+    setSequencer(sequencer){
       state.sequencer = sequencer;
       sequencer.track.on('change:track', ({key,track}) => {
         if(!is_nil(current_grid)){
@@ -53,6 +54,7 @@ const Controller = state => {
          current_grid.updatePattern()
         }
       });
+      return this;
     }
   }
 }

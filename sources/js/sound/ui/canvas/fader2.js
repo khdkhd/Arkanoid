@@ -7,9 +7,14 @@ import Coordinates from 'graphics/coordinates';
 import SceneObject from 'graphics/scene-object';
 import Scene from 'graphics/scene';
 import { default as GraphicsView, MouseEventsHandler } from 'ui/graphics-view';
+import is_nil from 'lodash.isnil';
 
 export function fade(event, state) {
-	const cursor = state.cursor + event.deltaY / 10;
+	let delta = event.deltaY;
+	if(is_nil(event.wheelDelta)){
+		delta *= 4;
+	}
+	const cursor = state.cursor + delta / 10;
 	const from = state.inner_rect.topLeft.y;
 	const to = state.inner_rect.bottomRight.y;
 	state.cursor = clamp(cursor, from, to);
@@ -27,32 +32,25 @@ const View = state => {
 	const fader = SceneObject(coordinates, {
 		onRender(screen){
 			screen.save();
+			// screen.brush = '#fff';
+			screen.fillRect(state.rect);
 			screen.pen = .5;
 			screen.pen = '#333333';
-			screen.drawRect(state.outer_rect);
-			screen.brush = '#cbc5cb';
-			screen.fillRect(state.inner_rect);
+			// screen.drawRect(state.outer_rect);
+			screen.brush = '#435675';
+			screen.fillRect(state.outer_rect);
 			screen.restore();
 			screen.save();
-			screen.brush = 'rgb(67, 86, 117)';
-			screen.fillRect({
-				topLeft: {
-					x: state.inner_rect.bottomLeft.x,
+			screen.brush = '#77ab63';
+			screen.fillRect(
+				Rect({
+					x: state.outer_rect.bottomLeft.x - state.padding,
 					y: state.cursor
 				},
-				topRight: {
-					x: state.inner_rect.topRight.x,
-					y: state.cursor
-				},
-				bottomRight: {
-					x: state.inner_rect.bottomRight.x,
-					y: state.inner_rect.bottomRight.y
-				},
-				bottomLeft: {
-					x: state.inner_rect.bottomLeft.x,
-					y: state.inner_rect.bottomLeft.y
-				}
-			});
+				{
+					width: state.outer_rect.width + state.padding*2,
+					height: state.padding*2
+				}));
 			screen.restore();
 		}
 	});
@@ -64,7 +62,6 @@ const View = state => {
 			}
 		}),
 		onBeforeRender(screen){
-			screen.setBackgroundColor('#fff');
 			screen.setSize({
 				width: state.width,
 				height: state.height
@@ -99,7 +96,7 @@ const Controller = state => {
 }
 
 export default ({width, height})=> {
-	const padding = 3;
+	const padding = 4;
 	const pos = {x: padding, y: padding};
 	const state = {
 		pos,
@@ -117,24 +114,24 @@ export default ({width, height})=> {
 				height
 			}
 		),
-		outer_rect: Rect(
+		inner_rect: Rect(
 			{
 				x: pos.x,
-				y: pos.y
+				y: padding
 			},
 			{
 				width: width - padding*2,
-				height: height - padding*2
+				height: height - padding*3
 			}
 		),
-		inner_rect: Rect(
+		outer_rect: Rect(
 			{
 				x: pos.x + padding,
-				y: pos.y + padding
+				y: pos.y
 			},
 			{
 				width: width - padding*4,
-				height: height - padding*4
+				height: height
 			}
 		),
 		isActive: false,

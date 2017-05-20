@@ -66,7 +66,7 @@ const View = state => {
 		zIndex: 0
 	});
 
-	const grid = SceneObject(grid_coordinates, {
+	state.grid = SceneObject(grid_coordinates, {
 		onRender(screen) {
 			screen.pen = 1;
 			screen.save();
@@ -93,7 +93,7 @@ const View = state => {
 		zIndex: 1
 	});
 
-	const cursor = SceneObject(grid_coordinates, {
+	state.cursor = SceneObject(grid_coordinates, {
 		onRender(screen) {
 			screen.brush = 'hsla(0, 20%, 27%, 0.28)';
 			screen.save();
@@ -105,8 +105,7 @@ const View = state => {
 		},
 		zIndex: 3
 	});
-
-	return scene.add(background).add(grid).add(cursor);
+	return scene.add(background).add(state.grid).add(state.cursor);
 }
 
 const Controller = state => {
@@ -158,19 +157,18 @@ const Controller = state => {
 			x: value*step_x,
 			y: 0
 		};
+		console.log('updating position');
+		state.cursor.render(this.screen());
 	}
 
-  // update_position(state.track.pos.value);
-
-	// state.emitter.on('change', value => state.track.pos.value = value);
-
 	return {
-		mousedown(pos){
+		updateCell(pos){
 			const cell = get_bounding_cell(state.cells, pos);
 			if(is_nil(cell)){
-				return push(create_cell(pos));
+				push(create_cell(pos));
+			} else {
+				pop(cell);
 			}
-			return pop(cell);
 		},
 		set track(track){
 			state.track = track
@@ -181,9 +179,7 @@ const Controller = state => {
 				}
 			});
 			state.track.pos.on('change', value => {
-				if(!state.isActive){
-					update_position(value);
-				}
+				update_position(value);
 			});
 		},
 		updatePattern(){
@@ -219,5 +215,5 @@ export default ({width, height})=> {
 		),
 		emitter: new EventEmitter()
 	};
-	return assign(state.emitter, View(state), Controller(state));
+	return assign(View(state), Controller(state));
 }

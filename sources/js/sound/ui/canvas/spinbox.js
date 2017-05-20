@@ -10,6 +10,8 @@ import SceneObject from 'graphics/scene-object';
 
 import Scene from 'graphics/scene';
 
+export const [UP, DOWN] = [1, -1];
+
 function View(state){
 
   const rect = Rect({
@@ -24,32 +26,24 @@ function View(state){
 	const scene = Scene(coordinates);
 	const spinbox = SceneObject(coordinates, {
 		onRender(screen) {
-      // screen.setBackgroundColor('rgba(255, 255, 255, 0)');
       screen.clear();
 			screen.save();
 			screen.pen = 1;
-      screen.pen = '#000';
-      screen.brush = '#000';
+      screen.brush = '#77ab63';
 			screen
         .beginPath()
-        .moveTo(rect.bottomLeft)
-        .lineTo(rect.bottomRight)
-        .lineTo({x: rect.width/2, y: 0})
+        .moveTo(UP === state.direction ? rect.bottomLeft : rect.topLeft)
+        .lineTo(UP === state.direction ? rect.bottomRight : rect.topRight)
+        .lineTo({x: rect.width/2, y: UP === state.direction ? 0 : state.height})
         .closePath()
         .fillPath();
-			// screen.drawLine(rect.bottomRight, {x: rect.width/2, y: 5});
-			// screen.drawLine(rect.bottomLeft,{x: rect.width/2, y: 5});
       screen.restore();
 		},
 		zIndex: 4
 	});
 
 	const view = GraphicsView({
-		domEvents: MouseEventsHandler({
-			onMouseUp(){
-
-			}
-		}),
+		domEvents: MouseEventsHandler(state.mouseEvents),
 		onBeforeRender(screen){
 			screen.setSize({
 				width: state.width,
@@ -58,6 +52,16 @@ function View(state){
 		}
 	});
 	view.screen().add(scene.add(spinbox));
+  Object.assign(view,
+    {
+      setDirection(direction){
+        state.direction = direction
+        return view
+      },
+      UP,
+      DOWN
+    }
+  );
 	return view;
 }
 
@@ -78,17 +82,6 @@ function Controller(state) {
             update(value);
         }
       });
-      times(10, i => {
-        ui.bind_events({
-          keypress: {
-            code: keyboard['KEY_' + i],
-            event: 'change',
-            keyup(){
-              audio_param.value = i            },
-            keydown(){}
-          }
-        });
-      });
       state.param = audio_param;
     },
     get param(){
@@ -98,10 +91,12 @@ function Controller(state) {
 
 }
 
-export default function Spinbox({width, height}) {
+export default function Spinbox({width, height}, mouseEvents = {}) {
   const state = {
     width,
     height,
+    direction: UP,
+    mouseEvents,
     emitter: new EventEmitter()
   };
   return assign(state.emitter, View(state), Controller(state));

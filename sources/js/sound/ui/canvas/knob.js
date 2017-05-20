@@ -26,8 +26,10 @@ const View = state => {
   const knob = SceneObject(coordinates, {
     onRender(screen) {
       screen.save();
-      screen.pen =.5;
-      screen.pen = '#333333';
+      screen.pen =1;
+      // screen.brush = '#fff';
+      screen.fillRect(state.rect);
+      screen.pen = '#77ab63';
       screen.beginPath();
       screen.arc(state.pos, state.outer_radius, 0, 2*Math.PI);
       screen.drawPath();
@@ -35,13 +37,13 @@ const View = state => {
       screen.arc(state.pos, state.inner_radius, 0, 2*Math.PI);
       screen.drawPath();
       screen.pen = state.cursor_width;
-      screen.pen = '#cbc5cb';
+      screen.pen = '#435675';
       screen.beginPath();
       screen.arc(state.pos, state.cursor_radius, state.curve_start, state.curve_end);
       screen.drawPath();
       screen.restore();
       screen.save();
-      screen.pen = 'rgb(67, 86, 117)';
+      screen.pen = '#77ab63';
       screen.pen = state.cursor_width;
       screen.beginPath();
       screen.arc(state.pos, state.cursor_radius, state.curve_start, state.angle);
@@ -55,10 +57,11 @@ const View = state => {
       onMouseWheel(view, event){
         state.isActive = true;
         tweak(event, state);
+        knob.render(view.screen());
       }
     }),
     onBeforeRender(screen){
-      screen.setBackgroundColor('#fff');
+      screen.clear();
       screen.setSize({
         width: state.rect.width,
         height: state.rect.height
@@ -76,10 +79,12 @@ const Controller = state => {
 		state.angle = state.curve_length*value - Math.PI/2;
 	}
 
-	state.emitter.on('change', value => state.param.value = value);
+	state.emitter.on('change', value => {
+    state.param.value = value
+  });
 
 	return {
-		set param(audio_param){
+		setParam(audio_param){
 			audio_param.on('change', value => {
 				if(!state.isActive){
 					update(value);
@@ -87,6 +92,7 @@ const Controller = state => {
 			});
 			update(audio_param.value);
 			state.param = audio_param;
+      return this;
 		},
 		get param(){
 			return state.param;
@@ -95,7 +101,7 @@ const Controller = state => {
 }
 
 export default ({width, height})=> {
-  const padding = 5;
+  const padding = 2;
 	let radius = width/2 - padding;
 	let pos = {
 		x: radius + padding,
@@ -116,7 +122,7 @@ export default ({width, height})=> {
 		outer_radius: radius,
 		inner_radius: radius - radius*.64,
 		cursor_radius: radius - radius*.32,
-		cursor_width: radius*.4,
+		cursor_width: radius*.5,
 		angle: curve_start,
 		isActive: false,
     rect : Rect(
@@ -135,5 +141,5 @@ export default ({width, height})=> {
 		},
 		emitter: new EventEmitter()
 	};
-	return assign(state.emitter, View(state), Controller(state));
+	return assign(View(state), Controller(state));
 }
