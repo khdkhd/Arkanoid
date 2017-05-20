@@ -64,7 +64,7 @@ export default ({audio_context}) => {
 		isStarted() {
 			return !stop;
 		},
-		assign(track_id, slave){
+		addSlave(track_id, slave){
 			if(is_nil(tracks[track_id])){
 				tracks[track_id] = Track({track_id, tempo, length, pos, current_pattern});
 			}

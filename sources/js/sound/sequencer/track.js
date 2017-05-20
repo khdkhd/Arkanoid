@@ -4,7 +4,7 @@ import EventEmitter from 'events';
 import Pattern from 'sound/sequencer/pattern';
 import { completeAssign as assign } from 'common/utils';
 
-export default ({track_id, tempo, length, pos, current_pattern}) => {
+export default function Track({track_id, tempo, length, pos, current_pattern}) {
 
 	const emitter = new EventEmitter();
 	let _slave;
