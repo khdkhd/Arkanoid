@@ -1,194 +1,43 @@
-import {
-	Sequencer,
-	Synth,
-	Mixer,
-} from 'sound';
-import cond from 'lodash.cond';
-import no_op from 'lodash.noop';
-import create_controls from 'sound/controls';
-import ui from 'sound/controls/ui';
-import Kick from 'sound/synth/kick';
-import Snare from 'sound/synth/snare';
-import keyboard from 'ui/keyboard';
-import Distortion from 'sound/synth/distortion';
+import { MidiFile, Status, Meta } from 'midi-parse';
+import Synth from 'sound/instruments/nsc-synth';
+import Sequencer from 'sound/instruments/grid-sequencer';
+import Mixer from 'sound/audio/mixer';
 
-const view_factory = create_controls();
-const views = [];
+const fileInput = document.querySelector('#midi-file')
 
-const synth_patch = {
-	nodes: [{
-		id: 'generator',
-		factory: 'mono',
-		type: 'voice',
-		config: {
-			type: {
-				value: 'sawtooth'
-			}
-		}
-	},
-	{
-		id: 'enveloppe',
-		factory: 'enveloppe',
-		config: {
-			attack: {
-				value: 0
-			},
-			decay: {
-				value: .25
-			},
-			sustain: {
-				value: .5
-			},
-			release: {
-				value: 0
-			}
-		}
-	},
-	{
-		id: 'filter',
-		factory: 'filter',
-		// type: 'output',
-		config:{
-			frequency:{
-				value: .95,
-				views: [{
-					factory: 'knob'
-				}]
-			},
-			Q: {
-				value: 0,
-				views: [{
-					factory: 'knob'
-				}]
-			},
-			gain: {
-				value: .95
-			},
-			type: {
-				value: 'lowpass'
-			}
-		},
-	},
-	{
-		id: 'lfo',
-		factory: 'lfo',
-		config: {
-			frequency: {
-				value: .125
-			},
-			amplitude: {
-				value: 0.9
-			},
-			type: {
-				value: 'sine'
-			}
-		}
-	},
-	{
-		id: 'distortion',
-		factory: 'distortion',
-		type: 'output'
+const eventTypes = Object.assign({}, Meta, Status)
+
+
+fileInput.addEventListener('change', function() {
+	const reader = new FileReader()
+	reader.onload = e => {
+		let data = new DataView(e.target.result, 0, e.target.result.byteLength)
+		let midiFile = MidiFile(data)
+		midiFile.tracks = midiFile.tracks
+			.map(track => {
+				track.events
+					.forEach((event) => {
+						event.type = Object.keys(eventTypes).find(key => eventTypes[key] === event.type)
+					})
+				return track
+			})
+		// console.log(JSON.stringify(midiFile, undefined, 4))
 	}
-],
-connexions: [
-	['generator', 'filter'],
-	['lfo', 'filter'],
-	['enveloppe', 'generator'],
-	['filter', 'distortion']
-]
-
-};
+	reader.readAsArrayBuffer(this.files[0])
+})
 
 const audio_context = new AudioContext();
+const synth = Synth({audio_context});
+const sequencer = Sequencer({audio_context});
+sequencer.addSlave('synth', synth);
+const mixer = Mixer({audio_context});
+mixer.addTrack('synth', synth);
+mixer.connect({input:audio_context.destination});
 
-const sequencer = Sequencer({
-	audio_context
-});
-const synth = Synth({
-	audio_context
-});
-const mixer = Mixer({
-	audio_context
-});
+document.addEventListener('keydown', () => {
+	synth.noteOn('C', 4, audio_context.currentTime);
+}, true);
 
-const kick = Kick({audio_context});
-
-const snare = Snare({audio_context});
-
-synth.patch(synth_patch);
-sequencer.assign('1', synth);
-sequencer.assign('2', kick);
-sequencer.assign('3', snare);
-mixer.assign('1', synth);
-mixer.assign('2', kick);
-mixer.assign('3', snare);
-mixer.connect({
-	input: audio_context.destination
-});
-mixer.tracks['1'].gain.value = 1;
-mixer.tracks['2'].gain.value = 1;
-
-ui.bind_events({
-	keypress: {
-		code: keyboard.KEY_SPACE,
-		event: 'play',
-		keyup: cond([[sequencer.isStarted, sequencer.stop], [()=> true, sequencer.start]]),
-		keydown: no_op
-	}
-});
-
-function mount_synth(element, synth){
-	const controls = element.querySelectorAll('[data-control]');
-	for(let control of controls){
-		const view = view_factory.mount(control, synth);
-		views.push(view);
-	}
-}
-
-function mount_mixer(element, mixer){
-	const controls = element.querySelectorAll('[data-control]');
-	for(let control of controls){
-		const view = view_factory.mount(control, mixer);
-		views.push(view);
-	}
-}
-
-function mount_sequencer(element, sequencer){
-	let i = 0;
-	const controls = element.querySelectorAll('[data-control]');
-
-	for(let control of controls){
-		if('grid' === control.getAttribute('data-control')){
-			const grid = view_factory.mount(control, sequencer);
-			grid.sequencer = sequencer;
-			views.push(grid);
-		}
-		else {
-			const view = view_factory.mount(control, sequencer);
-			if('track_selector' === control.getAttribute('data-control')){
-				view.param = sequencer;
-				view.trackId = ++i;
-			}
-			views.push(view)
-		}
-
-	}
-}
-
-const synthElement = document.querySelector('[data-device="synth"]');
-const seqElement = document.querySelector('[data-device="seq"]');
-const mixerElement = document.querySelector('[data-device="mixer"]');
-
-mount_synth(synthElement, synth.nodes);
-mount_sequencer(seqElement, sequencer);
-mount_mixer(mixerElement, mixer);
-
-sequencer.track.value = '1';
-
-function loop() {
-	views.forEach(view => view.render());
-	sequencer.play();
-	requestAnimationFrame(loop);
-}
-
-requestAnimationFrame(loop);
+document.addEventListener('keyup', () => {
+	synth.noteOff(null, null, audio_context.currentTime);
+}, true);
