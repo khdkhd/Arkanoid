@@ -1,89 +1,88 @@
-import Track from 'sound/sequencer/track';
 import Model from 'sound/common/model';
-import is_nil from 'lodash.isnil';
+import noop from 'lodash.noop';
 
 export default ({audio_context}) => {
 
-	function get_tick(){
-		return 60/(tempo.value*precision);
+	const state = {
+		precision: 4,
+		length: 32,
+		stop: true,
+		time: 0,
+		start_time: audio_context.currentTime,
+		onPlay: noop,
+		onStop: noop,
+		onStart: noop,
+		pos:  Model({
+			init: () => -1
+		}),
+		tempo: Model({
+			init: () => 120
+		})
+	};
+
+	function get_tick() {
+		return 60 / (state.tempo.value * state.precision);
 	}
 
-	function schedule(callback){
-		const current_time = audio_context.currentTime - start_time;
-		if(current_time >= time){
-			callback(current_time);
-			time += get_tick();
+	function schedule(op) {
+		const current_time = audio_context.currentTime - state.start_time;
+		if (current_time >= state.time) {
+			op(current_time);
+			state.time += get_tick();
+			state.pos.value = ++state.pos.value % length;
 		}
 	}
 
-	const pos = Model({
-		init: () => -1
-	});
-	const tempo = Model({
-		init: () => 120
-	});
-	const current_pattern = Model({
-		init: () => 1
-	});
-	const current_track = Model({
-		init: () => 1
-	});
-
-	current_track.registerEvent(
-		'change:track',
-		() => ({key: current_track.value, track: tracks[current_track.value]})
-	);
-
-	const tracks = {};
-	let precision = 4;
-	let length = 32;
-	let stop = true;
-	let time = 0;
-	let start_time = audio_context.currentTime;
+	function play() {
+		if (!stop) {
+			schedule(state.onPlay);
+			requestAnimationFrame(play);
+		}
+	}
 
 	return {
 		start() {
-			stop = false
+			state.onStart();
+			state.stop = false;
+			play();
 		},
-		stop(){
-			pos.value = -1;
-			pos.emit('change', pos.value);
-			stop = true;
-		},
-		play() {
-			schedule(current_time => {
-				if(!stop){
-					pos.value = ++pos.value % length;
-					pos.emit('change', pos.value);
-					for(let track of Object.values(tracks)){
-						track.schedule(current_time);
-					}
-				}
-			});
+		stop() {
+			state.stop = true;
+			state.pos.value = -1;
+			state.onStop();
 		},
 		isStarted() {
-			return !stop;
+			return !state.stop;
 		},
-		addSlave(track_id, slave){
-			if(is_nil(tracks[track_id])){
-				tracks[track_id] = Track({track_id, tempo, length, pos, current_pattern});
-			}
-			tracks[track_id].assign(slave);
+		setPrecision(precision){
+			state.precision = precision;
+			return this;
 		},
-		get tempo(){
-			return tempo;
+		setLength(length){
+			state.length = length;
+			return this;
 		},
-		get tracks(){
-			return tracks;
+		setTempo(tempo){
+			state.tempo = tempo;
+			return this;
 		},
-		get pos(){
-			return pos;
+		getTempo() {
+			return state.tempo;
 		},
-		get pattern(){
-			return current_pattern;
+		getPos() {
+			return state.pos;
 		},
-		get track(){
-			return current_track;
+		onStart(op){
+			state.onStart = op;
+			return this;
+		},
+		onStop(op){
+			state.onStop = op;
+			return this;
+		},
+		onPlay(op){
+			state.onPlay = op;
+			return this;
 		}
 	};
 }
