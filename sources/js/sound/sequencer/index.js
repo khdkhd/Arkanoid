@@ -4,32 +4,45 @@ import noop from 'lodash.noop';
 export default ({audio_context}) => {
 
 	const state = {
-		precision: 4,
+		division: 96,
 		length: 32,
 		stop: true,
-		time: 0,
+		loop: true,
+		nextTick: 0,
 		start_time: audio_context.currentTime,
 		onPlay: noop,
 		onStop: noop,
 		onStart: noop,
+		onLoop: noop,
 		pos:  Model({
-			init: () => -1
+			init: () => 0
 		}),
 		tempo: Model({
 			init: () => 120
 		})
 	};
 
-	function get_tick() {
-		return 60 / (state.tempo.value * state.precision);
+	function tick(state) {
+		return 60 / (state.tempo.value * state.division);
+	}
+
+	function position(state){
+		let pos = state.pos.value + 1;
+		if(state.loop) {
+			pos %= state.length;
+		}
+		if(0 === pos) {
+			state.onLoop();
+		}
+		return pos;
 	}
 
 	function schedule(op) {
 		const current_time = audio_context.currentTime - state.start_time;
-		if (current_time >= state.time) {
+		if (current_time >= state.nextTick) {
 			op(current_time);
-			state.time += get_tick();
-			state.pos.value = ++state.pos.value % length;
+			state.nextTick += tick(state);
+			state.pos.value = position(state);
 		}
 	}
 
@@ -48,15 +61,18 @@ export default ({audio_context}) => {
 		},
 		stop() {
 			state.stop = true;
-			state.pos.value = -1;
+			state.pos.value = 0;
 			state.onStop();
 		},
 		isStarted() {
 			return !state.stop;
 		},
-		setPrecision(precision){
-			state.precision = precision;
+		setDivision(division){
+			state.precision = division;
 			return this;
+		},
+		getDivision(){
+			return state.division;
 		},
 		setLength(length){
 			state.length = length;
@@ -82,6 +98,10 @@ export default ({audio_context}) => {
 		},
 		onPlay(op){
 			state.onPlay = op;
+			return this;
+		},
+		onLoop(op){
+			state.onLoop = op;
 			return this;
 		}
 	};
