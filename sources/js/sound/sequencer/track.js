@@ -4,6 +4,12 @@ import EventEmitter from 'events';
 import Pattern from 'sound/sequencer/pattern';
 import { completeAssign as assign } from 'common/utils';
 
+// TODO:
+//// Receive an array of midi events
+//// Load NOTE_ON / NOTE_OFF events in a pattern (or all events) ?
+//// Handle events accordingly to their type (start with NOTE_ON, NOTE_OFF)
+//// Get rid of grid term because it conflicts with ui implementation
+//// We should get rid of this event emitter or at list don't assign it on return
 export default function Track({track_id, tempo, length, pos, current_pattern}) {
 
 	const emitter = new EventEmitter();
@@ -48,7 +54,7 @@ export default function Track({track_id, tempo, length, pos, current_pattern}) {
 			get pos(){
 				return pos;
 			},
-			schedule(time){
+			handleEvents(time){
 				// playNotes(grid[pos.value].map(step => Object.assign({time}, step)));
 				playNotes(pattern[pos.value].map(step => Object.assign({time}, step)));
 			},
