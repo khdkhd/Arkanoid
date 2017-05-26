@@ -1,5 +1,6 @@
 import mono from 'sound/synth/mono';
 import Model  from 'sound/common/model';
+import is_nil from 'lodash.isnil';
 
 export default({audio_context}) => {
 
@@ -22,7 +23,7 @@ export default({audio_context}) => {
 			return {connect};
 		},
 		noteOn(freq, time) {
-			if(!state.voices[freq]){
+			if(is_nil(state.voices[freq])){
 				const voice = mono({audio_context});
 				voice.getType().value = state.type.value;
 				voice.noteOn(freq, time);
@@ -32,9 +33,9 @@ export default({audio_context}) => {
 
 		},
 		noteOff(freq, time) {
-			if(state.voices[freq]){
+			if(!is_nil(state.voices[freq])){
 				state.voices[freq].noteOff(null, time);
-				delete state.voices[freq];
+				state.voices[freq] = null;
 			}
 		},
 		stop(){
