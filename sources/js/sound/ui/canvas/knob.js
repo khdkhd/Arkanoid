@@ -28,7 +28,7 @@ const View = state => {
       screen.save();
       screen.pen =1;
       // screen.brush = '#fff';
-      screen.fillRect(state.rect);
+      screen.clear();
       screen.pen = '#77ab63';
       screen.beginPath();
       screen.arc(state.pos, state.outer_radius, 0, 2*Math.PI);
