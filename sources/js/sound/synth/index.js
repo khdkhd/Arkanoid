@@ -4,7 +4,7 @@ import lfo from 'sound/synth/lfo';
 import mono from 'sound/synth/mono';
 import poly from 'sound/synth/poly';
 import amp from 'sound/synth/amp';
-import Note from 'sound/sequencer/note';
+import { Note } from 'sound/sequencer';
 import distortion from 'sound/synth/distortion';
 import delay from 'sound/synth/delay';
 

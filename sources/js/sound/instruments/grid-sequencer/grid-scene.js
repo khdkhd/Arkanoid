@@ -10,7 +10,7 @@ import Coordinates from 'graphics/coordinates';
 import SceneObject from 'graphics/scene-object';
 import Scene from 'graphics/scene';
 
-import Note from 'sound/sequencer/note';
+import { Note } from 'sound/sequencer';
 
 const notes = [
 	'A',

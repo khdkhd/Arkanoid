@@ -3,7 +3,7 @@ import Filter from 'sound/synth/filter';
 // import Enveloppe from 'sound/synth/enveloppe';
 import Lfo from 'sound/synth/lfo';
 import Amp from 'sound/synth/amp';
-import Note from 'sound/sequencer/note';
+import { Note } from 'sound/sequencer';
 
 export default function NscSynth({audio_context}) {
 

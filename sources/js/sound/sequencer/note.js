@@ -31,4 +31,4 @@ Note.getFrequency = (note, octave) => {
 	return 440 * Math.pow(2, (key_index - 49) / 12);
 }
 
-export default Note
+export { Note }
