@@ -1,18 +1,22 @@
-import times from 'lodash.times';
-import Note from 'sound/sequencer/note';
+export const Pattern = (events=[]) => {
 
-export default({length=32}) => {
-  let pattern = times(length, ()=> []);
+  const state = {
+    events: [...events]
+  }
+
   return {
-    get pattern(){
-      return pattern;
+    getEvents(tick = null){
+      if(null === tick){
+        return state.events;
+      }
+      return state.events.filter((event) => event.time === tick);
     },
-    set pattern(matrix2d){
-      pattern = matrix2d.map(notes =>
-        notes.map(Note));
+    push(event){
+      state.events.push[event];
     },
-    push(pos, note){
-      pattern[pos].push(note);
+    setEvents(events){
+      state.events = [...events]
+      return this
     }
   }
 }
