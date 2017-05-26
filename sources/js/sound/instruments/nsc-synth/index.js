@@ -38,7 +38,47 @@ export default({audio_context}) => {
   .add(lfoFreqKnob)
   .add(lfoAmpKnob)
 
+  const keys = {
+    'q': 'A',
+    'z': 'A#',
+    's': 'B',
+    'd': 'C',
+    'r': 'C#',
+    'f': 'D',
+    't': 'D#',
+    'g': 'E',
+    'h': 'F',
+    'y': 'F#',
+    'j': 'G',
+    'i': 'G#'
+  }
+
+  let pressed = []
+
+  function isPressed(key){
+    return -1 !== pressed.indexOf(key)
+  }
+
+  let octave = 2;
+
   document.querySelector('body').appendChild(filterView.render().el());
 
+  document.addEventListener('keydown', event => {
+    if(keys[event.key] && !isPressed(event.key)) {
+      pressed.push(event.key)
+      core.noteOn(keys[event.key], octave, 0)
+    }
+  })
+  document.addEventListener('keyup', event => {
+    if(keys[event.key]) {
+      let note = keys[event.key]
+      core.noteOff(note, octave, 0)
+      pressed = pressed.filter(key=> key!==event.key)
+      // if(pressed.length !== 0){
+      //   let key = pressed[pressed.length - 1]
+      //   // core.noteOn(keys[key], octave, 0)
+      // }
+    }
+  })
   return core;
 }
