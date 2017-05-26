@@ -1,18 +1,18 @@
-import Core from './core'
-import GridSequencer from 'sound/ui/canvas/grid'
+import { Core } from './core'
+import Grid from './grid'
 
 export default ({audio_context}) => {
   const core = Core({audio_context});
-  const grid = GridSequencer({
+  const grid = Grid({
     width: 800,
     height: 300
-  }).setSequencer(core.sequencer)
+  }).setSequencer(core)
   document.querySelector('body').appendChild(grid.render().el());
   document.addEventListener('keyup', event => {
     switch(event.key){
       case ' ':
-        return core.sequencer.isStarted() ? core.sequencer.stop() : core.sequencer.play()
+        return core.isStarted() ? core.stop() : core.start()
     }
   });
-  return core.sequencer
+  return core
 }
