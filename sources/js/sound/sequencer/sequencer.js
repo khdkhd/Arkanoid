@@ -5,6 +5,7 @@ export const Sequencer = ({audio_context}) => {
 
 	const state = {
 		division: 96, // we can't handle 96 ppqn with requestAnimationFrame
+		dFact: 4, // so we need to reduce ppqn precision using a division factor
 		length: 4,
 		stop: true,
 		loop: false,
@@ -21,16 +22,15 @@ export const Sequencer = ({audio_context}) => {
 	}
 
 	const tick = (state)=> {
-		state.ntTime += 60/(state.tempo.value*state.division)
+		state.ntTime += 60/(state.tempo.value*(state.division/state.dFact))
 		state.ticks += 1
 	}
 
 	const schedule = (op)=> {
 		const current_time = audio_context.currentTime - state.stTime
 		if (current_time >= state.ntTime) {
-			op(current_time, state.ticks)
+			op(current_time/state.dFact, state.ticks*state.dFact)
 			tick(state)
-			setTimeout(play, 0);
 		}
 		if(state.loop){
 			state.ticks %= (state.length * state.division)
@@ -41,6 +41,7 @@ export const Sequencer = ({audio_context}) => {
 	const play = ()=> {
 		if (!state.stop) {
 			schedule(state.onPlay)
+			requestAnimationFrame(play)
 		}
 	}
 
