@@ -6,7 +6,7 @@ export default ({track_id, audio_context, mixer}) => {
 	const synth = Synth({audio_context});
 	const keyboard = createKeyboard({slave: synth});
 	synth.patch(collision_buzzer_patch);
-	mixer.assign(track_id, synth);
+	mixer.addTrack(track_id, synth);
 	mixer.connect({input:audio_context.destination});
 	mixer.tracks[track_id].gain.value = 1;
 	return {
