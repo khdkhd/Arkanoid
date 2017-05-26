@@ -2,56 +2,59 @@ import Model from 'sound/common/model';
 
 export default({audio_context}) => {
 
-	let osc;
-	let type_value = 'sine';
-
 	const gain = audio_context.createGain();
 
-	const type = Model({
-		param: {
-			get value(){
-				return type;
-			},
-			set value(value){
-				type_value = value;
+	const state = {
+		osc: {
+			disconnect(){},
+			stop(){}
+		},
+		gain,
+		type: Model({
+			init(){
+				return 'square'
 			}
-		}
-	});
-
-	const envIn = Model({
-		param: gain.gain
-	});
+		}),
+		envIn: Model({
+			param: gain.gain
+		})
+	}
 
 	return {
 		connect({input, connect}) {
-			gain.connect(input);
+			state.gain.connect(input);
 			return {connect};
 		},
 		noteOn(freq, time, velocity = 1) {
-			osc = audio_context.createOscillator();
-			osc.frequency.value = freq;
-			osc.type = type_value;
-			gain.gain.value *= velocity;
-			osc.connect(gain);
-			envIn.emit('noteon', time);
-			osc.start(time);
+			state.osc.stop(time);
+			state.osc.disconnect()
+			state.osc = audio_context.createOscillator();
+			state.osc.frequency.value = freq;
+			state.osc.type = state.type.value;
+			state.gain.gain.value *= velocity;
+			state.osc.connect(state.gain);
+			state.envIn.emit('noteon', time);
+			state.osc.start(time);
 		},
-		noteOff(time){
-			if(!envIn.hasEnv){
-				return osc.stop(time);
+		noteOff(freq, time){
+			if(!state.envIn.hasEnv){
+				return state.osc.stop(time);
 			}
-			envIn.emit('noteoff', {
+			state.envIn.emit('noteoff', {
 				time,
 				onComplete(time){
-					osc.stop(time);
+					state.osc.stop(time);
 				}
 			});
 		},
-		get type(){
-			return type;
+		getType(){
+			return state.type;
+		},
+		setType(value){
+			state.type.value = value
 		},
 		get envIn(){
-			return envIn;
+			return state.envIn;
 		}
 	};
 }
