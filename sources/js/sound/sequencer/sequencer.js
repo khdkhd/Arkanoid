@@ -6,9 +6,9 @@ export const Sequencer = ({audio_context}) => {
 	const state = {
 		division: 96, // we can't handle 96 ppqn with requestAnimationFrame
 		dFact: 4, // so we need to reduce ppqn precision using a division factor
-		length: 4,
+		length: 96,
 		stop: true,
-		loop: true,
+		loop: false,
 		ntTime: 0, // next tick time
 		ticks: 0,
 		stTime: audio_context.currentTime, // start time
