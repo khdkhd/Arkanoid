@@ -17,6 +17,7 @@ export default({audio_context}) => {
 			}
 			tracks[track_id].assign(instrument);
 			tracks[track_id].connect({input:channel_merger});
+			return this;
 		},
 		get tracks(){
 			return tracks;
