@@ -17,6 +17,9 @@ export default (coordinates, options = {}) => {
 	let visible = is_nil(options.visible) ? true : options.visible;
 	let zIndex = is_nil(options.zIndex) ? 0 : options.zIndex;
 	return {
+		coordinates() {
+			return coordinates;
+		},
 		zIndex() {
 			return zIndex;
 		},

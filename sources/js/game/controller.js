@@ -7,6 +7,7 @@ import {BulletCollection} from 'game/entities/bullet';
 import {default as Pill, PillCollection} from 'game/entities/pill';
 import Vaus from 'game/entities/vaus';
 import CreateWalls from 'game/entities/wall';
+
 import GameModel from 'game/model';
 
 import Coordinates from 'graphics/coordinates';
@@ -15,6 +16,7 @@ import Scene from 'graphics/scene';
 import {bounce, overlap} from 'physics/collisions';
 
 import Vector from 'maths/vector';
+import Rect from 'maths/rect';
 
 import soundController from 'sound/arkanoid/sound-controller';
 
@@ -87,12 +89,20 @@ export default function GameController({model, view, keyboard}) {
 	//////////////////////////////////////////////////////////////////////////
 	// Collision helpers
 
+	function collided_bricks(ball_box, epsilon) {
+		return bricks
+			.neighborhood(ball_box.center)
+			.filter(brick => overlap(ball_box, brick.rect(), epsilon) !== overlap.NONE);
+	}
+
 	function ball_collides_with_bricks(ball_box, velocity) {
 		const epsilon = 1/screen.absoluteScale();
-		for (let brick of bricks.neighborhood(ball_box.topLeft)) {
-			const v = bounce(ball_box, velocity, brick.rect(), epsilon);
+		const bricks = collided_bricks(ball_box, epsilon);
+		const box = Rect.unit(bricks.map(brick => brick.rect()));
+		if (!is_nil(box)) {
+			const v = bounce(ball_box, velocity, box, epsilon);
 			if (!is_nil(v)) {
-				return [v, brick];
+				return [v, ...bricks];
 			}
 		}
 	}
@@ -186,10 +196,10 @@ export default function GameController({model, view, keyboard}) {
 	function update_ball(ball) {
 		if (!ball.velocity().isNull()) {
 			const ball_box = ball.rect().translate(ball.velocity());
-			const [speed, entity] = ball_collides(ball_box, ball.velocity());
+			const [speed, ...entities] = ball_collides(ball_box, ball.velocity());
 			if (!is_nil(speed)) {
 				ball.setVelocity(speed);
-				if (!is_nil(entity)) {
+				for (let entity of entities) {
 					entity.hit();
 				}
 			} else {
