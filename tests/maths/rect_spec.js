@@ -117,25 +117,25 @@ describe('Rect({x, y}, {width, height})', () => {
 			expect(r.contains(p)).to.be.false;
 		});
 	});
-	describe('#intersect(rect)', () => {
+	describe('#overlap(rect)', () => {
 		const r1 = Rect({x: 10, y: 10}, {width: 10, height: 10});
 		const r2 = Rect({x:  0, y:  0}, {width: 20, height: 20});
 		const r3 = Rect({x: 15, y: 15}, {width: 10, height: 10});
 		const r4 = Rect({x: 21, y: 21}, {width: 20, height: 20});
 		it('returns true for two equal rectangles', () => {
-			expect(r1.intersect(r1)).to.be.true;
+			expect(r1.overlap(r1)).to.be.true;
 		});
 		it('returns true for two nested rectangles', () => {
-			expect(r1.intersect(r2)).to.be.true;
-			expect(r2.intersect(r1)).to.be.true;
+			expect(r1.overlap(r2)).to.be.true;
+			expect(r2.overlap(r1)).to.be.true;
 		});
 		it('returns true for two overlapping rectangles', () => {
-			expect(r1.intersect(r3)).to.be.true;
-			expect(r3.intersect(r1)).to.be.true;
+			expect(r1.overlap(r3)).to.be.true;
+			expect(r3.overlap(r1)).to.be.true;
 		});
 		it('returns false for two disjoint rectangles', () => {
-			expect(r1.intersect(r4)).to.be.false;
-			expect(r4.intersect(r1)).to.be.false;
+			expect(r1.overlap(r4)).to.be.false;
+			expect(r4.overlap(r1)).to.be.false;
 		});
 	});
 	describe('translate(v)', () => {
