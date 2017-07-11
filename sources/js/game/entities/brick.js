@@ -138,7 +138,6 @@ export function BrickView(state) {
 				screen.brush = state.colors.top || state.colors.inner;
 				screen.fillRect(TOP_OUTER_RECT);
 
-				screen.brush = state.colors.top || state.colors.inner;
 				screen.brush = state.colors.inner;
 				screen.fillRect(INNER_RECT);
 			}
