@@ -1,17 +1,17 @@
 import Model from 'sound/common/model';
 import noop from 'lodash.noop';
 
-export const Sequencer = ({audio_context}) => {
+export const Sequencer = ({ audio_context }) => {
 
+	const stTime = audio_context.currentTime;
 	const state = {
-		division: 96, // we can't handle 96 ppqn with requestAnimationFrame
-		dFact: 4, // so we need to reduce ppqn precision using a division factor
-		length: 96,
+		division: 120,
+		length: 8,
 		stop: true,
 		loop: false,
-		ntTime: 0, // next tick time
-		ticks: 0,
-		stTime: audio_context.currentTime, // start time
+		stTime: null, // start time
+		ntTime: stTime, // next tick time
+		tick: 0,
 		onPlay: noop,
 		onStop: noop,
 		onStart: noop,
@@ -21,30 +21,33 @@ export const Sequencer = ({audio_context}) => {
 		})
 	}
 
-	const tick = (state)=> {
-		state.ntTime += 60/(state.tempo.value*(state.division/state.dFact))
-		state.ticks += state.dFact
-		if(state.loop){
-			state.ticks %= (state.length * (state.division/state.dFact))
-			if(0 === state.ticks){
+	const tick = (state, currentTime) => {
+		state.ntTime = currentTime + 60 / (state.tempo.value * (state.division))
+		state.tick += 1
+		if (state.loop) {
+			state.tick %= (state.length * state.division)
+			if (0 === state.tick) {
 				state.onLoop()
 			}
 		}
 	}
 
-	const schedule = (op)=> {
-		const current_time = audio_context.currentTime - state.stTime
-		if (current_time >= state.ntTime) {
-			op(current_time/state.dFact, state.ticks)
-			tick(state)
+	const schedule = (op) => {
+		if (null === state.stTime) {
+			state.stTime = audio_context.currentTime
+		}
+		const currentTime = audio_context.currentTime - state.stTime;
+		if (currentTime >= state.ntTime) {
+			if (!state.stop) {
+				op(state.stTime, state.tick, state.tempo.value, state.division)
+			}
+			tick(state, currentTime)
 		}
 	}
 
-	const play = ()=> {
-		if (!state.stop) {
-			schedule(state.onPlay)
-			requestAnimationFrame(play)
-		}
+	const play = () => {
+		schedule(state.onPlay)
+		requestAnimationFrame(play)
 	}
 
 	return {
@@ -60,37 +63,41 @@ export const Sequencer = ({audio_context}) => {
 		isStarted() {
 			return !state.stop
 		},
-		setDivision(division){
+		loop() {
+			state.loop = true;
+			return this;
+		},
+		setDivision(division) {
 			state.division = division
 			return this
 		},
-		getDivision(){
+		getDivision() {
 			return state.division
 		},
-		setLength(length){
+		setLength(length) {
 			state.length = length
 			return this
 		},
-		setTempo(tempo){
+		setTempo(tempo) {
 			state.tempo.value = tempo
 			return this
 		},
 		getTempo() {
 			return state.tempo.value
 		},
-		onStart(op){
+		onStart(op) {
 			state.onStart = op
 			return this
 		},
-		onStop(op){
+		onStop(op) {
 			state.onStop = op
 			return this
 		},
-		onPlay(op){
+		onPlay(op) {
 			state.onPlay = op
 			return this
 		},
-		onLoop(op){
+		onLoop(op) {
 			state.onLoop = op
 			return this
 		}
