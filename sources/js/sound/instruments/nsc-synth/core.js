@@ -1,42 +1,53 @@
 import Poly from 'sound/synth/poly';
 import Filter from 'sound/synth/filter';
-// import Enveloppe from 'sound/synth/enveloppe';
 import Lfo from 'sound/synth/lfo';
 import Amp from 'sound/synth/amp';
+import { Reverb } from 'sound/synth/reverb';
 import { Note } from 'sound/sequencer';
 
-export default function NscSynth({audio_context}) {
+export default ({audio_context})=> {
 
-  const poly = Poly({audio_context});
+  const osc1 = Poly({audio_context});
+//   const osc2 = Poly({audio_context});
   const filter = Filter({audio_context});
-  // const enveloppe = Enveloppe({audio_context});
   const lfo = Lfo({audio_context});
   const amp = Amp({audio_context});
-  const tune = -1;
+  const reverb = Reverb({audio_context});
+  const osc1Tune = -1;
+//   const osc2Tune = 0;
+
   amp.gain.value = .25;
   filter.frequency.value = 1;
-  poly
-    .setType('square')
-    .connect(filter)
-    .connect(amp)
-
-  // enveloppe.connect(poly);
+  reverb.setImpulse('../../resources/impulse-responses/slinky.wav')
+    .subscribe(()=> {
+      osc1
+        .connect(filter)
+        .connect(reverb)
+        .connect(amp)
+	//   osc2
+    //     .connect(filter)
+    //     .connect(reverb)
+    //     .connect(amp)
+  });
+  // enveloppe.connect(osc1);
   lfo.connect(filter);
 
   return {
-    poly,
     filter,
     // enveloppe,
     lfo,
     amp,
-    noteOn(note, octave, time, velocity = 1){
-      poly.noteOn(Note.getFrequency(note, octave + tune), time, velocity);
+    noteOn(note, octave, time, velocity){
+      osc1.noteOn(Note.getFrequency(note, octave + osc1Tune), time, velocity * .25);
+    //   osc2.noteOn(Note.getFrequency(note, octave + osc2Tune), time, velocity * .25);
     },
     noteOff(note, octave, time){
-      poly.noteOff(Note.getFrequency(note, octave + tune), time);
+      osc1.noteOff(Note.getFrequency(note, octave + osc1Tune), time);
+    //   osc2.noteOff(Note.getFrequency(note, octave + osc2Tune), time);
     },
     stop(){
-      poly.stop()
+      osc1.stop()
+    //   osc2.stop()
     },
     connect({input}){
       amp.connect({input});

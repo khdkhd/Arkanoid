@@ -4,7 +4,7 @@ import Knob from 'sound/ui/canvas/knob'
 // import Fader from 'sound/ui/canvas/fader2'
 import GroupView from 'sound/ui/common/group-view';
 
-export default({audio_context}) => {
+export const NscSynth = ({audio_context}) => {
 
   const core = Core({audio_context});
 
@@ -59,14 +59,14 @@ export default({audio_context}) => {
     return -1 !== pressed.indexOf(key)
   }
 
-  let octave = 2;
+  let octave = 5;
 
   document.querySelector('body').appendChild(filterView.render().el());
 
   document.addEventListener('keydown', event => {
     if(keys[event.key] && !isPressed(event.key)) {
       pressed.push(event.key)
-      core.noteOn(keys[event.key], octave, 0)
+      core.noteOn(keys[event.key], octave, 0, 1)
     }
   })
   document.addEventListener('keyup', event => {
