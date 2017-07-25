@@ -6,23 +6,25 @@ import VerletModel from 'physics/verlet-model';
 import is_nil from 'lodash.isnil';
 import times from 'lodash.times';
 
-const radius = .3;
+const radius = .2;
+
+const white = '#ffffff';
+const blue  = '#00ffff';
+
+const paths  = [
+	[new Path2D(`M${ 2/16} ${ 0/16}L${ 8/16} ${ 0/16}L${ 8/16} ${ 8/16}L${ 2/16} ${ 8/16}L${ 2/16} ${ 0/16}Z`), white],
+	[new Path2D(`M${ 0/16} ${ 2/16}L${10/16} ${ 2/16}L${10/16} ${ 6/16}L${ 0/16} ${ 6/16}L${ 0/16} ${ 2/16}Z`), white],
+	[new Path2D(`M${ 2/16} ${ 2/16}L${ 8/16} ${ 2/16}L${ 8/16} ${ 6/16}L${ 2/16} ${ 6/16}L${ 2/16} ${ 2/16}Z`),  blue],
+];
 
 export function BallView({verlet}) {
 	return SceneObject(verlet, {
 		onRender(screen) {
-			const scale = screen.absoluteScale().x;
-			const center = verlet.localRect().center;
-			screen.brush = 'white';
-			screen.pen = {
-				strokeStyle: 'hsl(210, 50%, 50%)',
-				lineWidth: 1/scale
-			};
-			screen.beginPath();
-			screen.arc(center, radius, 0, 2*Math.PI, false);
-			screen.closePath();
-			screen.fillPath();
-			screen.drawPath();
+			screen.drawRect(this.localRect());
+			for (let [path, color] of paths) {
+				screen.brush = color;
+				screen.fillPath(path);
+			}
 		}
 	});
 }
@@ -42,7 +44,7 @@ export function Ball(
 	{x: vx, y: vy} = Vector.Null
 ) {
 	const verlet = VerletModel(
-		{width: 2*radius, height: 2*radius}, // size
+		{width: .625, height: .5}, // size
 		{x: px, y: py}, // initial position
 		{x: vx, y: vy}  // initial speed
 	);
