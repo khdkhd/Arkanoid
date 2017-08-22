@@ -23,7 +23,6 @@ import soundController from 'sound/arkanoid/sound-controller';
 import cond from 'lodash.cond';
 import flow from 'lodash.flow';
 import is_nil from 'lodash.isnil';
-import random from 'lodash.random';
 
 const PILL_BONUS_POINT = 1000;
 
@@ -55,7 +54,7 @@ export default function GameController({model, view, keyboard}) {
 	// Ball speed helpers
 
 	function ball_bounce_angle(x_offset, vaus_width) {
-		return 3*Math.PI/4*(x_offset)/vaus_width;
+		return Math.PI/2*(x_offset)/vaus_width;
 	}
 
 	function throw_ball() {
@@ -96,28 +95,15 @@ export default function GameController({model, view, keyboard}) {
 			.filter(brick => overlap(ball_box, brick.rect(), epsilon) !== overlap.NONE);
 	}
 
-	function randomize(v) {
-		if (random(0, 1, true) > .9) {
-			const teta = random(-.1, .1, true);
-			const cos_teta = Math.cos(teta);
-			const sin_teta = Math.sin(teta);
-			return  v.transform({
-				m11:  cos_teta, m12:  sin_teta,
-				m21: -sin_teta, m22:  cos_teta
-			});
-		}
-		return v;
-	}
-
 	function ball_collides_with_bricks(ball_box, velocity) {
 		const epsilon = 1/screen.absoluteScale();
 		const bricks = collided_bricks(ball_box, epsilon);
 		const box = Rect.unit(bricks.map(brick => brick.rect()));
 		if (!is_nil(box)) {
-			return [
-				randomize(bounce(ball_box, velocity, box, epsilon)),
-				...bricks
-			];
+			const v = bounce(ball_box, velocity, box, epsilon);
+			if (!is_nil(v)) {
+				return [v, ...bricks];
+			}
 		}
 	}
 
@@ -277,7 +263,7 @@ export default function GameController({model, view, keyboard}) {
 		.on('itemAdded', brick => brickScene.add(brick))
 		.on('itemChanged', brick => {
 			model.updateScore(brick.points());
-			soundController.ballCollidesWithBricks();
+			soundController.playFX('hit-brick');
 		})
 		.on('itemDestroyed', brick => {
 			brickScene.remove(brick);
@@ -302,7 +288,7 @@ export default function GameController({model, view, keyboard}) {
 		.on('itemDestroyed', ball => gameScene.remove(ball))
 		.on('empty', () => {
 			if (model.isRunning()) {
-				soundController.ballGoesOut();
+				soundController.playFX('out');
 				model.setState(model.lifeCount() > 0
 					? GameModel.State.Ready
 					: GameModel.State.GameOver
@@ -330,7 +316,7 @@ export default function GameController({model, view, keyboard}) {
 				[matcher(Pill.Slow),      () => balls.setSpeed(BALL_SPEED_MIN)]
 			])
 		))
-		.on('hit', () => soundController.ballCollidesWithVaus());
+		.on('hit', () => soundController.playFX('hit-vaus'));
 	model
 		.on('reset', () => {
 			bricks.reset();
